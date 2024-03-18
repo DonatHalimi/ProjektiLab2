@@ -1,0 +1,36 @@
+# Visual Studio files
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Node.js files
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ReactJS build artifacts
+/build
+
+# ASP.NET Core build artifacts
+/bin/
+/obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.ipdb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# IDE-specific files
+.idea/
+*.swp
+*.swo
+
+# User-specific files
+*.DS_Store
+Thumbs.db
