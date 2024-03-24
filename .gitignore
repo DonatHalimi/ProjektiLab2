@@ -3,7 +3,6 @@
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 
 # Node.js files
 node_modules/
