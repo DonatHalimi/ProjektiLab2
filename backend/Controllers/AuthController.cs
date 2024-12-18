@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using backend.Models;
 using backend.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -80,6 +81,81 @@ namespace backend.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [HttpGet("me")]
+        public IActionResult GetUserDetails()
+        {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized(new { message = "No token provided" });
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Received token: {token}");
+
+                var jwtToken = tokenHandler.ReadJwtToken(token);
+
+                System.Diagnostics.Debug.WriteLine("=== Token Claims ===");
+                foreach (var claim in jwtToken.Claims)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
+                }
+                System.Diagnostics.Debug.WriteLine("==================");
+
+                // Validate token
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _config["Jwt:Issuer"],
+                    ValidAudience = _config["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]))
+                };
+
+                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+                // Extract email using the exact claim type we know exists
+                var email = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                System.Diagnostics.Debug.WriteLine($"Extracted email after validation: {email}");
+
+                if (string.IsNullOrEmpty(email))
+                {
+                    return BadRequest(new { message = "Email not found in token" });
+                }
+
+                // Query and log the user search
+                var user = _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefault(u => u.Email == email);
+
+                if (user == null)
+                {
+                    var allUsers = _context.Users.Select(u => u.Email).ToList();
+                    System.Diagnostics.Debug.WriteLine($"All emails in database: {string.Join(", ", allUsers)}");
+                    return NotFound(new { message = "User not found in database" });
+                }
+
+                return Ok(new
+                {
+                    user.Id,
+                    user.FirstName,
+                    user.LastName,
+                    user.Email,
+                    Role = user.Role?.Name ?? "user"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = $"Token validation failed: {ex.Message}" });
+            }
         }
     }
 }

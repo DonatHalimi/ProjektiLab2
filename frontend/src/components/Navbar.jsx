@@ -1,8 +1,30 @@
+import { Button } from "@mui/material";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosInstance";
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const [userRole, setUserRole] = useState(null);
     const isLoggedIn = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            if (isLoggedIn) {
+                try {
+                    const { data } = await axiosInstance.get("/auth/me", {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setUserRole(data.role);
+                } catch (error) {
+                    console.error("Error fetching user role:", error);
+                }
+            }
+        };
+
+        fetchUserRole();
+    }, [isLoggedIn]);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -10,29 +32,38 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="bg-blue-600 p-4 w-full z-10">
+        <nav className="bg-white border-b border-gray-100 py-4 px-6 pl-60 pr-60 w-full z-10">
             <div className="flex justify-between items-center">
-                <div onClick={() => navigate('/')} className="cursor-pointer text-white text-2xl">TravelApp</div>
+                <div onClick={() => navigate('/')} className="cursor-pointer text-black text-2xl">
+                    Travel Agency
+                </div>
                 <div className="space-x-4">
-                    <Link to="/" className="text-white hover:underline">
-                        Home
+                    <Link to="/" className="text-black hover:underline">
+                        <Button>
+                            Home
+                        </Button>
                     </Link>
+                    {userRole === "admin" && (
+                        <Link to="/dashboard" className="text-black hover:underline">
+                            <Button>
+                                Dashboard
+                            </Button>
+                        </Link>
+                    )}
                     {!isLoggedIn ? (
-                        <>
-                            <Link to="/login" className="text-white hover:underline">
+                        <Link to="/login" className="text-black hover:underline">
+                            <Button>
                                 Login
-                            </Link>
-                            <Link to="/register" className="text-white hover:underline">
-                                Register
-                            </Link>
-                        </>
+                            </Button>
+                        </Link>
                     ) : (
-                        <button
+                        <Button
+                            variant="outlined"
                             onClick={handleLogout}
-                            className="text-white hover:underline"
+                            className="text-black hover:underline"
                         >
                             Logout
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>
