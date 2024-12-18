@@ -1,12 +1,32 @@
-function App() {
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ToTop from "./components/ToTop";
+import { ToastContainer } from "react-toastify";
 
+const App = () => {
   return (
-    <div className="container flex h-screen justify-center items-center">
-      <h1 className="text-3xl font-bold underline">
-        Hello world!!!!!
-      </h1>
-    </div>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<ProtectedRoute><Home /> </ProtectedRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /> </PublicRoute>} />
+      </Routes>
 
-export default App
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3500}
+        closeOnClick
+        hideProgressBar={true}
+        newestOnTop
+        stacked
+      />
+      <ToTop />
+    </Router>
+  );
+};
+
+export default App;
