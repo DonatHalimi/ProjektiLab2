@@ -36,7 +36,7 @@ namespace backend.Controllers
                 LastName = registerRequest.LastName,
                 Email = registerRequest.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
-                RoleId = 4 // change to fit the 'user' role
+                RoleId = 1 // change to fit the 'user' role
             };
 
             _context.Users.Add(user);
