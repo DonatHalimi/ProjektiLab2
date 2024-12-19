@@ -2,10 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using backend.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+using backend.Services;
 
 namespace backend.Controllers
 {
@@ -14,19 +11,23 @@ namespace backend.Controllers
     public class RoleController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IConfiguration _config;
+        private readonly IAdminChecker _adminChecker;
 
-        public RoleController(AppDbContext context, IConfiguration config)
+        public RoleController(AppDbContext context, IAdminChecker adminChecker)
         {
             _context = context;
-            _config = config;
-
+            _adminChecker = adminChecker;
         }
 
         // GET: /api/roles/get
         [HttpGet("get")]
         public async Task<IActionResult> GetRoles()
         {
+            if (!_adminChecker.IsAdmin(Request))
+            {
+                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
+            }
+
             var roles = await _context.Roles.ToListAsync();
             return Ok(new { success = true, message = "Roles fetched successfully", data = roles });
         }
@@ -35,6 +36,11 @@ namespace backend.Controllers
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetRole(int id)
         {
+            if (!_adminChecker.IsAdmin(Request))
+            {
+                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
+            }
+
             var role = await _context.Roles.FindAsync(id);
 
             if (role == null)
@@ -45,12 +51,13 @@ namespace backend.Controllers
             return Ok(new { success = true, message = "Role fetched successfully", data = role });
         }
 
+        // POST: /api/roles/create
         [HttpPost("create")]
         public async Task<IActionResult> CreateRole(Role role)
         {
-            if (!IsAdmin())
+            if (!_adminChecker.IsAdmin(Request))
             {
-                return Forbid("Only admins can perform this action" );
+                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
             }
 
             if (role == null || string.IsNullOrWhiteSpace(role.Name))
@@ -68,6 +75,11 @@ namespace backend.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateRole(int id, Role role)
         {
+            if (!_adminChecker.IsAdmin(Request))
+            {
+                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
+            }
+
             if (id != role.Id)
             {
                 return BadRequest(new { success = false, message = "ID mismatch" });
@@ -103,6 +115,11 @@ namespace backend.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRole(int id)
         {
+            if (!_adminChecker.IsAdmin(Request))
+            {
+                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
+            }
+
             var role = await _context.Roles.FindAsync(id);
             if (role == null)
             {
@@ -119,43 +136,5 @@ namespace backend.Controllers
         {
             return _context.Roles.Any(e => e.Id == id);
         }
-
-        private bool IsAdmin()
-        {
-            var authHeader = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-            {
-                return false;
-            }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            try
-            {
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = _config["Jwt:Issuer"],
-                    ValidAudience = _config["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]))
-                };
-
-                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
-
-                var roleClaim = claimsPrincipal.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
-
-                return roleClaim == "admin";
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-
     }
 }

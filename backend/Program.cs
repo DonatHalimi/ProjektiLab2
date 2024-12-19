@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Models;
+using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +25,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
+builder.Services.AddScoped<IAdminChecker, AdminChecker>();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -76,7 +77,7 @@ using (var scope = app.Services.CreateScope())
                 FirstName = "Admin",
                 LastName = "Admin",
                 Email = "admin@gmail.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("admin123@"), // Hash the password
+                Password = BCrypt.Net.BCrypt.HashPassword("admin123@"),
                 RoleId = adminRole.Id
             };
             context.Users.Add(adminUser);
