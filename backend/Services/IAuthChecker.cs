@@ -1,7 +1,8 @@
 ﻿namespace backend.Services
 {
-    public interface IAdminChecker
+    public interface IAuthChecker
     {
         bool IsAdmin(HttpRequest request);
+        bool IsAuthenticated(HttpRequest request);
     }
 }

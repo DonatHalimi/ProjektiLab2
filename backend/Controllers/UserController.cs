@@ -11,9 +11,9 @@ namespace backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IAdminChecker _adminChecker;
+        private readonly IAuthChecker _adminChecker;
 
-        public UserController(AppDbContext context, IAdminChecker adminChecker)
+        public UserController(AppDbContext context, IAuthChecker adminChecker)
         {
             _context = context;
             _adminChecker = adminChecker;

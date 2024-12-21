@@ -11,19 +11,19 @@ namespace backend.Controllers
     public class RoleController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IAdminChecker _adminChecker;
+        private readonly IAuthChecker _authChecker;
 
-        public RoleController(AppDbContext context, IAdminChecker adminChecker)
+        public RoleController(AppDbContext context, IAuthChecker adminChecker)
         {
             _context = context;
-            _adminChecker = adminChecker;
+            _authChecker = adminChecker;
         }
 
         // GET: /api/roles/get
         [HttpGet("get")]
         public async Task<IActionResult> GetRoles()
         {
-            if (!_adminChecker.IsAdmin(Request))
+            if (!_authChecker.IsAdmin(Request))
             {
                 return Unauthorized(new { success = false, message = "Only admins can perform this action" });
             }
@@ -36,9 +36,9 @@ namespace backend.Controllers
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetRole(int id)
         {
-            if (!_adminChecker.IsAdmin(Request))
+            if (!_authChecker.IsAdmin(Request)) // If you wanted to allow normal users to get a role by id => _authChecker.IsAuthenticated(Request)
             {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
+                return Unauthorized(new { success = false, message = "You must be logged in to perform this action" });
             }
 
             var role = await _context.Roles.FindAsync(id);
@@ -55,7 +55,7 @@ namespace backend.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateRole(Role role)
         {
-            if (!_adminChecker.IsAdmin(Request))
+            if (!_authChecker.IsAdmin(Request))
             {
                 return Unauthorized(new { success = false, message = "Only admins can perform this action" });
             }
@@ -75,7 +75,7 @@ namespace backend.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateRole(int id, Role role)
         {
-            if (!_adminChecker.IsAdmin(Request))
+            if (!_authChecker.IsAdmin(Request))
             {
                 return Unauthorized(new { success = false, message = "Only admins can perform this action" });
             }
@@ -115,7 +115,7 @@ namespace backend.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRole(int id)
         {
-            if (!_adminChecker.IsAdmin(Request))
+            if (!_authChecker.IsAdmin(Request))
             {
                 return Unauthorized(new { success = false, message = "Only admins can perform this action" });
             }
