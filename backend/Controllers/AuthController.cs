@@ -30,13 +30,19 @@ namespace backend.Controllers
                 return BadRequest(new { message = "Email already registered" });
             }
 
+            var userRole = _context.Roles.FirstOrDefault(r => r.Name == "user");
+            if (userRole == null)
+            {
+                return StatusCode(500, new { message = "Default user role not found in the system" });
+            }
+
             var user = new User
             {
                 FirstName = registerRequest.FirstName,
                 LastName = registerRequest.LastName,
                 Email = registerRequest.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
-                RoleId = 1 // change to fit the 'user' role
+                RoleId = userRole.Id
             };
 
             _context.Users.Add(user);

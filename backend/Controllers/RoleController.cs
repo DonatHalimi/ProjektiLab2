@@ -8,26 +8,20 @@ namespace backend.Controllers
 {
     [Route("api/roles")]
     [ApiController]
+    [RequireAdmin]
     public class RoleController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IAuthChecker _authChecker;
 
-        public RoleController(AppDbContext context, IAuthChecker adminChecker)
+        public RoleController(AppDbContext context)
         {
             _context = context;
-            _authChecker = adminChecker;
         }
 
         // GET: /api/roles/get
         [HttpGet("get")]
         public async Task<IActionResult> GetRoles()
         {
-            if (!_authChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             var roles = await _context.Roles.ToListAsync();
             return Ok(new { success = true, message = "Roles fetched successfully", data = roles });
         }
@@ -36,11 +30,6 @@ namespace backend.Controllers
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetRole(int id)
         {
-            if (!_authChecker.IsAdmin(Request)) // If you wanted to allow normal users to get a role by id => _authChecker.IsAuthenticated(Request)
-            {
-                return Unauthorized(new { success = false, message = "You must be logged in to perform this action" });
-            }
-
             var role = await _context.Roles.FindAsync(id);
 
             if (role == null)
@@ -55,11 +44,6 @@ namespace backend.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateRole(Role role)
         {
-            if (!_authChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             if (role == null || string.IsNullOrWhiteSpace(role.Name))
             {
                 return BadRequest(new { success = false, message = "Invalid role data" });
@@ -75,11 +59,6 @@ namespace backend.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateRole(int id, Role role)
         {
-            if (!_authChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             if (id != role.Id)
             {
                 return BadRequest(new { success = false, message = "ID mismatch" });
@@ -115,11 +94,6 @@ namespace backend.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRole(int id)
         {
-            if (!_authChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             var role = await _context.Roles.FindAsync(id);
             if (role == null)
             {

@@ -8,26 +8,20 @@ namespace backend.Controllers
 {
     [Route("api/users")]
     [ApiController]
+    [RequireAdmin]
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IAuthChecker _adminChecker;
 
-        public UserController(AppDbContext context, IAuthChecker adminChecker)
+        public UserController(AppDbContext context)
         {
             _context = context;
-            _adminChecker = adminChecker;
         }
 
         // GET: /api/users/get
         [HttpGet("get")]
         public async Task<IActionResult> GetUsers()
         {
-            if (!_adminChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             var users = await _context.Users.Include(u => u.Role).ToListAsync();
             return Ok(new { success = true, message = "Users fetched successfully", data = users });
         }
@@ -36,11 +30,6 @@ namespace backend.Controllers
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
-            if (!_adminChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
@@ -55,11 +44,6 @@ namespace backend.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser(User user)
         {
-            if (!_adminChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             if (user == null || string.IsNullOrWhiteSpace(user.Email) || string.IsNullOrWhiteSpace(user.Password))
             {
                 return BadRequest(new { success = false, message = "Invalid user data" });
@@ -89,11 +73,6 @@ namespace backend.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateUser(int id, User user)
         {
-            if (!_adminChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             if (id != user.Id)
             {
                 return BadRequest(new { success = false, message = "ID mismatch" });
@@ -142,11 +121,6 @@ namespace backend.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            if (!_adminChecker.IsAdmin(Request))
-            {
-                return Unauthorized(new { success = false, message = "Only admins can perform this action" });
-            }
-
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
