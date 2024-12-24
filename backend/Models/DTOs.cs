@@ -27,4 +27,12 @@ namespace backend.Models
         [Required]
         public string Password { get; set; }
     }
+
+    public class FlightPurchaseDTO
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int FlightId { get; set; }
+        public int SeatsReserved { get; set; }
+    }
 }

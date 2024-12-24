@@ -43,12 +43,14 @@ const Navbar = () => {
                             Home
                         </Button>
                     </Link>
+
                     {userRole === "admin" && (
-                        <Link to="/dashboard" className="text-black hover:underline">
+                        <Link to="/admin-dashboard" className="text-black hover:underline">
                             <Button>
-                                Dashboard
+                               Admin Dashboard
                             </Button>
                         </Link>
+                        
                     )}
                     {!isLoggedIn ? (
                         <Link to="/login" className="text-black hover:underline">
@@ -57,6 +59,17 @@ const Navbar = () => {
                             </Button>
                         </Link>
                     ) : (
+                        <>
+                        <Link to="/user-flights" className="text-black hover:underline">
+                            <Button >
+                                Flights
+                            </Button>
+                        </Link>
+                        <Link to="/profile" className="text-black hover:underline">
+                            <Button variant="outlined">
+                                My Profile
+                            </Button>
+                        </Link>
                         <Button
                             variant="outlined"
                             onClick={handleLogout}
@@ -64,6 +77,7 @@ const Navbar = () => {
                         >
                             Logout
                         </Button>
+                        </>
                     )}
                 </div>
             </div>
