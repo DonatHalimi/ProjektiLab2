@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241224164547_TourGuideManagement")]
+    partial class TourGuideManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,7 +114,7 @@ namespace backend.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("backend.Models.Tour", b =>
+            modelBuilder.Entity("backend.Models.TourGuide", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -144,7 +147,7 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tours");
+                    b.ToTable("TourGuides");
                 });
 
             modelBuilder.Entity("backend.Models.TourPurchase", b =>
@@ -164,7 +167,7 @@ namespace backend.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("TourId")
+                    b.Property<int>("TourGuideId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
@@ -172,7 +175,7 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TourId");
+                    b.HasIndex("TourGuideId");
 
                     b.HasIndex("UserId");
 
@@ -234,9 +237,9 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.TourPurchase", b =>
                 {
-                    b.HasOne("backend.Models.Tour", "Tour")
+                    b.HasOne("backend.Models.TourGuide", "TourGuide")
                         .WithMany("TourPurchases")
-                        .HasForeignKey("TourId")
+                        .HasForeignKey("TourGuideId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -246,7 +249,7 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Tour");
+                    b.Navigation("TourGuide");
 
                     b.Navigation("User");
                 });
@@ -265,7 +268,7 @@ namespace backend.Migrations
                     b.Navigation("FlightPurchases");
                 });
 
-            modelBuilder.Entity("backend.Models.Tour", b =>
+            modelBuilder.Entity("backend.Models.TourGuide", b =>
                 {
                     b.Navigation("TourPurchases");
                 });

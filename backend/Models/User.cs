@@ -11,5 +11,6 @@
         public Role? Role { get; set; }
 
         public ICollection<FlightPurchase> FlightPurchases { get; set; }
+        public ICollection<TourPurchase>? TourPurchases { get; set; }
     }
 }

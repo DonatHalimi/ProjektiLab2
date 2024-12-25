@@ -65,6 +65,11 @@ const Navbar = () => {
                                 Flights
                             </Button>
                         </Link>
+                        <Link to="/user-tours" className="text-black hover:underline">
+                            <Button>
+                                Tours
+                            </Button>
+                        </Link>
                         <Link to="/profile" className="text-black hover:underline">
                             <Button variant="outlined">
                                 My Profile

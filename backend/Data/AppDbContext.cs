@@ -14,6 +14,10 @@ namespace backend.Data
 
         public DbSet<FlightPurchase> FlightPurchases { get; set; }
 
+        public DbSet<Tour> Tours { get; set; }
+
+        public DbSet<TourPurchase> TourPurchases { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -28,6 +32,15 @@ namespace backend.Data
                 .HasOne(fp => fp.Flight)
                 .WithMany(f => f.FlightPurchases)
                 .HasForeignKey(fp => fp.FlightId);
+
+            modelBuilder.Entity<TourPurchase>()
+              .HasOne(fp => fp.User)
+              .WithMany(u => u.TourPurchases)
+              .HasForeignKey(fp => fp.UserId);
+            modelBuilder.Entity<TourPurchase>()
+                .HasOne(fp => fp.Tour)
+                .WithMany(f => f.TourPurchases)
+                .HasForeignKey(fp => fp.TourId);
         }
     }
 }

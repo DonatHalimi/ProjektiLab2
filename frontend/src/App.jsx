@@ -19,6 +19,14 @@ import EditFlightPurchase from "./pages/Flights/EditFlightsPurchase";
 import UserFlightPurchase from "./pages/Flights/UserFlightPurchase";
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import Checkout from './pages/Flights/Checkout';
+import CreateTour from "./pages/Tours/CreateTour";
+import CreateTourPurchase from "./pages/Tours/CreateTourPurchase";
+import EditTour from "./pages/Tours/EditTour";
+import TourList from "./pages/Tours/TourList";
+import TourPurchaseList from "./pages/Tours/TourPurchaseList";
+import UserTourPurchase from "./pages/Tours/UserTourPurchase";
+import EditTourPurchase from "./pages/Tours/EditTourPurchase";
+import CheckoutTour from "./pages/Tours/CheckoutTour";
 
 const App = () => {
   return (
@@ -42,6 +50,14 @@ const App = () => {
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/create-tour" element={<CreateTour />} />
+        <Route path="/create-tour-purchase" element={<CreateTourPurchase />} />
+        <Route path="/edit-tour/:id" element={<EditTour />} />
+        <Route path="/edit-tour-purchase/:id" element={<EditTourPurchase />} />
+        <Route path="/tour-list" element={<TourList />} />
+        <Route path="/tour-purchases" element={<TourPurchaseList />} />
+        <Route path="/user-tours" element={<UserTourPurchase />} />
+        <Route path="/checkouttour/:id" element={<CheckoutTour />} /> 
 
       </Routes>
 

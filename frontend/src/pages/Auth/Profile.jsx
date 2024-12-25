@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getMyInfo, getMyFlightPurchases, deleteFlightPurchase } from '../../utils/axiosInstance';
+import { getMyInfo, getMyFlightPurchases, deleteFlightPurchase ,getMyTourPurchases,deleteTourPurchase} from '../../utils/axiosInstance';
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Card, CardContent, Grid, Box } from '@mui/material';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const MyProfile = () => {
   const [profile, setProfile] = useState({});
   const [flightPurchases, setFlightPurchases] = useState([]);
+  const [tourPurchases, setTourPurchases] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,7 +39,20 @@ const MyProfile = () => {
       }
     };
 
+    const fetchTourPurchases = async () => {
+      try {
+        const response = await getMyTourPurchases(profile.id);
+        console.log('API Response:', response.data);
+        const MytourPurchasesData = response.data || [];
+        console.log('Tour Purchases Data:', MytourPurchasesData);
+        setTourPurchases(MytourPurchasesData);
+      } catch (error) {
+        console.error('Error fetching tour purchases:', error);
+      }
+    };
+
     fetchFlightPurchases();
+    fetchTourPurchases();
   }, [profile]);
 
 
@@ -51,8 +65,22 @@ const MyProfile = () => {
     }
   };
 
+
+  const handleTourDelete = async (id) => {
+    try {
+      await deleteTourPurchase(id);
+      setTourPurchases(tourPurchases.filter((purchase) => purchase.id !== id));
+    } catch (error) {
+      console.error('Error deleting tour purchase:', error);
+    }
+  };
+
   const handleCheckout = (id) => {
     navigate(`/checkout/${id}`);
+  };
+
+  const handleCheckoutTour = (id) => {
+    navigate(`/checkouttour/${id}`);
   };
 
   return (
@@ -129,6 +157,52 @@ const MyProfile = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <Typography variant="h4" gutterBottom>
+          My Tour Purchase List
+        </Typography>
+        <TableContainer component={Paper} sx={{ mb: 4 }}>
+          <Table>
+            <TableHead sx={{ backgroundColor: '#f2f2f2' }}>
+              <TableRow>
+                <TableCell>User Id</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Flight Name</TableCell>
+                <TableCell>ReservedTickets</TableCell>
+                <TableCell>City</TableCell>
+                <TableCell>Start Date</TableCell>
+                <TableCell>End Date</TableCell>
+                <TableCell>Price</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tourPurchases.map((purchase) => (
+                <TableRow key={purchase.id}>
+                  <TableCell>{purchase.user.id}</TableCell>
+                  <TableCell>{purchase.user.firstName}</TableCell>
+                  <TableCell>{purchase.user.email}</TableCell>
+                  <TableCell>{purchase.tour.name}</TableCell>
+                  <TableCell>{purchase.reservedTickets}</TableCell>
+                  <TableCell>{purchase.tour.city}</TableCell>
+                  <TableCell>{purchase.tour.startDate}</TableCell>
+                  <TableCell>{purchase.tour.endDate}</TableCell>
+                  <TableCell>{purchase.totalPrice}</TableCell>
+                  <TableCell>
+                    <Button variant="contained" style={{ backgroundColor: 'red' }} onClick={() => handleTourDelete(purchase.id)} sx={{ mt: 1 }}>
+                      Delete
+                    </Button>
+                    <Button variant="contained" color="success" onClick={() => handleCheckoutTour(purchase.id)} sx={{ mt: 1 }}>
+                      Checkout
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
       </Container>
       <Footer />
     </>

@@ -35,4 +35,12 @@ namespace backend.Models
         public int FlightId { get; set; }
         public int SeatsReserved { get; set; }
     }
+
+    public class TourPurchaseDTO
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int TourId { get; set; }
+        public int ReservedTickets { get; set; }
+    }
 }

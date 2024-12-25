@@ -41,6 +41,20 @@ const AdminSidebar = () => {
             </ListItemIcon>
             <ListItemText primary="Purchase List" />
           </ListItem>
+
+          <ListItem button component={Link} to="/tour-list">
+            <ListItemIcon>
+              <FlightIcon />
+            </ListItemIcon>
+            <ListItemText primary="Tour List" />
+          </ListItem>
+
+          <ListItem button component={Link} to="/tour-purchases">
+            <ListItemIcon>
+              <FlightIcon />
+            </ListItemIcon>
+            <ListItemText primary="Tour Purchase List" />
+          </ListItem>
         </List>
       </Box>
     </Drawer>

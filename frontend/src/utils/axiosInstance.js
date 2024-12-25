@@ -47,4 +47,20 @@ export const createUser = (user) => axiosInstance.post('/users/create', user);
 export const deleteUser = (id) => axiosInstance.delete(`/users/delete/${id}`);
 
 export const getMyInfo = () => axiosInstance.get('/auth/me');
+
+// Tour Endpoints (New)
+export const getTours = () => axiosInstance.get('/Tour');  // Get all tours
+export const getTour = (id) => axiosInstance.get(`/Tour/${id}`);  // Get a single tour by ID
+export const createTour = (tour) => axiosInstance.post('/Tour', tour);  // Create a new tour
+export const deleteTour = (id) => axiosInstance.delete(`/Tour/${id}`);  // Delete a specific tour
+export const updateTour = (id, tour) => axiosInstance.put(`/Tour/${id}`, tour);  // Update a specific tour
+
+// Tour Purchases Endpoints
+export const getTourPurchases = () => axiosInstance.get('/TourPurchase');  // Get all tour purchases
+export const getTourPurchase = (id) => axiosInstance.get(`/TourPurchase/${id}`);  // Get a specific tour purchase
+export const createTourPurchase = (tourPurchase) => axiosInstance.post('/TourPurchase', tourPurchase);  // Create a tour purchase
+export const deleteTourPurchase = (id) => axiosInstance.delete(`/TourPurchase/${id}`);  // Delete a specific tour purchase
+export const getMyTourPurchases = (id) => axiosInstance.get(`/TourPurchase/my/${id}`);  // Get all tour purchases by the user
+export const updateTourPurchase = (id, tourPurchase) => axiosInstance.put(`/TourPurchase/${id}`, tourPurchase);  // Update a tour purchase
+
 export default axiosInstance;
