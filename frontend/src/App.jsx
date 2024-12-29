@@ -27,6 +27,7 @@ import TourPurchaseList from "./pages/Tours/TourPurchaseList";
 import UserTourPurchase from "./pages/Tours/UserTourPurchase";
 import EditTourPurchase from "./pages/Tours/EditTourPurchase";
 import CheckoutTour from "./pages/Tours/CheckoutTour";
+import Reports from './pages/Admin/FlightPurchaseReports';
 
 const App = () => {
   return (
@@ -57,7 +58,8 @@ const App = () => {
         <Route path="/tour-list" element={<TourList />} />
         <Route path="/tour-purchases" element={<TourPurchaseList />} />
         <Route path="/user-tours" element={<UserTourPurchase />} />
-        <Route path="/checkouttour/:id" element={<CheckoutTour />} /> 
+        <Route path="/checkouttour/:id" element={<CheckoutTour />} />
+        <Route path="/reports" element={<Reports />} />
 
       </Routes>
 

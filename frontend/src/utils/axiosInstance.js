@@ -48,6 +48,8 @@ export const deleteUser = (id) => axiosInstance.delete(`/users/delete/${id}`);
 
 export const getMyInfo = () => axiosInstance.get('/auth/me');
 
+export const generateReport = (criteria) => axiosInstance.post('/Reports/Generate', criteria);
+
 // Tour Endpoints (New)
 export const getTours = () => axiosInstance.get('/Tour');  // Get all tours
 export const getTour = (id) => axiosInstance.get(`/Tour/${id}`);  // Get a single tour by ID

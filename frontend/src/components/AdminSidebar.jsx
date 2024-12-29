@@ -3,7 +3,7 @@ import { List, ListItem, ListItemText, ListItemIcon, Drawer, Toolbar, Box, Typog
 import { Link } from 'react-router-dom';
 import FlightIcon from '@mui/icons-material/Flight';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-
+import { Assessment } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -39,7 +39,14 @@ const AdminSidebar = () => {
             <ListItemIcon>
               <ShoppingCartIcon />
             </ListItemIcon>
-            <ListItemText primary="Purchase List" />
+            <ListItemText primary="Flight Purchase List" />
+          </ListItem>
+
+          <ListItem button component={Link} to="/reports">
+            <ListItemIcon>
+              <Assessment />
+            </ListItemIcon>
+            <ListItemText primary="Flight Reports" />
           </ListItem>
 
           <ListItem button component={Link} to="/tour-list">
@@ -55,6 +62,9 @@ const AdminSidebar = () => {
             </ListItemIcon>
             <ListItemText primary="Tour Purchase List" />
           </ListItem>
+
+          
+
         </List>
       </Box>
     </Drawer>
