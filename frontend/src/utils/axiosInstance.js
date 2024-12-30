@@ -65,4 +65,10 @@ export const deleteTourPurchase = (id) => axiosInstance.delete(`/TourPurchase/${
 export const getMyTourPurchases = (id) => axiosInstance.get(`/TourPurchase/my/${id}`);  // Get all tour purchases by the user
 export const updateTourPurchase = (id, tourPurchase) => axiosInstance.put(`/TourPurchase/${id}`, tourPurchase);  // Update a tour purchase
 
+export const getHotels = () => axiosInstance.get('/hotels/get');
+export const getHotel = (id) => axiosInstance.get(`/hotels/get/${id}`);
+export const createHotel = (hotel) => axiosInstance.post('/hotels/create', hotel);
+export const deleteHotel = (id) => axiosInstance.delete(`/hotels/delete/${id}`);
+export const updateHotel = (id, hotel) => axiosInstance.put(`/hotels/update/${id}`, hotel);
+
 export default axiosInstance;

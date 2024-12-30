@@ -28,6 +28,9 @@ import UserTourPurchase from "./pages/Tours/UserTourPurchase";
 import EditTourPurchase from "./pages/Tours/EditTourPurchase";
 import CheckoutTour from "./pages/Tours/CheckoutTour";
 import Reports from './pages/Admin/FlightPurchaseReports';
+import HotelList from "./pages/Hotel/HotelList";
+import CreateHotel from "./pages/Hotel/CreateHotel";
+import EditHotel from "./pages/Hotel/EditHotel";
 
 const App = () => {
   return (
@@ -60,6 +63,9 @@ const App = () => {
         <Route path="/user-tours" element={<UserTourPurchase />} />
         <Route path="/checkouttour/:id" element={<CheckoutTour />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/hotels" element={<HotelList />} />
+        <Route path="/edit-hotel/:id" element={<EditHotel/>} />
+        <Route path="/create-hotel" element={<CreateHotel />} />
 
       </Routes>
 

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import FlightIcon from '@mui/icons-material/Flight';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Assessment } from '@mui/icons-material';
+import HotelIcon from '@mui/icons-material/Hotel';
+import MapIcon from '@mui/icons-material/Map';
 
 const drawerWidth = 240;
 
@@ -51,16 +53,22 @@ const AdminSidebar = () => {
 
           <ListItem button component={Link} to="/tour-list">
             <ListItemIcon>
-              <FlightIcon />
+            <MapIcon />
             </ListItemIcon>
             <ListItemText primary="Tour List" />
           </ListItem>
 
           <ListItem button component={Link} to="/tour-purchases">
             <ListItemIcon>
-              <FlightIcon />
+            <ShoppingCartIcon />
             </ListItemIcon>
             <ListItemText primary="Tour Purchase List" />
+          </ListItem>
+          <ListItem button component={Link} to="/hotels">
+            <ListItemIcon>
+            <HotelIcon />
+            </ListItemIcon>
+            <ListItemText primary="Hotel List" />
           </ListItem>
 
           

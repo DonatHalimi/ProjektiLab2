@@ -43,4 +43,15 @@ namespace backend.Models
         public int TourId { get; set; }
         public int ReservedTickets { get; set; }
     }
+    public class HotelCreateRequest
+    {
+        public int HotelID { get; set; }
+        public string Name { get; set; }
+        public string Location { get; set; }
+        public int Capacity { get; set; }
+        public List<string> Amenities { get; set; }
+        public List<string> RoomTypes { get; set; }
+        public IFormFile Image { get; set; }
+    }
+
 }
