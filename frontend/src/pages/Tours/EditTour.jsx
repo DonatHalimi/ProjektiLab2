@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { getTour, updateTour } from '../../utils/axiosInstance';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert } from '@mui/material';
-import Navbar from '../../components/Navbar';
+import { Alert, Box, Button, Container, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getTour, updateTour } from '../../utils/axiosInstance';
 
 const EditTour = () => {
   const { id } = useParams();

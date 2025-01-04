@@ -1,18 +1,15 @@
+import { Box, CssBaseline, Toolbar } from '@mui/material';
 import React from 'react';
-import { Container, Typography, AppBar, Toolbar, CssBaseline, Box } from '@mui/material';
-import FlightList from '../Flights/FlightList';
-import FlightPurchaseList from '../Flights/FlightPurchaseList';
 import AdminSidebar from '../../components/AdminSidebar';
-import Header from '../../components/Navbar';
 import Footer from '../../components/Footer';
-
+import Header from '../../components/Navbar';
 
 const drawerWidth = 240;
 
 const AdminDashboard = () => {
   return (
-<>
-<Header/>
+    <>
+      <Header />
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         <AdminSidebar />
@@ -23,8 +20,8 @@ const AdminDashboard = () => {
           <Toolbar />
         </Box>
       </Box>
-      <Footer/>
-      </>
+      <Footer />
+    </>
   );
 };
 

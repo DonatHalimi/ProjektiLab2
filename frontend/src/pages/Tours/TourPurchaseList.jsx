@@ -1,9 +1,9 @@
+import { Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { deleteTourPurchase, getTourPurchases } from '../../utils/axiosInstance';  // Update to reflect correct API imports
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { deleteTourPurchase, getTourPurchases } from '../../utils/axiosInstance';
 
 const TourPurchaseList = () => {
     const [tourPurchases, setTourPurchases] = useState([]);
@@ -13,9 +13,7 @@ const TourPurchaseList = () => {
         const fetchTourPurchases = async () => {
             try {
                 const response = await getTourPurchases();
-                console.log('API Response:', response.data);
                 const tourPurchasesData = response.data || [];
-                console.log('Tour Purchases Data:', tourPurchasesData);
                 setTourPurchases(tourPurchasesData);
             } catch (error) {
                 console.error('Error fetching tour purchases:', error);
@@ -61,7 +59,7 @@ const TourPurchaseList = () => {
                                 <TableCell>Email</TableCell>
                                 <TableCell>Tour Name</TableCell>
                                 <TableCell>Ticket Reserved</TableCell>
-                                <TableCell>City</TableCell>  
+                                <TableCell>City</TableCell>
                                 <TableCell>Start Date</TableCell>
                                 <TableCell>End Date</TableCell>
                                 <TableCell>Total Price</TableCell>
@@ -74,11 +72,11 @@ const TourPurchaseList = () => {
                                     <TableCell>{purchase.user.id}</TableCell>
                                     <TableCell>{purchase.user.firstName}</TableCell>
                                     <TableCell>{purchase.user.email}</TableCell>
-                                    <TableCell>{purchase.tour.name}</TableCell> 
-                                    <TableCell>{purchase.reservedTickets}</TableCell>  
-                                    <TableCell>{purchase.tour.city}</TableCell>  
-                                    <TableCell>{purchase.tour.startDate}</TableCell>  
-                                    <TableCell>{purchase.tour.endDate}</TableCell>  
+                                    <TableCell>{purchase.tour.name}</TableCell>
+                                    <TableCell>{purchase.reservedTickets}</TableCell>
+                                    <TableCell>{purchase.tour.city}</TableCell>
+                                    <TableCell>{purchase.tour.startDate}</TableCell>
+                                    <TableCell>{purchase.tour.endDate}</TableCell>
                                     <TableCell>{purchase.totalPrice}</TableCell>
                                     <TableCell>
                                         <Button variant="contained" style={{ margin: '10px', backgroundColor: 'orange' }} onClick={() => handleEdit(purchase.id)}>

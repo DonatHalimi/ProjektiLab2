@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import axiosInstance from "../utils/axiosInstance";
 import { LoadingOverlay } from "../assets/CustomComponents";
+import { getCurrentUser } from "../services/authService";
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
     const [userRole, setUserRole] = useState(null);
@@ -12,10 +12,8 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
         const fetchUser = async () => {
             if (token) {
                 try {
-                    const { data } = await axiosInstance.get("/auth/me", {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
-                    setUserRole(data.role);
+                    const response = await getCurrentUser();
+                    setUserRole(response.role);
                 } catch (error) {
                     console.error("Error fetching user details", error);
                 }

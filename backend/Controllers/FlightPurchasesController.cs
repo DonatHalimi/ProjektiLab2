@@ -185,5 +185,27 @@ namespace backend.Controllers
         {
             return _context.FlightPurchases.Any(e => e.Id == id);
         }
+
+        // DELETE: /api/FlightPurchases/delete-bulk
+        [HttpDelete("delete-bulk")]
+        public async Task<IActionResult> DeleteFlightPurchasesBulk([FromBody] BulkDeleteRequest request)
+        {
+            if (request?.Ids == null || !request.Ids.Any())
+            {
+                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+            }
+
+            var itemsToDelete = await _context.FlightPurchases.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
+
+            if (!itemsToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No roles found for the provided IDs" });
+            }
+
+            _context.FlightPurchases.RemoveRange(itemsToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Roles deleted successfully" });
+        }
     }
 }

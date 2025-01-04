@@ -1,9 +1,10 @@
+import { Box, Button, Card, CardContent, Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { getMyInfo, getMyFlightPurchases, deleteFlightPurchase ,getMyTourPurchases,deleteTourPurchase} from '../../utils/axiosInstance';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Card, CardContent, Grid, Box } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getCurrentUser } from '../../services/authService';
+import { deleteFlightPurchase, deleteTourPurchase, getMyFlightPurchases, getMyTourPurchases } from '../../utils/axiosInstance';
 
 const MyProfile = () => {
   const [profile, setProfile] = useState({});
@@ -14,8 +15,8 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getMyInfo();
-        setProfile(response.data);
+        const response = await getCurrentUser();
+        setProfile(response);
       } catch (error) {
         console.error('Error fetching info:', error);
       }
@@ -25,14 +26,12 @@ const MyProfile = () => {
   }, []);
 
   useEffect(() => {
-    if (!profile?.id) return; 
+    if (!profile?.id) return;
 
     const fetchFlightPurchases = async () => {
       try {
         const response = await getMyFlightPurchases(profile.id);
-        console.log('API Response:', response.data);
         const MyflightPurchasesData = response.data || [];
-        console.log('Flight Purchases Data:', MyflightPurchasesData);
         setFlightPurchases(MyflightPurchasesData);
       } catch (error) {
         console.error('Error fetching flight purchases:', error);
@@ -42,9 +41,7 @@ const MyProfile = () => {
     const fetchTourPurchases = async () => {
       try {
         const response = await getMyTourPurchases(profile.id);
-        console.log('API Response:', response.data);
         const MytourPurchasesData = response.data || [];
-        console.log('Tour Purchases Data:', MytourPurchasesData);
         setTourPurchases(MytourPurchasesData);
       } catch (error) {
         console.error('Error fetching tour purchases:', error);

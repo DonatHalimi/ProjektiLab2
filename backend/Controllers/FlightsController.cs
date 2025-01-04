@@ -38,7 +38,6 @@ namespace backend.Controllers
             return flight;
         }
 
-
         // PUT: api/Flights/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateFlight(int id, Flight flight)
@@ -129,6 +128,28 @@ namespace backend.Controllers
         private bool FlightExists(int id)
         {
             return _context.Flights.Any(e => e.Id == id);
+        }
+
+        // DELETE: /api/Flights/delete-bulk
+        [HttpDelete("delete-bulk")]
+        public async Task<IActionResult> DeleteFlightsBulk([FromBody] BulkDeleteRequest request)
+        {
+            if (request?.Ids == null || !request.Ids.Any())
+            {
+                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+            }
+
+            var itemsToDelete = await _context.Flights.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
+
+            if (!itemsToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No flights found for the provided IDs" });
+            }
+
+            _context.Flights.RemoveRange(itemsToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Flights deleted successfully" });
         }
     }
 }

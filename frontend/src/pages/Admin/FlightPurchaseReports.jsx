@@ -1,9 +1,9 @@
+import { Alert, Box, Button, CircularProgress, Container, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Snackbar, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, Paper, MenuItem, Select, InputLabel, FormControl, CircularProgress, Snackbar, Alert } from '@mui/material';
-import { generateReport } from '../../utils/axiosInstance';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import * as XLSX from 'xlsx';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { generateReport } from '../../utils/axiosInstance';
 
 const Reports = () => {
   const [startDate, setStartDate] = useState('');
@@ -152,7 +152,7 @@ const Reports = () => {
               </Table>
             </Paper>
             <Box sx={{ m: 2 }}>
-              <Button variant="contained" sx={{ backgroundColor : 'green'}} onClick={handleExportToExcel}>
+              <Button variant="contained" sx={{ backgroundColor: 'green' }} onClick={handleExportToExcel}>
                 Export to Excel
               </Button>
             </Box>

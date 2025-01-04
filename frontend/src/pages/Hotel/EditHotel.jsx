@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { getHotel, updateHotel } from '../../utils/axiosInstance'; 
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert } from '@mui/material';
-import Navbar from '../../components/Navbar';
+import { Alert, Box, Button, Container, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getHotel, updateHotel } from '../../utils/axiosInstance';
 
 const EditHotel = () => {
   const { id } = useParams();
@@ -15,19 +15,19 @@ const EditHotel = () => {
     capacity: '',
     amenities: '',
     roomTypes: '',
-    image: null, 
-    currentImage: null, 
+    image: null,
+    currentImage: null,
   });
 
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
 
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const hotelResponse = await getHotel(id);
-        
+
         setHotel({
           hotelID: id || '',
           name: hotelResponse.data.data.name || '',
@@ -40,7 +40,7 @@ const EditHotel = () => {
             ? hotelResponse.data.data.roomTypes.join(', ')
             : hotelResponse.data.data.roomTypes || '',
           image: null,
-            currentImage: hotelResponse.data.data.image || null,
+          currentImage: hotelResponse.data.data.image || null,
         });
       } catch (error) {
         console.error('Error fetching hotel data:', error);
@@ -53,33 +53,31 @@ const EditHotel = () => {
 
   const handleChange = (e) => {
     if (e.target.name === 'image') {
-        setHotel({ ...hotel, image: e.target.files[0] });
-      } else {
-    setHotel({ ...hotel, [e.target.name]: e.target.value });
-      }
-};
+      setHotel({ ...hotel, image: e.target.files[0] });
+    } else {
+      setHotel({ ...hotel, [e.target.name]: e.target.value });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const formData = new FormData();
-        formData.append('HotelID', hotel.hotelID);
-        formData.append('name', hotel.name);
-        formData.append('Capacity', hotel.capacity); 
-        formData.append('Location', hotel.location);
-        formData.append('Amenities', hotel.amenities);
-        formData.append('RoomTypes', hotel.roomTypes);
-      console.log("this", hotel.currentImage);
-        if(hotel.image){
-          formData.append('Image', hotel.image);
-        }
-        else{
-          const current = base64ToFile(hotel.currentImage);
-          console.log("current", current);
-          formData.append('Image', current);
-        }
+      const formData = new FormData();
+      formData.append('HotelID', hotel.hotelID);
+      formData.append('name', hotel.name);
+      formData.append('Capacity', hotel.capacity);
+      formData.append('Location', hotel.location);
+      formData.append('Amenities', hotel.amenities);
+      formData.append('RoomTypes', hotel.roomTypes);
+      if (hotel.image) {
+        formData.append('Image', hotel.image);
+      }
+      else {
+        const current = base64ToFile(hotel.currentImage);
+        formData.append('Image', current);
+      }
 
-    await updateHotel(id, formData);
+      await updateHotel(id, formData);
       setOpen(true);
       setTimeout(() => {
         navigate('/hotels');
@@ -92,21 +90,21 @@ const EditHotel = () => {
 
   function base64ToFile(base64String) {
     const base64Data = base64String.replace(/^data:image\/[a-z]+;base64,/, '');
-  
+
     const binaryString = atob(base64Data);
-  
+
     const byteArray = new Uint8Array(binaryString.length);
-  
+
     for (let i = 0; i < binaryString.length; i++) {
       byteArray[i] = binaryString.charCodeAt(i);
     }
-  
+
     const blob = new Blob([byteArray], { type: 'image/jpeg' });
 
     const fileName = `image_${Date.now()}.jpg`;
 
     const file = new File([blob], fileName, { type: 'image/jpeg' });
-  
+
     return file;
   }
   const handleClose = () => {
@@ -160,11 +158,11 @@ const EditHotel = () => {
             onChange={handleChange}
             fullWidth
           />
-            {hotel.currentImage && (
+          {hotel.currentImage && (
             <Box>
               <Typography>Current Image:</Typography>
               <img
-                src={`data:image/jpeg;base64,${hotel.currentImage}`} 
+                src={`data:image/jpeg;base64,${hotel.currentImage}`}
                 alt="Current Hotel"
                 style={{ width: '200px', height: '150px', objectFit: 'cover' }}
               />

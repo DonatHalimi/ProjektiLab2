@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { getTourPurchase, updateTourPurchase, getUsers, getTours } from '../../utils/axiosInstance';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import Navbar from '../../components/Navbar';
+import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getUsers } from '../../services/userService';
+import { getTourPurchase, getTours, updateTourPurchase } from '../../utils/axiosInstance';
 
 const EditTourPurchase = () => {
   const { id } = useParams();
@@ -25,7 +26,7 @@ const EditTourPurchase = () => {
         const usersResponse = await getUsers();
         const toursResponse = await getTours();
         const tourPurchaseResponse = await getTourPurchase(id);
-        
+
         setUsers(usersResponse.data.data || []);
         setTours(toursResponse.data || []);
         setTourPurchase({

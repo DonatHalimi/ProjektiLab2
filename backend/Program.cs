@@ -1,8 +1,10 @@
 using backend.Data;
 using backend.Models;
 using backend.Services;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -10,14 +12,16 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-
     });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -27,7 +31,7 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
-        Description = "Enter your JWT token. Example: 'abc123xyz'",
+        Description = "Enter your JWT token",
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -61,7 +65,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IAuthChecker, AuthChecker>();
 
-var jwtConfig = builder.Configuration.GetSection("Jwt");
+// Fetch JWT values from environment variables
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+// Set up JWT authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -71,9 +80,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtConfig["Issuer"],
-            ValidAudience = jwtConfig["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Key"]))
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 
@@ -101,17 +110,22 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Seed admin user
-    if (!context.Users.Any(u => u.Email == "admin@gmail.com"))
+    var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+    var adminFirstName = Environment.GetEnvironmentVariable("ADMIN_FIRSTNAME");
+    var adminLastName = Environment.GetEnvironmentVariable("ADMIN_LASTNAME");
+
+    if (!context.Users.Any(u => u.Email == adminEmail))
     {
         var adminRole = context.Roles.FirstOrDefault(r => r.Name == "admin");
         if (adminRole != null)
         {
             var adminUser = new User
             {
-                FirstName = "Admin",
-                LastName = "Admin",
-                Email = "admin@gmail.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("admin123@"),
+                FirstName = adminFirstName,
+                LastName = adminLastName,
+                Email = adminEmail,
+                Password = BCrypt.Net.BCrypt.HashPassword(adminPassword),
                 RoleId = adminRole.Id
             };
             context.Users.Add(adminUser);
@@ -120,11 +134,25 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+    RequestPath = "/api/uploads"
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+
+        // Collapse all modules initially
+        options.DefaultModelExpandDepth(0);
+        options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+    });
 }
 
 app.UseHttpsRedirection();

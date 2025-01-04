@@ -6,13 +6,6 @@ using System.Text;
 
 public class AuthChecker : IAuthChecker
 {
-    private readonly IConfiguration _config;
-
-    public AuthChecker(IConfiguration config)
-    {
-        _config = config;
-    }
-
     public bool IsAdmin(HttpRequest request)
     {
         var claimsPrincipal = ValidateToken(request);
@@ -21,7 +14,7 @@ public class AuthChecker : IAuthChecker
             return false;
         }
 
-        var roleClaim = claimsPrincipal.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+        var roleClaim = claimsPrincipal.FindFirst(ClaimTypes.Role)?.Value;
         return roleClaim == "admin";
     }
 
@@ -43,15 +36,25 @@ public class AuthChecker : IAuthChecker
 
         try
         {
+            // Fetch JWT values from environment variables
+            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+            var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+            var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+            if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+            {
+                throw new Exception("JWT configuration is missing from environment variables.");
+            }
+
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = _config["Jwt:Issuer"],
-                ValidAudience = _config["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]))
+                ValidIssuer = jwtIssuer,
+                ValidAudience = jwtAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
             };
 
             return tokenHandler.ValidateToken(token, validationParameters, out _);

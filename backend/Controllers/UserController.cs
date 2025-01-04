@@ -137,5 +137,27 @@ namespace backend.Controllers
         {
             return _context.Users.Any(e => e.Id == id);
         }
+
+        // DELETE: /api/users/delete-bulk
+        [HttpDelete("delete-bulk")]
+        public async Task<IActionResult> DeleteUsersBulk([FromBody] BulkDeleteRequest request)
+        {
+            if (request?.Ids == null || !request.Ids.Any())
+            {
+                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+            }
+
+            var itemsToDelete = await _context.Users.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
+
+            if (!itemsToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No users found for the provided IDs" });
+            }
+
+            _context.Users.RemoveRange(itemsToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Users deleted successfully" });
+        }
     }
 }

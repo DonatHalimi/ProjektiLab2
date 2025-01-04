@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getFlightPurchase, getMyInfo } from '../../utils/axiosInstance';
-import { Container, Typography, Card, CardContent, Button, Box, TextField, Grid, Snackbar, Alert } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import { Alert, Box, Button, Card, CardContent, Container, Grid, Snackbar, TextField, Typography } from '@mui/material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getCurrentUser } from '../../services/authService';
+import { getFlightPurchase } from '../../utils/axiosInstance';
 
 const Checkout = () => {
   const { id } = useParams();
@@ -27,8 +28,8 @@ const Checkout = () => {
 
     const fetchProfile = async () => {
       try {
-        const response = await getMyInfo();
-        setProfile(response.data);
+        const response = await getCurrentUser();
+        setProfile(response);
       } catch (error) {
         console.error('Error fetching profile:', error);
       }

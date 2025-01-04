@@ -1,9 +1,9 @@
+import { Alert, Box, Button, Container, Snackbar, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { createFlight } from '../../utils/axiosInstance';
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { createFlight } from '../../utils/axiosInstance';
 
 const CreateFlight = () => {
   const [flight, setFlight] = useState({

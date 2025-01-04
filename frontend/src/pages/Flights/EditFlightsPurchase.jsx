@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { getFlightPurchase, updateFlightPurchase, getUsers, getFlights } from '../../utils/axiosInstance';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import Navbar from '../../components/Navbar';
+import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getUsers } from '../../services/userService';
+import { getFlightPurchase, getFlights, updateFlightPurchase } from '../../services/flightService';
 
 const EditFlightPurchase = () => {
   const { id } = useParams();
@@ -25,14 +26,14 @@ const EditFlightPurchase = () => {
         const usersResponse = await getUsers();
         const flightsResponse = await getFlights();
         const flightPurchaseResponse = await getFlightPurchase(id);
-        setUsers(usersResponse.data.data || []);
-        setFlights(flightsResponse.data || []);
+        setUsers(usersResponse.data);
+        setFlights(flightsResponse);
         setFlightPurchase({
-            Id: flightPurchaseResponse.data.id,
-          userId: flightPurchaseResponse.data.userId,
-          flightId: flightPurchaseResponse.data.flightId,
-          seatsReserved: flightPurchaseResponse.data.seatsReserved,
-          totalPrice: flightPurchaseResponse.data.totalPrice,
+          Id: flightPurchaseResponse.id,
+          userId: flightPurchaseResponse.userId,
+          flightId: flightPurchaseResponse.flightId,
+          seatsReserved: flightPurchaseResponse.seatsReserved,
+          totalPrice: flightPurchaseResponse.totalPrice,
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -62,44 +63,44 @@ const EditFlightPurchase = () => {
   return (
     <>
       <Navbar />
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Edit Flight Purchase
-      </Typography>
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 , margin: '20px'}}>
-        <FormControl>
-          <InputLabel>User</InputLabel>
-          <Select name="userId" value={flightPurchase.userId} onChange={handleChange}>
-            {users.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.firstName} {user.lastName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl>
-          <InputLabel>Flight</InputLabel>
-          <Select name="flightId" value={flightPurchase.flightId} onChange={handleChange}>
-            {flights.map((flight) => (
-              <MenuItem key={flight.id} value={flight.id}>
-                {flight.name} - {flight.departureCity} to {flight.arrivalCity}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField label="Seats Reserved" type="number" name="seatsReserved" value={flightPurchase.seatsReserved} onChange={handleChange} />
-        <TextField label="Total Price" type="number" name="totalPrice" value={flightPurchase.totalPrice} onChange={handleChange} disabled />
-        <Button type="submit" variant="contained" color="primary">
-          Update Flight Purchase
-        </Button>
-      </Box>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-          Flight purchase updated successfully!
-        </Alert>
-      </Snackbar>
-    </Container>
-    <Footer />
+      <Container>
+        <Typography variant="h4" gutterBottom>
+          Edit Flight Purchase
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, margin: '20px' }}>
+          <FormControl>
+            <InputLabel>User</InputLabel>
+            <Select name="userId" value={flightPurchase.userId} onChange={handleChange}>
+              {users.map((user) => (
+                <MenuItem key={user.id} value={user.id}>
+                  {user.firstName} {user.lastName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <InputLabel>Flight</InputLabel>
+            <Select name="flightId" value={flightPurchase.flightId} onChange={handleChange}>
+              {flights.map((flight) => (
+                <MenuItem key={flight.id} value={flight.id}>
+                  {flight.name} - {flight.departureCity} to {flight.arrivalCity}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField label="Seats Reserved" type="number" name="seatsReserved" value={flightPurchase.seatsReserved} onChange={handleChange} />
+          <TextField label="Total Price" type="number" name="totalPrice" value={flightPurchase.totalPrice} onChange={handleChange} disabled />
+          <Button type="submit" variant="contained" color="primary">
+            Update Flight Purchase
+          </Button>
+        </Box>
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+            Flight purchase updated successfully!
+          </Alert>
+        </Snackbar>
+      </Container>
+      <Footer />
     </>
   );
 };

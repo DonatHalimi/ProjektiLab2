@@ -96,11 +96,11 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Hotel", b =>
                 {
-                    b.Property<int>("HotelID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HotelID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.PrimitiveCollection<string>("Amenities")
                         .IsRequired()
@@ -131,7 +131,7 @@ namespace backend.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("HotelID");
+                    b.HasKey("Id");
 
                     b.ToTable("Hotels");
                 });
@@ -151,6 +151,62 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("backend.Models.Room", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("HotelID")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("RoomType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HotelID");
+
+                    b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("backend.Models.RoomImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("RoomImages");
                 });
 
             modelBuilder.Entity("backend.Models.Tour", b =>
@@ -274,6 +330,28 @@ namespace backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("backend.Models.Room", b =>
+                {
+                    b.HasOne("backend.Models.Hotel", "Hotel")
+                        .WithMany("Rooms")
+                        .HasForeignKey("HotelID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("backend.Models.RoomImage", b =>
+                {
+                    b.HasOne("backend.Models.Room", "Room")
+                        .WithMany("Images")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("backend.Models.TourPurchase", b =>
                 {
                     b.HasOne("backend.Models.Tour", "Tour")
@@ -305,6 +383,16 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Models.Flight", b =>
                 {
                     b.Navigation("FlightPurchases");
+                });
+
+            modelBuilder.Entity("backend.Models.Hotel", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("backend.Models.Room", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("backend.Models.Tour", b =>

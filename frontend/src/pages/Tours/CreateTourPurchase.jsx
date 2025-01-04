@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { createTourPurchase, getUsers, getTours } from '../../utils/axiosInstance'; // Updated API calls
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getUsers } from '../../services/userService';
+import { createTourPurchase, getTours } from '../../utils/axiosInstance';
 
 const CreateTourPurchase = () => {
   const [tourPurchase, setTourPurchase] = useState({
@@ -21,9 +22,7 @@ const CreateTourPurchase = () => {
     const fetchUsersAndTours = async () => {
       try {
         const usersResponse = await getUsers();
-        console.log('Users API Response:', usersResponse.data); // Log the API response for users
         const toursResponse = await getTours();
-        console.log('Tours API Response:', toursResponse.data); // Log the API response for tours
         setUsers(Array.isArray(usersResponse.data.data) ? usersResponse.data.data : []);
         setTours(Array.isArray(toursResponse.data) ? toursResponse.data : []);
       } catch (error) {
@@ -44,7 +43,7 @@ const CreateTourPurchase = () => {
       return;
     }
     try {
-      await createTourPurchase(tourPurchase); 
+      await createTourPurchase(tourPurchase);
       setOpen(true);
     } catch (error) {
       setError('Failed to create tour purchase.');
@@ -55,7 +54,7 @@ const CreateTourPurchase = () => {
   const handleClose = () => {
     setOpen(false);
     setTimeout(() => {
-      navigate('/tour-purchases'); 
+      navigate('/tour-purchases');
     }, 2000);
   };
 

@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using backend.Models;
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace backend.Controllers
 {
@@ -14,12 +16,16 @@ namespace backend.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IConfiguration _config;
 
-        public AuthController(AppDbContext context, IConfiguration config)
+        // Fetch JWT settings from environment variables
+        private readonly string _jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+        private readonly string _jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+        private readonly string _jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+        private readonly string _jwtExpiresInMinutes = Environment.GetEnvironmentVariable("JWT_EXPIRES_IN_MINUTES");
+
+        public AuthController(AppDbContext context)
         {
             _context = context;
-            _config = config;
         }
 
         [HttpPost("register")]
@@ -66,25 +72,29 @@ namespace backend.Controllers
 
         private string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            if (string.IsNullOrEmpty(_jwtKey) || string.IsNullOrEmpty(_jwtIssuer) || string.IsNullOrEmpty(_jwtAudience) || string.IsNullOrEmpty(_jwtExpiresInMinutes))
+            {
+                throw new Exception("JWT configuration is missing from environment variables.");
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var role = user.RoleId == 2 ? "admin" : "user";
 
-            var claims = new[]
-            {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-            new Claim(ClaimTypes.Role, role),
-            new Claim("RoleId", user.RoleId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            var claims = new[] {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                new Claim(ClaimTypes.Role, role),
+                new Claim("RoleId", user.RoleId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             var token = new JwtSecurityToken(
-                _config["Jwt:Issuer"],
-                _config["Jwt:Audience"],
+                _jwtIssuer,
+                _jwtAudience,
                 claims,
-                expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:ExpiresInMinutes"])),
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(_jwtExpiresInMinutes)),
                 signingCredentials: creds
             );
 
@@ -116,21 +126,19 @@ namespace backend.Controllers
                 }
                 System.Diagnostics.Debug.WriteLine("==================");
 
-                // Validate token
                 var validationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = _config["Jwt:Issuer"],
-                    ValidAudience = _config["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]))
+                    ValidIssuer = _jwtIssuer,
+                    ValidAudience = _jwtAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey))
                 };
 
                 var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
 
-                // Extract email using the exact claim type we know exists
                 var email = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
                 System.Diagnostics.Debug.WriteLine($"Extracted email after validation: {email}");
 
@@ -139,7 +147,6 @@ namespace backend.Controllers
                     return BadRequest(new { message = "Email not found in token" });
                 }
 
-                // Query and log the user search
                 var user = _context.Users
                     .Include(u => u.Role)
                     .FirstOrDefault(u => u.Email == email);

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { getFlight, updateFlight } from '../../utils/axiosInstance';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert } from '@mui/material';
-import Navbar from '../../components/Navbar';
+import { Alert, Box, Button, Container, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getFlight, updateFlight } from '../../utils/axiosInstance';
 
 const EditFlight = () => {
   const { id } = useParams();
@@ -71,37 +71,37 @@ const EditFlight = () => {
   return (
     <>
       <Navbar />
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Edit Flight
-      </Typography>
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, margin: '20px' }}>
-        <TextField label="Name" name="name" value={flight.name} onChange={handleChange} />
-        <TextField label="Departure City" name="departureCity" value={flight.departureCity} onChange={handleChange} />
-        <TextField label="Arrival City" name="arrivalCity" value={flight.arrivalCity} onChange={handleChange} />
-        <TextField label="Start Date" type="datetime-local" name="startDate" value={flight.startDate} onChange={handleChange} InputLabelProps={{ shrink: true }} />
-        <TextField label="End Date" type="datetime-local" name="endDate" value={flight.endDate} onChange={handleChange} InputLabelProps={{ shrink: true }} />
-        <TextField label="Price" type="number" name="price" value={flight.price} onChange={handleChange} />
-        <TextField label="Capacity" type="number" name="capacity" value={flight.capacity} onChange={handleChange} />
-        <TextField label="Reserved Seats" type="number" name="reservedSeats" value={flight.reservedSeats} onChange={handleChange} />
-        <Button type="submit" variant="contained" color="primary">
-          Update Flight
-        </Button>
-      </Box>
-      <Snackbar open={open} autoHideDuration={1000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-          Flight updated successfully!
-        </Alert>
-      </Snackbar>
-      {error && (
-        <Snackbar open={true} autoHideDuration={4000} onClose={() => setError('')}>
-          <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
-            {error}
+      <Container>
+        <Typography variant="h4" gutterBottom>
+          Edit Flight
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, margin: '20px' }}>
+          <TextField label="Name" name="name" value={flight.name} onChange={handleChange} />
+          <TextField label="Departure City" name="departureCity" value={flight.departureCity} onChange={handleChange} />
+          <TextField label="Arrival City" name="arrivalCity" value={flight.arrivalCity} onChange={handleChange} />
+          <TextField label="Start Date" type="datetime-local" name="startDate" value={flight.startDate} onChange={handleChange} InputLabelProps={{ shrink: true }} />
+          <TextField label="End Date" type="datetime-local" name="endDate" value={flight.endDate} onChange={handleChange} InputLabelProps={{ shrink: true }} />
+          <TextField label="Price" type="number" name="price" value={flight.price} onChange={handleChange} />
+          <TextField label="Capacity" type="number" name="capacity" value={flight.capacity} onChange={handleChange} />
+          <TextField label="Reserved Seats" type="number" name="reservedSeats" value={flight.reservedSeats} onChange={handleChange} />
+          <Button type="submit" variant="contained" color="primary">
+            Update Flight
+          </Button>
+        </Box>
+        <Snackbar open={open} autoHideDuration={1000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+            Flight updated successfully!
           </Alert>
         </Snackbar>
-      )}
-    </Container>
-    <Footer />
+        {error && (
+          <Snackbar open={true} autoHideDuration={4000} onClose={() => setError('')}>
+            <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
+              {error}
+            </Alert>
+          </Snackbar>
+        )}
+      </Container>
+      <Footer />
     </>
   );
 };

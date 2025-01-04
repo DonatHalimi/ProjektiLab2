@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { register } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
-import { TextField, Button, Container, InputAdornment, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import Navbar from "../../components/Navbar";
+import { Container, IconButton, InputAdornment } from "@mui/material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BlueButton, BlueTextField } from "../../assets/CustomComponents";
 import Footer from "../../components/Footer";
+import Navbar from "../../components/Navbar";
+import { register } from "../../services/authService";
 
 const Register = () => {
     const [formData, setFormData] = useState({ email: "", password: "", firstName: "", lastName: "" });
@@ -35,9 +36,9 @@ const Register = () => {
             <Navbar />
             <Container component="main" maxWidth="xs" className="flex flex-1 flex-col align-left mt-36 mb-36">
                 <div className="bg-white flex flex-col align-left rounded-md shadow-md p-6">
-                    <h2 className="text-2xl font-semibold text-left mb-6">Register</h2>
+                    <h2 className="text-2xl font-semibold text-left mb-6 text-[#4B5567]">Register</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <TextField
+                        <BlueTextField
                             label="First Name"
                             type="text"
                             name="firstName"
@@ -46,7 +47,7 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                        <TextField
+                        <BlueTextField
                             label="Last Name"
                             type="text"
                             name="lastName"
@@ -55,7 +56,7 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                        <TextField
+                        <BlueTextField
                             label="Email"
                             type="email"
                             name="email"
@@ -64,7 +65,7 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                        <TextField
+                        <BlueTextField
                             label="Password"
                             type={showPassword ? "text" : "password"}
                             name="password"
@@ -86,7 +87,7 @@ const Register = () => {
                                 ),
                             }}
                         />
-                        <Button
+                        <BlueButton
                             type="submit"
                             variant="contained"
                             color="primary"
@@ -94,7 +95,7 @@ const Register = () => {
                             className="mt-4"
                         >
                             Register
-                        </Button>
+                        </BlueButton>
                     </form>
                     <div className="mt-4 text-left">
                         <p className="text-sm text-gray-600">

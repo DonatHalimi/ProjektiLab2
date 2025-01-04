@@ -1,7 +1,8 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Button, Container, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Container, IconButton, InputAdornment } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BlueButton, BlueTextField } from "../../assets/CustomComponents";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import { login } from "../../services/authService";
@@ -36,9 +37,9 @@ const Login = () => {
             <Navbar />
             <Container component="main" maxWidth="xs" className="flex flex-1 flex-col align-left mt-36 mb-36">
                 <div className="bg-white flex flex-col align-left rounded-md shadow-md p-6">
-                    <h2 className="text-2xl font-semibold text-left mb-6">Login</h2>
+                    <h2 className="text-2xl font-semibold text-left mb-6 text-[#4B5567]">Login</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <TextField
+                        <BlueTextField
                             label="Email"
                             type="email"
                             name="email"
@@ -47,7 +48,7 @@ const Login = () => {
                             onChange={handleChange}
                             required
                         />
-                        <TextField
+                        <BlueTextField
                             label="Password"
                             type={showPassword ? "text" : "password"}
                             name="password"
@@ -69,7 +70,7 @@ const Login = () => {
                                 ),
                             }}
                         />
-                        <Button
+                        <BlueButton
                             type="submit"
                             variant="contained"
                             color="primary"
@@ -77,7 +78,7 @@ const Login = () => {
                             className="mt-4"
                         >
                             Login
-                        </Button>
+                        </BlueButton>
                     </form>
                     <div className="mt-4 text-left">
                         <p className="text-sm text-gray-600">

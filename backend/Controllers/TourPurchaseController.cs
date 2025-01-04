@@ -188,5 +188,27 @@ namespace backend.Controllers
         {
             return _context.TourPurchases.Any(e => e.Id == id);
         }
+
+        // DELETE: /api/TourPurchases/delete-bulk
+        [HttpDelete("delete-bulk")]
+        public async Task<IActionResult> DeleteTourPurchasesBulk([FromBody] BulkDeleteRequest request)
+        {
+            if (request?.Ids == null || !request.Ids.Any())
+            {
+                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+            }
+
+            var itemsToDelete = await _context.TourPurchases.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
+
+            if (!itemsToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No tour purchases found for the provided IDs" });
+            }
+
+            _context.TourPurchases.RemoveRange(itemsToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Tour purchases deleted successfully" });
+        }
     }
 }

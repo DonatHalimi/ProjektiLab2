@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { getFlights, createFlightPurchase, getMyInfo } from '../../utils/axiosInstance';
-import { Container, Typography, Card, CardContent, CardActions, Button, TextField, Snackbar, Alert, Grid, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, MenuItem, Select, InputLabel, FormControl, Pagination } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import { Alert, Box, Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Pagination, Select, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { getCurrentUser } from '../../services/authService';
+import { createFlightPurchase, getFlights } from '../../utils/axiosInstance';
 
 const UserFlightPurchase = () => {
   const [flights, setFlights] = useState([]);
@@ -22,8 +21,8 @@ const UserFlightPurchase = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getMyInfo();
-        setProfile(response.data);
+        const response = await getCurrentUser();
+        setProfile(response);
       } catch (error) {
         console.error('Error fetching profile:', error);
       }
@@ -127,8 +126,8 @@ const UserFlightPurchase = () => {
 
   return (
     <>
-      <Navbar />
-      <Container sx={{ mt: 4 }}>
+      {/* <Navbar /> */}
+      <div className='container mx-auto mt-10'>
         <Typography variant="h4" gutterBottom>
           Available Flights
         </Typography>
@@ -248,8 +247,8 @@ const UserFlightPurchase = () => {
             </Alert>
           </Snackbar>
         )}
-      </Container>
-      <Footer />
+      </div>
+      {/* <Footer /> */}
     </>
   );
 };

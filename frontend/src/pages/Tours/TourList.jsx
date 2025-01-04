@@ -1,31 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { getTours, deleteTour } from '../../utils/axiosInstance'; 
-import { 
-  Container, 
-  Typography, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Button 
+import {
+  Button,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
 } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { deleteTour, getTours } from '../../utils/axiosInstance';
 
 const TourList = () => {
-  const [tours, setTours] = useState([]); 
+  const [tours, setTours] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch tours from the backend
   useEffect(() => {
     const fetchTours = async () => {
       try {
-        const response = await getTours(); // Fetch tours from backend
-        setTours(response.data); // Set tours in state
+        const response = await getTours();
+        setTours(response.data);
       } catch (error) {
         console.error('Error fetching tours:', error);
       }
@@ -33,23 +31,19 @@ const TourList = () => {
     fetchTours();
   }, []);
 
-  // Handle deleting a tour
   const handleDelete = async (id) => {
     try {
       await deleteTour(id);
-      setTours(tours.filter((tour) => tour.id !== id)); // Remove deleted tour from the state
+      setTours(tours.filter((tour) => tour.id !== id));
     } catch (error) {
       console.error('Error deleting tour:', error);
     }
   };
 
-  // Handle editing a tour
   const handleEdit = (id) => {
     navigate(`/edit-tour/${id}`);
-    console.log('Edit tour with id:', id);
   };
 
-  // Handle creating a new tour
   const handleCreate = () => {
     navigate('/create-tour');
   };
@@ -57,7 +51,7 @@ const TourList = () => {
   return (
     <>
       <Navbar />
-      <Container>
+      <div className='container mx-auto'>
         <Typography variant="h4" gutterBottom>
           Tours
         </Typography>
@@ -115,7 +109,7 @@ const TourList = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </Container>
+      </div>
       <Footer />
     </>
   );

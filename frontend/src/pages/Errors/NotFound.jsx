@@ -1,6 +1,6 @@
 import React from 'react';
-import notFound from '../../assets/img/errors/not-found.png';
 import { ErrorPage } from '../../assets/CustomComponents';
+import notFound from '../../assets/img/errors/not-found.png';
 
 const NotFound = () => {
     return (

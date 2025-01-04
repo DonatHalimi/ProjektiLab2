@@ -4,10 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using backend.Data;
-using System.IO;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using System.Text;
-
 
 namespace backend.Controllers
 {
@@ -30,7 +26,7 @@ namespace backend.Controllers
 
             var response = hotels.Select(hotel => new
             {
-                hotel.HotelID,
+                hotel.Id,
                 hotel.Name,
                 hotel.Location,
                 hotel.Capacity,
@@ -43,7 +39,6 @@ namespace backend.Controllers
 
             return Ok(new { success = true, message = "Hotels fetched successfully", data = response });
         }
-
 
         // GET: /api/hotels/get/{id}
         [HttpGet("get/{id}")]
@@ -58,9 +53,6 @@ namespace backend.Controllers
 
             return Ok(new { success = true, message = "Hotel fetched successfully", data = hotel });
         }
-
-
-
 
         // POST: /api/hotels/create
         [HttpPost("create")]
@@ -82,7 +74,6 @@ namespace backend.Controllers
                 UpdatedAt = DateTime.UtcNow
             };
 
-         
             if (request.Image != null)
             {
                 using var memoryStream = new MemoryStream();
@@ -93,9 +84,8 @@ namespace backend.Controllers
             _context.Hotels.Add(hotel);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetHotels), new { id = hotel.HotelID }, new { success = true, message = "Hotel created successfully", data = hotel });
+            return CreatedAtAction(nameof(GetHotels), new { id = hotel.Id }, new { success = true, message = "Hotel created successfully", data = hotel });
         }
-
 
         // PUT: /api/hotels/update/{id}
         [HttpPut("update/{id}")]
@@ -106,7 +96,7 @@ namespace backend.Controllers
                 return BadRequest(new { success = false, message = "ID mismatch" });
             }
 
-            var existingHotel = await _context.Hotels.FirstOrDefaultAsync(h => h.HotelID == id);
+            var existingHotel = await _context.Hotels.FirstOrDefaultAsync(h => h.Id == id);
             if (existingHotel == null)
             {
                 return NotFound(new { success = false, message = $"Hotel with ID {id} not found" });
@@ -140,9 +130,6 @@ namespace backend.Controllers
             return Ok(new { success = true, message = "Hotel updated successfully" });
         }
 
-
-
-
         // DELETE: /api/hotels/delete/{id}
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteHotel(int id) 
@@ -157,6 +144,28 @@ namespace backend.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { success = true, message = "Hotel deleted successfully" });
+        }
+
+        // DELETE: /api/hotels/delete-bulk
+        [HttpDelete("delete-bulk")]
+        public async Task<IActionResult> DeleteHotelsBulk([FromBody] BulkDeleteRequest request)
+        {
+            if (request?.Ids == null || !request.Ids.Any())
+            {
+                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+            }
+
+            var itemsToDelete = await _context.Hotels.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
+
+            if (!itemsToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No hotels found for the provided IDs" });
+            }
+
+            _context.Hotels.RemoveRange(itemsToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Hotels deleted successfully" });
         }
     }
 }

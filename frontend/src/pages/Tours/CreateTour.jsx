@@ -1,9 +1,9 @@
+import { Alert, Box, Button, Container, Snackbar, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { createTour } from '../../utils/axiosInstance'; 
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { createTour } from '../../utils/axiosInstance';
 
 const CreateTour = () => {
   const [tour, setTour] = useState({
@@ -26,7 +26,6 @@ const CreateTour = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate fields
     if (!tour.name || !tour.city || !tour.startDate || !tour.endDate || !tour.price || !tour.capacity) {
       setError('All fields are required.');
       return;
@@ -54,7 +53,7 @@ const CreateTour = () => {
   const handleClose = () => {
     setOpen(false);
     setTimeout(() => {
-      navigate('/tour-list'); 
+      navigate('/tour-list');
     }, 100);
   };
 

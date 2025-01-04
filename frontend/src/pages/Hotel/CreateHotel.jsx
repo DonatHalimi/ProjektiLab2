@@ -1,9 +1,9 @@
+import { Alert, Box, Button, Container, Snackbar, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { createHotel } from '../../utils/axiosInstance'; 
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { createHotel } from '../../utils/axiosInstance';
 
 const CreateHotel = () => {
   const [hotel, setHotel] = useState({
@@ -12,7 +12,7 @@ const CreateHotel = () => {
     capacity: '',
     amenities: '',
     roomTypes: '',
-    image: null, 
+    image: null,
   });
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ const CreateHotel = () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'image') {
-      setHotel({ ...hotel, image: files[0] }); 
+      setHotel({ ...hotel, image: files[0] });
     } else {
       setHotel({ ...hotel, [name]: value });
     }
@@ -29,15 +29,15 @@ const CreateHotel = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    
+
+
     const formData = new FormData();
     formData.append('Name', hotel.name);
     formData.append('Location', hotel.location);
     formData.append('Capacity', hotel.capacity);
     formData.append('Amenities', hotel.amenities);
     formData.append('RoomTypes', hotel.roomTypes);
-    formData.append('Image', hotel.image); 
+    formData.append('Image', hotel.image);
     try {
       await createHotel(formData);
       setOpen(true);
@@ -50,7 +50,7 @@ const CreateHotel = () => {
   const handleClose = () => {
     setOpen(false);
     setTimeout(() => {
-      navigate('/hotels'); 
+      navigate('/hotels');
     }, 100);
   };
 

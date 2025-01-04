@@ -1,11 +1,11 @@
-import React from 'react';
-import { List, ListItem, ListItemText, ListItemIcon, Drawer, Toolbar, Box, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
-import FlightIcon from '@mui/icons-material/Flight';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Assessment } from '@mui/icons-material';
+import FlightIcon from '@mui/icons-material/Flight';
 import HotelIcon from '@mui/icons-material/Hotel';
 import MapIcon from '@mui/icons-material/Map';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { Box, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -53,26 +53,23 @@ const AdminSidebar = () => {
 
           <ListItem button component={Link} to="/tour-list">
             <ListItemIcon>
-            <MapIcon />
+              <MapIcon />
             </ListItemIcon>
             <ListItemText primary="Tour List" />
           </ListItem>
 
           <ListItem button component={Link} to="/tour-purchases">
             <ListItemIcon>
-            <ShoppingCartIcon />
+              <ShoppingCartIcon />
             </ListItemIcon>
             <ListItemText primary="Tour Purchase List" />
           </ListItem>
           <ListItem button component={Link} to="/hotels">
             <ListItemIcon>
-            <HotelIcon />
+              <HotelIcon />
             </ListItemIcon>
             <ListItemText primary="Hotel List" />
           </ListItem>
-
-          
-
         </List>
       </Box>
     </Drawer>

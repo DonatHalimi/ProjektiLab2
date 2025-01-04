@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { createFlightPurchase, getUsers, getFlights } from '../../utils/axiosInstance';
-import { Container, TextField, Button, Typography, Box, Snackbar, Alert, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { createFlightPurchase, getFlights } from '../../utils/axiosInstance';
+import { getUsers } from '../../services/userService';
 
 const CreateFlightPurchase = () => {
   const [flightPurchase, setFlightPurchase] = useState({
@@ -21,9 +22,7 @@ const CreateFlightPurchase = () => {
     const fetchUsersAndFlights = async () => {
       try {
         const usersResponse = await getUsers();
-        console.log('Users API Response:', usersResponse.data); // Log the API response for users
         const flightsResponse = await getFlights();
-        console.log('Flights API Response:', flightsResponse.data); // Log the API response for flights
         setUsers(Array.isArray(usersResponse.data.data) ? usersResponse.data.data : []);
         setFlights(Array.isArray(flightsResponse.data) ? flightsResponse.data : []);
       } catch (error) {

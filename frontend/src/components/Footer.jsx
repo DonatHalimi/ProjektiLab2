@@ -18,9 +18,9 @@ const Footer = () => {
         ],
         customerService: [
             { to: '/profile/me', label: 'My Account' },
-            { to: '/profile/orders', label: 'Order Tracking' },
-            { to: '/profile/address', label: 'Address' },
-            { to: '/profile/wishlist', label: 'Wishlist' },
+            { to: '/profile/flight-purchases', label: 'Flight Purchases' },
+            { to: '/profile/tour-purchases', label: 'Tour Purchases' },
+            { to: '/profile/hotel-purchases', label: 'Hotel Purchases' },
         ],
         contact: [
             { linkType: 'external', href: 'mailto:support@travel.com', icon: <Email />, label: 'Email' },
@@ -36,7 +36,6 @@ const Footer = () => {
 
         <footer className="bg-gray-600 text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Grid layout for footer sections */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Brand Description and Social Links */}
                     <div>

@@ -4,16 +4,15 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 
-
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: Outfit;
+  font-family: 'Outfit', sans-serif !important;
 }
 
 ::selection {
-  background-color: #857b72;
+  background-color: #656d77;
   color: white
 }
 

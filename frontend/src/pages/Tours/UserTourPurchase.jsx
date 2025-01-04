@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { getTours, createTourPurchase, getMyInfo } from '../../utils/axiosInstance';
-import { Container, Typography, Card, CardContent, CardActions, Button, TextField, Snackbar, Alert, Grid, Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, InputLabel, MenuItem, FormControl, Select, TablePagination } from '@mui/material';
-import Navbar from '../../components/Navbar';
+import { Alert, Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, Snackbar, TablePagination, TextField, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
+import { getCurrentUser } from '../../services/authService';
+import { createTourPurchase, getTours } from '../../utils/axiosInstance';
 
 const UserTourPurchase = () => {
   const [tours, setTours] = useState([]);
@@ -13,12 +14,10 @@ const UserTourPurchase = () => {
   const [error, setError] = useState('');
   const [profile, setProfile] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
-  
-  // Pagination states
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
 
-  // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [cityFilter, setCityFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
@@ -26,8 +25,8 @@ const UserTourPurchase = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getMyInfo();
-        setProfile(response.data);
+        const response = await getCurrentUser();
+        setProfile(response);
       } catch (error) {
         console.error('Error fetching profile:', error);
       }
@@ -40,7 +39,7 @@ const UserTourPurchase = () => {
       try {
         const response = await getTours();
         setTours(response.data);
-        setFilteredTours(response.data); // Initialize filtered tours with all tours
+        setFilteredTours(response.data);
       } catch (error) {
         console.error('Error fetching tours:', error);
       }
@@ -49,25 +48,21 @@ const UserTourPurchase = () => {
   }, []);
 
   useEffect(() => {
-    // Apply filters on tours when filters change
     const applyFilters = () => {
       let filtered = tours;
 
-      // Filter by name (search query)
       if (searchQuery) {
         filtered = filtered.filter((tour) =>
           tour.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
 
-      // Filter by city
       if (cityFilter) {
         filtered = filtered.filter((tour) =>
           tour.city.toLowerCase() === cityFilter.toLowerCase()
         );
       }
 
-      // Filter by price
       if (priceFilter) {
         filtered = filtered.filter((tour) => {
           const price = tour.price;
@@ -122,25 +117,23 @@ const UserTourPurchase = () => {
     setReservedTickets('');
   };
 
-  // Pagination Handlers
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // Reset to first page when rows per page changes
+    setPage(0);
   };
 
   return (
     <>
       <Navbar />
-      <Container sx={{ mt: 4 }}>
+      <div className='container mx-auto mt-10'>
         <Typography variant="h4" gutterBottom>
           Available Tours
         </Typography>
 
-        {/* Search and Filters */}
         <Grid container spacing={2} sx={{ mb: 2 }}>
           <Grid item xs={12} sm={4}>
             <TextField
@@ -219,7 +212,6 @@ const UserTourPurchase = () => {
             ))}
         </Grid>
 
-        {/* Pagination */}
         <TablePagination
           rowsPerPageOptions={[6, 12, 24]}
           component="div"
@@ -230,7 +222,6 @@ const UserTourPurchase = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
 
-        {/* Reserve Ticket Dialog */}
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
           <DialogTitle>Reserve Ticket</DialogTitle>
           <DialogContent>
@@ -257,14 +248,12 @@ const UserTourPurchase = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Success Snackbar */}
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
             Tickets reserved successfully!
           </Alert>
         </Snackbar>
 
-        {/* Error Snackbar */}
         {error && (
           <Snackbar open={true} autoHideDuration={6000} onClose={handleClose}>
             <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
@@ -272,7 +261,7 @@ const UserTourPurchase = () => {
             </Alert>
           </Snackbar>
         )}
-      </Container>
+      </div>
       <Footer />
     </>
   );
