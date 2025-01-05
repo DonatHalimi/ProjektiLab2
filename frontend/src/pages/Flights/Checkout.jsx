@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { getFlightPurchase } from '../../utils/axiosInstance';
+import { getFlightPurchase } from '../../services/flightService';
 
 const Checkout = () => {
   const { id } = useParams();

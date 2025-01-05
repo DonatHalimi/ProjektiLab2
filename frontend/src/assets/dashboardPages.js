@@ -9,7 +9,8 @@ const pages = {
     tourPurchases: React.lazy(() => import('../pages/Dashboard/TourPurchasesPage')),
     hotels: React.lazy(() => import('../pages/Dashboard/HotelsPage')),
     rooms: React.lazy(() => import('../pages/Dashboard/RoomsPage')),
-    roomPurchases: React.lazy(() => import('../pages/Dashboard/RoomPurchasesPage'))
+    roomPurchases: React.lazy(() => import('../pages/Dashboard/RoomPurchasesPage')),
+    flightPurchaseReports: React.lazy(() => import('../pages/Dashboard/flightPurchaseReports')),
 };
 
 export default pages;

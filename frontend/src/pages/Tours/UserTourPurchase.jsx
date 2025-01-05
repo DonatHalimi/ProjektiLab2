@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Footer from '../../components/Footer';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { createTourPurchase, getTours } from '../../utils/axiosInstance';
+import { createTourPurchase, getTours } from '../../services/tourService';
 
 const UserTourPurchase = () => {
   const [tours, setTours] = useState([]);

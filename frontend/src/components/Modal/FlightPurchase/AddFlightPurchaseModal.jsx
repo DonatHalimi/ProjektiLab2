@@ -9,7 +9,6 @@ const AddFlightPurchaseModal = ({ open, onClose, onAddSuccess }) => {
     const [formData, setFormData] = useState({
         userId: '',
         flightId: '',
-        purchaseDate: '',
         seatsReserved: '',
     });
 
@@ -30,7 +29,7 @@ const AddFlightPurchaseModal = ({ open, onClose, onAddSuccess }) => {
 
         if (open) {
             fetchUsersAndFlights();
-            setFormData((prev) => ({ ...prev, purchaseDate: new Date().toISOString().split('T')[0] })); // todays date
+            setFormData((prev) => ({ ...prev }));
         }
     }, [open]);
 
@@ -40,9 +39,9 @@ const AddFlightPurchaseModal = ({ open, onClose, onAddSuccess }) => {
     };
 
     const handleAddFlightPurchase = async () => {
-        const { userId, flightId, purchaseDate, seatsReserved } = formData;
+        const { userId, flightId, seatsReserved } = formData;
 
-        if (!userId || !flightId || !purchaseDate || !seatsReserved) {
+        if (!userId || !flightId || !seatsReserved) {
             toast.error('Please fill in all fields');
             return;
         }
@@ -51,7 +50,6 @@ const AddFlightPurchaseModal = ({ open, onClose, onAddSuccess }) => {
             const data = {
                 userId: parseInt(userId, 10),
                 flightId: parseInt(flightId, 10),
-                purchaseDate,
                 seatsReserved: parseInt(seatsReserved, 10),
             };
 
@@ -107,18 +105,6 @@ const AddFlightPurchaseModal = ({ open, onClose, onAddSuccess }) => {
                         </MenuItem>
                     ))}
                 </TextField>
-
-                <TextField
-                    fullWidth
-                    required
-                    type="date"
-                    label="Purchase Date"
-                    name="purchaseDate"
-                    value={formData.purchaseDate}
-                    onChange={handleChange}
-                    className="!mb-4"
-                    InputLabelProps={{ shrink: true }}
-                />
 
                 <TextField
                     fullWidth

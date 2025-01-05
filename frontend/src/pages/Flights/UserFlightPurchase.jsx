@@ -1,7 +1,7 @@
 import { Alert, Box, Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Pagination, Select, Snackbar, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { getCurrentUser } from '../../services/authService';
-import { createFlightPurchase, getFlights } from '../../utils/axiosInstance';
+import { createFlightPurchase, getFlights } from '../../services/flightService';
 
 const UserFlightPurchase = () => {
   const [flights, setFlights] = useState([]);
@@ -35,8 +35,8 @@ const UserFlightPurchase = () => {
     const fetchFlights = async () => {
       try {
         const response = await getFlights();
-        setFlights(response.data);
-        setFilteredFlights(response.data);
+        setFlights(response);
+        setFilteredFlights(response);
       } catch (error) {
         console.error('Error fetching flights:', error);
       }
@@ -120,9 +120,9 @@ const UserFlightPurchase = () => {
     setPage(value);
   };
 
-  const uniqueDepartureCities = [...new Set(flights.map(flight => flight.departureCity))];
+  const uniqueDepartureCities = [...new Set(flights?.map(flight => flight.departureCity))];
 
-  const paginatedFlights = filteredFlights.slice((page - 1) * pageSize, page * pageSize);
+  const paginatedFlights = filteredFlights?.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <>
@@ -166,7 +166,7 @@ const UserFlightPurchase = () => {
           </FormControl>
         </Box>
         <Grid container spacing={3}>
-          {paginatedFlights.map((flight) => (
+          {paginatedFlights?.map((flight) => (
             <Grid item xs={12} sm={6} md={4} key={flight.id}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', boxShadow: 3, backgroundColor: '#f5f5f5' }}>
                 <CardContent sx={{ flexGrow: 1, padding: 2 }}>
@@ -203,7 +203,7 @@ const UserFlightPurchase = () => {
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <Pagination
-            count={Math.ceil(filteredFlights.length / pageSize)}
+            count={Math.ceil(filteredFlights?.length / pageSize)}
             page={page}
             onChange={handlePageChange}
             color="primary"

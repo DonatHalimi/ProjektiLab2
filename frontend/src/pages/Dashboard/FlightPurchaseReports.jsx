@@ -1,9 +1,7 @@
 import { Alert, Box, Button, CircularProgress, Container, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Snackbar, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
-import Footer from '../../components/Footer';
-import Navbar from '../../components/Navbar';
-import { generateReport } from '../../utils/axiosInstance';
+import { generateReport } from '../../services/flightService';
 
 const Reports = () => {
   const [startDate, setStartDate] = useState('');
@@ -57,7 +55,6 @@ const Reports = () => {
 
   return (
     <>
-      <Navbar />
       <Container sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           Generate Report
@@ -164,7 +161,6 @@ const Reports = () => {
           </Alert>
         </Snackbar>
       </Container>
-      <Footer />
     </>
   );
 };

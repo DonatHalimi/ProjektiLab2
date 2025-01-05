@@ -68,8 +68,8 @@ namespace backend.Controllers
                 Capacity = request.Capacity,
                 Amenities = request.Amenities,
                 RoomTypes = request.RoomTypes,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
           
@@ -154,7 +154,7 @@ namespace backend.Controllers
                 }
             }
 
-            existingHotel.UpdatedAt = DateTime.UtcNow;
+            existingHotel.UpdatedAt = DateTime.Now;
 
             try
             {

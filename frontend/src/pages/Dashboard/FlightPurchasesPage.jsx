@@ -121,7 +121,7 @@ const FlightPurchasesPage = () => {
                     open={deletePurchaseOpen}
                     onClose={() => setDeletePurchaseOpen(false)}
                     items={selectedPurchases.map(id => flightPurchases.find(purchase => purchase.id === id)).filter(purchase => purchase)}
-                    onDeleteSuccess={fetchFlightPurchases()}
+                    onDeleteSuccess={fetchFlightPurchases}
                     endpoint="/FlightPurchases/delete-bulk"
                     title="Delete Purchases"
                     message="Are you sure you want to delete the selected purchases?"

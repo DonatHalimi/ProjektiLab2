@@ -1,6 +1,7 @@
 import {
     AirplaneTicketOutlined,
     Apartment,
+    Assessment,
     DashboardCustomize,
     DashboardOutlined,
     FlightTakeoff,
@@ -13,6 +14,7 @@ import {
     MapOutlined,
     PeopleOutlineOutlined,
     PersonOutline,
+    Report,
     SingleBed,
 } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
@@ -25,6 +27,7 @@ export const mainListItems = ({ setCurrentView }) => {
     const [flightsOpen, setFlightsOpen] = useState(true);
     const [toursOpen, setToursOpen] = useState(true);
     const [hotelsOpen, setHotelsOpen] = useState(true);
+    const [reportsOpen, setReportsOpen] = useState(true);
 
     const [activeItem, setActiveItem] = useState('');
     const navigate = useNavigate();
@@ -49,6 +52,7 @@ export const mainListItems = ({ setCurrentView }) => {
         setFlightsOpen(savedStates.flightsOpen ?? true);
         setToursOpen(savedStates.toursOpen ?? true);
         setHotelsOpen(savedStates.hotelsOpen ?? true);
+        setReportsOpen(savedStates.reportsOpen ?? true);
     }, []);
 
     useEffect(() => {
@@ -58,9 +62,10 @@ export const mainListItems = ({ setCurrentView }) => {
             flightsOpen,
             toursOpen,
             hotelsOpen,
+            reportsOpen,
         };
         localStorage.setItem('collapsibleState', JSON.stringify(collapsibleState));
-    }, [crudOpen, usersOpen, flightsOpen, toursOpen, hotelsOpen]);
+    }, [crudOpen, usersOpen, flightsOpen, toursOpen, hotelsOpen, reportsOpen]);
 
     return (
         <>
@@ -181,7 +186,22 @@ export const mainListItems = ({ setCurrentView }) => {
                         icon={<KingBedOutlined />}
                         primary="Room Purchases"
                     />
+                    
                 </CollapsibleListItem>
+                            {/* Reports Collapsible List */}
+                            <CollapsibleListItem
+                    open={reportsOpen}
+                    handleClick={() => setReportsOpen(!reportsOpen)}
+                    icon={<Assessment />}
+                    primary="Reports"
+                >
+                <ActiveListItem
+                        handleClick={() => handleItemClick('flightPurchaseReports')}
+                        selected={activeItem === 'flightPurchaseReports'}
+                        icon={<FlightTakeoff />}
+                        primary="Flight Purchase Reports"
+                    />
+                    </CollapsibleListItem>
             </CollapsibleListItem>
         </>
     );

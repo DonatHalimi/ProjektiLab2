@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { getTourPurchase } from '../../utils/axiosInstance';
+import { getTourPurchase } from '../../services/tourService';
 
 const CheckoutTour = () => {
   const { id } = useParams();

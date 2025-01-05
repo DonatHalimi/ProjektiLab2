@@ -9,7 +9,6 @@ const AddTourPurchaseModal = ({ open, onClose, onAddSuccess }) => {
     const [formData, setFormData] = useState({
         userId: '',
         tourId: '',
-        purchaseDate: '',
         reservedTickets: '',
     });
 
@@ -30,7 +29,7 @@ const AddTourPurchaseModal = ({ open, onClose, onAddSuccess }) => {
 
         if (open) {
             fetchUsersAndTours();
-            setFormData((prev) => ({ ...prev, purchaseDate: new Date().toISOString().split('T')[0] })); // today's date
+            setFormData((prev) => ({ ...prev})); 
         }
     }, [open]);
 
@@ -40,9 +39,9 @@ const AddTourPurchaseModal = ({ open, onClose, onAddSuccess }) => {
     };
 
     const handleAddTourPurchase = async () => {
-        const { userId, tourId, purchaseDate, reservedTickets } = formData;
+        const { userId, tourId,reservedTickets } = formData;
 
-        if (!userId || !tourId || !purchaseDate || !reservedTickets) {
+        if (!userId || !tourId || !reservedTickets) {
             toast.error('Please fill in all fields');
             return;
         }
@@ -51,7 +50,6 @@ const AddTourPurchaseModal = ({ open, onClose, onAddSuccess }) => {
             const data = {
                 userId: parseInt(userId, 10),
                 tourId: parseInt(tourId, 10),
-                purchaseDate,
                 reservedTickets: parseInt(reservedTickets, 10),
             };
 
@@ -107,17 +105,6 @@ const AddTourPurchaseModal = ({ open, onClose, onAddSuccess }) => {
                         </MenuItem>
                     ))}
                 </TextField>
-
-                <TextField
-                    fullWidth
-                    required
-                    type="date"
-                    label="Purchase Date"
-                    name="purchaseDate"
-                    value={formData.purchaseDate}
-                    onChange={handleChange}
-                    className="!mb-4"
-                />
 
                 <TextField
                     fullWidth

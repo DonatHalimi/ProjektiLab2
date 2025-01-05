@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { deleteFlightPurchase, deleteTourPurchase, getMyFlightPurchases, getMyTourPurchases } from '../../utils/axiosInstance';
+import { deleteFlightPurchase, getMyFlightPurchases} from '../../services/flightService';
+import { deleteTourPurchase, getMyTourPurchases } from '../../services/tourService';
 
 const MyProfile = () => {
   const [profile, setProfile] = useState({});

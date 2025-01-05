@@ -107,3 +107,4 @@ export const updateFlightPurchase = async (id, flightPurchase) => {
         throw error;
     }
 };
+export const generateReport = (criteria) => axiosInstance.post('/Reports/Generate', criteria);
