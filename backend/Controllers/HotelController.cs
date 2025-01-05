@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend.Models;
 using backend.Data;
@@ -74,11 +72,32 @@ namespace backend.Controllers
                 UpdatedAt = DateTime.UtcNow
             };
 
+          
             if (request.Image != null)
             {
-                using var memoryStream = new MemoryStream();
-                await request.Image.CopyToAsync(memoryStream);
-                hotel.Image = memoryStream.ToArray();
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+
+        
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+          
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.Image.CopyToAsync(fileStream);
+                }
+
+       
+                using (var memoryStream = new MemoryStream())
+                {
+                    await request.Image.CopyToAsync(memoryStream);
+                    hotel.Image = memoryStream.ToArray();
+                }
             }
 
             _context.Hotels.Add(hotel);
@@ -111,9 +130,28 @@ namespace backend.Controllers
 
             if (request.Image != null)
             {
-                using var memoryStream = new MemoryStream();
-                await request.Image.CopyToAsync(memoryStream);
-                existingHotel.Image = memoryStream.ToArray(); 
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+
+             
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+  
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.Image.CopyToAsync(fileStream);
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    await request.Image.CopyToAsync(memoryStream);
+                    existingHotel.Image = memoryStream.ToArray();
+                }
             }
 
             existingHotel.UpdatedAt = DateTime.UtcNow;
