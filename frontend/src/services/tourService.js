@@ -1,6 +1,5 @@
 import axiosInstance from "../utils/axiosInstance";
 
-// Tour Endpoints
 export const getTours = async () => {
     try {
         const response = await axiosInstance.get('/Tour');
@@ -51,7 +50,6 @@ export const updateTour = async (id, tour) => {
     }
 };
 
-// Tour Purchases Endpoints
 export const getTourPurchases = async () => {
     try {
         const response = await axiosInstance.get('/TourPurchase');
@@ -111,3 +109,4 @@ export const updateTourPurchase = async (id, tourPurchase) => {
         throw error;
     }
 };
+export const generateTourReport = (criteria) => axiosInstance.post('/TourReports/Generate', criteria);

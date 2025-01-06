@@ -188,20 +188,28 @@ export const mainListItems = ({ setCurrentView }) => {
                     />
                     
                 </CollapsibleListItem>
-                            {/* Reports Collapsible List */}
-                            <CollapsibleListItem
+
+                {/* Reports Collapsible List */}
+                <CollapsibleListItem
                     open={reportsOpen}
                     handleClick={() => setReportsOpen(!reportsOpen)}
                     icon={<Assessment />}
                     primary="Reports"
                 >
-                <ActiveListItem
+                    <ActiveListItem
                         handleClick={() => handleItemClick('flightPurchaseReports')}
                         selected={activeItem === 'flightPurchaseReports'}
                         icon={<FlightTakeoff />}
-                        primary="Flight Purchase Reports"
+                        primary="Flight Reports"
                     />
-                    </CollapsibleListItem>
+
+                    <ActiveListItem
+                        handleClick={() => handleItemClick('tourPurchaseReports')}
+                        selected={activeItem === 'tourPurchaseReports'}
+                        icon={<Map />}
+                        primary="Tour Reports"
+                    />
+                </CollapsibleListItem>
             </CollapsibleListItem>
         </>
     );
@@ -231,4 +239,4 @@ export const secondaryListItems = (
         <ListItemText primary="Year-end sale" />
       </ListItemButton> */}
     </>
-);
+); 

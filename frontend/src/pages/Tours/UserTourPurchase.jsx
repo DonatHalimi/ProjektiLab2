@@ -1,9 +1,9 @@
-import { Alert, Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, Snackbar, TablePagination, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Pagination, Select, Snackbar, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import Footer from '../../components/Footer';
-import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
 import { createTourPurchase, getTours } from '../../services/tourService';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const UserTourPurchase = () => {
   const [tours, setTours] = useState([]);
@@ -14,13 +14,11 @@ const UserTourPurchase = () => {
   const [error, setError] = useState('');
   const [profile, setProfile] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(6);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [cityFilter, setCityFilter] = useState('');
-  const [priceFilter, setPriceFilter] = useState('');
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('');
+  const [sort, setSort] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(6);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -31,6 +29,7 @@ const UserTourPurchase = () => {
         console.error('Error fetching profile:', error);
       }
     };
+
     fetchProfile();
   }, []);
 
@@ -44,51 +43,52 @@ const UserTourPurchase = () => {
         console.error('Error fetching tours:', error);
       }
     };
+
     fetchTours();
   }, []);
 
   useEffect(() => {
-    const applyFilters = () => {
-      let filtered = tours;
+    let filtered = tours;
 
-      if (searchQuery) {
-        filtered = filtered.filter((tour) =>
-          tour.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
+    if (search) {
+      filtered = filtered.filter(tour =>
+        tour.name.toLowerCase().includes(search.toLowerCase()) ||
+        tour.city.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
-      if (cityFilter) {
-        filtered = filtered.filter((tour) =>
-          tour.city.toLowerCase() === cityFilter.toLowerCase()
-        );
-      }
+    if (filter) {
+      filtered = filtered.filter(tour => tour.city === filter);
+    }
 
-      if (priceFilter) {
-        filtered = filtered.filter((tour) => {
-          const price = tour.price;
-          if (priceFilter === 'low') return price < 100;
-          if (priceFilter === 'medium') return price >= 100 && price <= 500;
-          if (priceFilter === 'high') return price > 500;
-          return true;
-        });
-      }
+    if (sort) {
+      filtered = [...filtered].sort((a, b) => {
+        if (sort === 'price') {
+          return a.price - b.price;
+        } else if (sort === 'startDate') {
+          return new Date(a.startDate) - new Date(b.startDate);
+        } else if (sort === 'endDate') {
+          return new Date(a.endDate) - new Date(b.endDate);
+        }
+        return 0;
+      });
+    }
 
-      setFilteredTours(filtered);
-    };
-
-    applyFilters();
-  }, [searchQuery, cityFilter, priceFilter, tours]);
+    setFilteredTours(filtered);
+  }, [search, filter, sort, tours]);
 
   const handleReserve = async () => {
     if (!reservedTickets || reservedTickets <= 0 || reservedTickets > 8) {
-      setError('Please enter a valid number of ticket (1-8).');
+      setError('Please enter a valid number of tickets (1-8).');
       return;
     }
+
     const tourPurchase = {
       userId: profile.id,
       tourId: selectedTour,
       reservedTickets: parseInt(reservedTickets, 10),
     };
+
     try {
       await createTourPurchase(tourPurchase);
       setOpen(true);
@@ -117,14 +117,13 @@ const UserTourPurchase = () => {
     setReservedTickets('');
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const handlePageChange = (event, value) => {
+    setPage(value);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const uniqueCities = [...new Set(tours?.map(tour => tour.city))];
+
+  const paginatedTours = filteredTours?.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <>
@@ -133,105 +132,95 @@ const UserTourPurchase = () => {
         <Typography variant="h4" gutterBottom>
           Available Tours
         </Typography>
-
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Search"
-              fullWidth
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Filter by City</InputLabel>
-              <Select
-                value={cityFilter}
-                onChange={(e) => setCityFilter(e.target.value)}
-              >
-                <MenuItem value="">All Cities</MenuItem>
-                {Array.from(new Set(tours.map((tour) => tour.city))).map((city) => (
-                  <MenuItem key={city} value={city}>
-                    {city}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Filter by Price</InputLabel>
-              <Select
-                value={priceFilter}
-                onChange={(e) => setPriceFilter(e.target.value)}
-              >
-                <MenuItem value="">All Prices</MenuItem>
-                <MenuItem value="low">Below $100</MenuItem>
-                <MenuItem value="medium">$100 - $500</MenuItem>
-                <MenuItem value="high">Above $500</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-
+        <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+          <TextField
+            label="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            fullWidth
+          />
+          <FormControl fullWidth>
+            <InputLabel>Filter by City</InputLabel>
+            <Select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              {uniqueCities.map((city) => (
+                <MenuItem key={city} value={city}>
+                  {city}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel>Sort by</InputLabel>
+            <Select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="price">Price</MenuItem>
+              <MenuItem value="startDate">Start Date</MenuItem>
+              <MenuItem value="endDate">End Date</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
         <Grid container spacing={3}>
-          {filteredTours
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((tour) => (
-              <Grid item xs={12} sm={6} md={4} key={tour.id} margin={4}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="h5" component="div">
-                      {tour.name}
-                    </Typography>
-                    <Typography color="textSecondary">{tour.city}</Typography>
-                    <Typography color="textSecondary">
-                      Start Date: {new Date(tour.startDate).toLocaleDateString()}
-                    </Typography>
-                    <Typography color="textSecondary">
-                      End Date: {new Date(tour.endDate).toLocaleDateString()}
-                    </Typography>
-                    <Typography color="textSecondary">
-                      Price: ${tour.price}
-                    </Typography>
-                    <Typography color="textSecondary">
-                      Capacity: {tour.capacity}
-                    </Typography>
-                    <Typography color="textSecondary">
-                      Reserved Tickets: {tour.reservedTickets}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button variant="contained" color="primary" onClick={() => handleDialogOpen(tour.id)}>
-                      Reserve
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+          {paginatedTours?.map((tour) => (
+            <Grid item xs={12} sm={6} md={4} key={tour.id}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', boxShadow: 3, backgroundColor: '#f5f5f5' }}>
+                <CardContent sx={{ flexGrow: 1, padding: 2 }}>
+                  <Typography variant="h5" component="div" gutterBottom>
+                    {tour.name}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {tour.city}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Start Date: {new Date(tour.startDate).toLocaleDateString()}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    End Date: {new Date(tour.endDate).toLocaleDateString()}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Price: {tour.price}$
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Capacity: {tour.capacity}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    Reserved Tickets: {tour.reservedTickets}
+                  </Typography>
+                </CardContent>
+                <CardActions sx={{ padding: 2, backgroundColor: '#e0e0e0', justifyContent: 'flex-end' }}>
+                  <Button variant="contained" color="primary" onClick={() => handleDialogOpen(tour.id)}>
+                    Reserve
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
-
-        <TablePagination
-          rowsPerPageOptions={[6, 12, 24]}
-          component="div"
-          count={filteredTours.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Pagination
+            count={Math.ceil(filteredTours?.length / pageSize)}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            sx={{ m: 2 }}
+          />
+        </Box>
         <Dialog open={dialogOpen} onClose={handleDialogClose}>
-          <DialogTitle>Reserve Ticket</DialogTitle>
+          <DialogTitle>Reserve Tickets</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Reserve ticket for Tour ID: {selectedTour} (1-8 tickets).
+              Reserve tickets for Tour ID: {selectedTour} (1-8 tickets).
             </DialogContentText>
             <TextField
               autoFocus
               margin="dense"
-              label="Ticket Reserved"
+              label="Tickets Reserved"
               type="number"
               fullWidth
               value={reservedTickets}
@@ -247,13 +236,11 @@ const UserTourPurchase = () => {
             </Button>
           </DialogActions>
         </Dialog>
-
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
             Tickets reserved successfully!
           </Alert>
         </Snackbar>
-
         {error && (
           <Snackbar open={true} autoHideDuration={6000} onClose={handleClose}>
             <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
