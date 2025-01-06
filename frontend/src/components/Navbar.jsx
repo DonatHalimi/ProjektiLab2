@@ -82,12 +82,6 @@ const Navbar = () => {
                                         />
                                     )}
                                 </div>
-
-                                <Link to="/profile" className="text-black hover:underline">
-                                    <OutlinedBlueButton variant="outlined">
-                                        My Profile
-                                    </OutlinedBlueButton>
-                                </Link>
                             </>
                         ) : (
                             <LoginButton />

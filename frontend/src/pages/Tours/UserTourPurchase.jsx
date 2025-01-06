@@ -38,8 +38,8 @@ const UserTourPurchase = () => {
     const fetchTours = async () => {
       try {
         const response = await getTours();
-        setTours(response.data);
-        setFilteredTours(response.data);
+        setTours(response);
+        setFilteredTours(response);
       } catch (error) {
         console.error('Error fetching tours:', error);
       }

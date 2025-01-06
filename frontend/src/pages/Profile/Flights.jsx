@@ -5,7 +5,8 @@ import Footer from '../../components/Footer';
 import FlightItem from '../../components/Items/FlightItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { getMyFlightPurchases } from '../../services/flightService';
+import { deleteFlightPurchase, getMyFlightPurchases } from '../../services/flightService';
+import { useNavigate } from 'react-router-dom';
 
 const itemsPerPage = 5;
 
@@ -15,6 +16,7 @@ const Flights = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [flightPurchases, setFlightPurchases] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const [user, setUser] = useState(null);
 
@@ -54,6 +56,19 @@ const Flights = () => {
         setCurrentPage(1);
     }, [searchTerm, statusFilter]);
 
+    const handleDelete = async (id) => {
+        try {
+            await deleteFlightPurchase(id);
+            setFlightPurchases((prev) => prev.filter((purchase) => purchase.id !== id));
+        } catch (error) {
+            console.error('Error deleting flight purchase:', error);
+        }
+    };
+
+    const handleCheckout = (id) => {
+        navigate(`/checkout/${id}`);
+    };
+
     const filteredFlightPurchases = Array.isArray(flightPurchases)
         ? flightPurchases.filter(({ flight, totalPrice, seatsReserved, purchaseDate, departureCity, arrivalCity }) => {
             const fields = [
@@ -82,7 +97,6 @@ const Flights = () => {
         <>
             <Navbar />
             <ProfileLayout>
-
                 <Header
                     title='Flights'
                     searchTerm={searchTerm}
@@ -107,13 +121,15 @@ const Flights = () => {
                 ) : (
                     <div className="flex flex-col">
                         <div className="grid gap-4 mb-3">
-                            {currentPageItems.map(purchase => (
+                            {currentPageItems.map((purchase) => (
                                 <FlightItem
                                     key={purchase.id}
                                     flight={purchase.flight}
                                     purchaseDate={purchase.purchaseDate}
                                     seatsReserved={purchase.seatsReserved}
                                     totalPrice={purchase.totalPrice}
+                                    onDelete={() => handleDelete(purchase.id)}
+                                    onCheckout={() => handleCheckout(purchase.id)}
                                 />
                             ))}
                         </div>

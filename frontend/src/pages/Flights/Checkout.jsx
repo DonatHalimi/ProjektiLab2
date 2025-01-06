@@ -19,8 +19,8 @@ const Checkout = () => {
     const fetchFlightPurchase = async () => {
       try {
         const response = await getFlightPurchase(id);
-        setFlightPurchase(response.data);
-        setPassengerNames(Array(response.data.seatsReserved).fill(''));
+        setFlightPurchase(response);
+        setPassengerNames(Array(response.seatsReserved).fill(''));
       } catch (error) {
         console.error('Error fetching flight purchase:', error);
       }

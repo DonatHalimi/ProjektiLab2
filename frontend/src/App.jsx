@@ -6,7 +6,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import ToTop from "./components/ToTop";
 import Login from "./pages/Auth/Login";
-import Profile from './pages/Auth/Profile';
 import ProfileInformation from "./pages/Profile/ProfileInformation";
 import Register from "./pages/Auth/Register";
 import NotAllowed from "./pages/Errors/NotAllowed";
@@ -25,7 +24,6 @@ const App = () => {
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/profile/me" element={<ProtectedRoute><ProfileInformation /></ProtectedRoute>} />
         <Route path="/profile/flight-purchases" element={<ProtectedRoute><Flights /></ProtectedRoute>} />
         <Route path="/profile/tour-purchases" element={<ProtectedRoute><Tours /></ProtectedRoute>} />
