@@ -16,6 +16,8 @@ import UserTourPurchase from "./pages/Tours/UserTourPurchase";
 import Home from "./pages/Home";
 import Flights from "./pages/Profile/Flights";
 import Tours from "./pages/Profile/Tours";
+import Rooms from "./pages/Profile/Rooms";
+import UserRoomPurchase from "./pages/Rooms/UserRoomPurchase";
 
 const App = () => {
   return (
@@ -27,8 +29,10 @@ const App = () => {
         <Route path="/profile/me" element={<ProtectedRoute><ProfileInformation /></ProtectedRoute>} />
         <Route path="/profile/flight-purchases" element={<ProtectedRoute><Flights /></ProtectedRoute>} />
         <Route path="/profile/tour-purchases" element={<ProtectedRoute><Tours /></ProtectedRoute>} />
+        <Route path="/profile/room-purchases" element={<ProtectedRoute><Rooms /></ProtectedRoute>} />
         <Route path="/checkout/:id" element={<Checkout />} />
         <Route path="/user-tours" element={<UserTourPurchase />} />
+        <Route path="/user-rooms" element={<UserRoomPurchase />} />
         <Route path="/checkouttour/:id" element={<CheckoutTour />} />
 
         <Route path="/dashboard" element={<ProtectedRoute adminOnly><DashboardLayout /></ProtectedRoute>}>

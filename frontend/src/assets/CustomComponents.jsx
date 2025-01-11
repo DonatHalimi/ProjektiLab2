@@ -431,6 +431,13 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
                     <Map className="mr-2 text-[#5c6675]" />
                     Tours
                 </button>
+                <button
+                    onClick={() => handleNavigate('/profile/room-purchases')}
+                    className="flex items-center px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 no-underline w-full text-left"
+                >
+                    <Map className="mr-2 text-[#5c6675]" />
+                    Rooms
+                </button>
                 <Divider className='!mb-2' />
                 <button
                     onClick={handleLogout}

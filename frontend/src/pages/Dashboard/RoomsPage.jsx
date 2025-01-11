@@ -83,6 +83,7 @@ const RoomsPage = () => {
       },
     },
     { key: 'hotelName', label: 'Hotel Name' },
+    { key: 'hotelLocation', label: 'Hotel Location' },
     { key: 'roomType', label: 'Room Type' },
     { key: 'capacity', label: 'Capacity' },
     { key: 'price', label: 'Price', render: (row) => `€ ${row.price}` },

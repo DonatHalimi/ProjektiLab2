@@ -13,5 +13,6 @@
         public DateTime UpdatedAt { get; set; }
 
         public virtual ICollection<Room> Rooms { get; set; } = new List<Room>();
+        public ICollection<RoomPurchase>? RoomPurchases { get; set; }
     }
 }

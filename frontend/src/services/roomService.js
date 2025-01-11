@@ -61,4 +61,62 @@ export const deleteImageFromRoom = async (imageName) => {
     }
 };
 
-// Room purchase endpoints
+export const getRoomPurchases = async () => {
+    try {
+        const response = await axiosInstance.get('/RoomPurchase');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching room purchases:", error);
+        throw error;
+    }
+};
+
+export const getRoomPurchase = async (id) => {
+    try {
+        const response = await axiosInstance.get(`/RoomPurchase/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching room purchase with ID ${id}:`, error);
+        throw error;
+    }
+};
+
+export const createRoomPurchase = async (roomPurchase) => {
+    try {
+        const response = await axiosInstance.post('/RoomPurchase', roomPurchase);
+        return response.data;
+    } catch (error) {
+        console.error("Error creating room purchase:", error);
+        throw error;
+    }
+};
+
+export const deleteRoomPurchase = async (id) => {
+    try {
+        const response = await axiosInstance.delete(`/RoomPurchase/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting room purchase with ID ${id}:`, error);
+        throw error;
+    }
+};
+
+export const updateRoomPurchase = async (id, roomPurchase) => {
+    try {
+        const response = await axiosInstance.put(`/RoomPurchase/${id}`, roomPurchase);
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating room purchase with ID ${id}:`, error);
+        throw error;
+    }
+};
+
+export const getMyRoomPurchases = async (userId) => {
+    try {
+        const response = await axiosInstance.get(`/RoomPurchase/my/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching my room purchases with ID ${userId}:`, error);
+        throw error;
+    }
+};

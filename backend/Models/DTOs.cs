@@ -73,6 +73,15 @@ namespace backend.Models
         public decimal Price { get; set; }
         public List<IFormFile> Images { get; set; } = new List<IFormFile>();
     }
+    public class RoomPurchaseDTO
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int RoomId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int Guests { get; set; }
+    }
 
     public class BulkDeleteRequest
     {

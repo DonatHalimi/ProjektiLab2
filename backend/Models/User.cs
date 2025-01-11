@@ -12,5 +12,6 @@
 
         public ICollection<FlightPurchase>? FlightPurchases { get; set; }
         public ICollection<TourPurchase>? TourPurchases { get; set; }
+        public ICollection<RoomPurchase>? RoomPurchases { get; set; }
     }
 }

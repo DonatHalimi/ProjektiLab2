@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250110005421_AddRoomPurchaseTable")]
+    partial class AddRoomPurchaseTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -223,7 +226,7 @@ namespace backend.Migrations
                     b.Property<int>("Guests")
                         .HasColumnType("int");
 
-                    b.Property<int?>("HotelId")
+                    b.Property<int>("HotelId")
                         .HasColumnType("int");
 
                     b.Property<int>("RoomId")
@@ -398,21 +401,25 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.RoomPurchase", b =>
                 {
-                    b.HasOne("backend.Models.Hotel", null)
+                    b.HasOne("backend.Models.Hotel", "Hotel")
                         .WithMany("RoomPurchases")
-                        .HasForeignKey("HotelId");
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("backend.Models.Room", "Room")
                         .WithMany("RoomPurchases")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("backend.Models.User", "User")
                         .WithMany("RoomPurchases")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Hotel");
 
                     b.Navigation("Room");
 

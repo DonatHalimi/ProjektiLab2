@@ -22,6 +22,8 @@ namespace backend.Data
 
         public DbSet<TourPurchase> TourPurchases { get; set; }
 
+        public DbSet<RoomPurchase> RoomPurchases { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -55,6 +57,19 @@ namespace backend.Data
                 .HasOne(ri => ri.Room)
                 .WithMany(r => r.Images)
                 .HasForeignKey(ri => ri.RoomId);
+
+            modelBuilder.Entity<RoomPurchase>()
+                .HasOne(rp => rp.User)
+                .WithMany(u => u.RoomPurchases)
+                .HasForeignKey(rp => rp.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<RoomPurchase>()
+                .HasOne(rp => rp.Room)
+                .WithMany(r => r.RoomPurchases)
+                .HasForeignKey(rp => rp.RoomId)
+              .OnDelete(DeleteBehavior.NoAction);
+
         }
     }
 }

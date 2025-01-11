@@ -14,6 +14,7 @@
 
         // Collection of room images
         public virtual ICollection<RoomImage> Images { get; set; } = new List<RoomImage>();
+        public ICollection<RoomPurchase>? RoomPurchases { get; set; }
     }
 
     public class RoomImage

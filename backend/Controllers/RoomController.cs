@@ -20,7 +20,6 @@ namespace backend.Controllers
 
         // GET: /api/rooms/get
         [HttpGet("get")]
-        [RequireAdmin]
         public async Task<IActionResult> GetRooms()
         {
             var rooms = await _context.Rooms
@@ -35,6 +34,7 @@ namespace backend.Controllers
                 room.Id,
                 room.HotelID,
                 HotelName = room.Hotel.Name,
+                HotelLocation=room.Hotel.Location,
                 room.RoomType,
                 room.Capacity,
                 room.Price,
@@ -106,6 +106,7 @@ namespace backend.Controllers
                     room.Id,
                     room.HotelID,
                     HotelName = room.Hotel.Name,
+                    HotelLocation=room.Hotel.Location,
                     room.RoomType,
                     room.Capacity,
                     room.Price,
