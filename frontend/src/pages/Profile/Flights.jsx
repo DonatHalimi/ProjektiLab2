@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { calculatePageCount, CustomPagination, EmptyState, getPaginatedItems, handlePageChange, Header, LoadingFlightItem, ProfileLayout } from '../../assets/CustomComponents';
 import emptyFlightsImage from '../../assets/img/empty/not-found.png';
 import Footer from '../../components/Footer';
@@ -6,7 +7,6 @@ import FlightItem from '../../components/Items/FlightItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
 import { deleteFlightPurchase, getMyFlightPurchases } from '../../services/flightService';
-import { useNavigate } from 'react-router-dom';
 
 const itemsPerPage = 5;
 

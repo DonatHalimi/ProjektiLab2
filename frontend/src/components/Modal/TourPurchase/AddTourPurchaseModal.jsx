@@ -29,7 +29,7 @@ const AddTourPurchaseModal = ({ open, onClose, onAddSuccess }) => {
 
         if (open) {
             fetchUsersAndTours();
-            setFormData((prev) => ({ ...prev})); 
+            setFormData((prev) => ({ ...prev }));
         }
     }, [open]);
 
@@ -39,7 +39,7 @@ const AddTourPurchaseModal = ({ open, onClose, onAddSuccess }) => {
     };
 
     const handleAddTourPurchase = async () => {
-        const { userId, tourId,reservedTickets } = formData;
+        const { userId, tourId, reservedTickets } = formData;
 
         if (!userId || !tourId || !reservedTickets) {
             toast.error('Please fill in all fields');

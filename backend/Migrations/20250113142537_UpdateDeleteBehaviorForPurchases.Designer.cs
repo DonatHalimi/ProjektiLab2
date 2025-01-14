@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250110154421_UpdatedRoomTable")]
-    partial class UpdatedRoomTable
+    [Migration("20250113142537_UpdateDeleteBehaviorForPurchases")]
+    partial class UpdateDeleteBehaviorForPurchases
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -363,7 +363,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Models.Flight", "Flight")
                         .WithMany("FlightPurchases")
                         .HasForeignKey("FlightId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("backend.Models.User", "User")
@@ -427,7 +427,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Models.Tour", "Tour")
                         .WithMany("TourPurchases")
                         .HasForeignKey("TourId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("backend.Models.User", "User")

@@ -36,17 +36,19 @@ namespace backend.Data
             modelBuilder.Entity<FlightPurchase>()
                 .HasOne(fp => fp.Flight)
                 .WithMany(f => f.FlightPurchases)
-                .HasForeignKey(fp => fp.FlightId);
+                .HasForeignKey(fp => fp.FlightId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TourPurchase>()
-              .HasOne(fp => fp.User)
+                .HasOne(fp => fp.User)
                 .WithMany(u => u.TourPurchases)
-              .HasForeignKey(fp => fp.UserId);
+                .HasForeignKey(fp => fp.UserId);
 
             modelBuilder.Entity<TourPurchase>()
                 .HasOne(fp => fp.Tour)
                 .WithMany(f => f.TourPurchases)
-                .HasForeignKey(fp => fp.TourId);
+                .HasForeignKey(fp => fp.TourId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Room>()
                 .HasOne(r => r.Hotel)
@@ -68,8 +70,7 @@ namespace backend.Data
                 .HasOne(rp => rp.Room)
                 .WithMany(r => r.RoomPurchases)
                 .HasForeignKey(rp => rp.RoomId)
-              .OnDelete(DeleteBehavior.NoAction);
-
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

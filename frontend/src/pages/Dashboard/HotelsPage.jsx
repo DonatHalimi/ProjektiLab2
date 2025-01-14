@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, formatDate, ImagePreviewModal } from '../../assets/CustomComponents.jsx';
+import { DashboardHeader, formatDate, ImagePreviewModal, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal.jsx';
 import AddHotelModal from '../../components/Modal/Hotel/AddHotelModal.jsx';
@@ -8,6 +8,8 @@ import { getHotels } from '../../services/hotelService.js';
 
 const HotelsPage = () => {
   const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [selectedHotels, setSelectedHotels] = useState([]);
   const [addHotelOpen, setAddHotelOpen] = useState(false);
@@ -20,10 +22,13 @@ const HotelsPage = () => {
 
   const fetchHotels = async () => {
     try {
+      setLoading(true);
       const response = await getHotels();
       setHotels(response.data);
     } catch (error) {
       console.error('Error fetching hotels:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,25 +95,31 @@ const HotelsPage = () => {
     <>
       <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
         <div className='flex flex-col items-center justify-center'>
-          <DashboardHeader
-            title="Hotels"
-            selectedItems={selectedHotels}
-            setAddItemOpen={setAddHotelOpen}
-            setDeleteItemOpen={setDeleteHotelOpen}
-            itemName="Hotel"
-          />
+          {loading ? (
+            <LoadingDataGrid />
+          ) : (
+            <>
+              <DashboardHeader
+                title="Hotels"
+                selectedItems={selectedHotels}
+                setAddItemOpen={setAddHotelOpen}
+                setDeleteItemOpen={setDeleteHotelOpen}
+                itemName="Hotel"
+              />
 
-          <DashboardTable
-            columns={columns}
-            data={hotels}
-            selectedItems={selectedHotels}
-            onSelectItem={handleSelectHotel}
-            onSelectAll={handleSelectAll}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={handlePageClick}
-            onEdit={handleEdit}
-          />
+              <DashboardTable
+                columns={columns}
+                data={hotels}
+                selectedItems={selectedHotels}
+                onSelectItem={handleSelectHotel}
+                onSelectAll={handleSelectAll}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={handlePageClick}
+                onEdit={handleEdit}
+              />
+            </>
+          )}
 
           <AddHotelModal open={addHotelOpen} onClose={() => setAddHotelOpen(false)} onAddSuccess={fetchHotels} />
           <EditHotelModal open={editHotelOpen} onClose={() => setEditHotelOpen(false)} hotel={selectedHotel} onEditSuccess={fetchHotels} />
@@ -116,7 +127,10 @@ const HotelsPage = () => {
             open={deleteHotelOpen}
             onClose={() => setDeleteHotelOpen(false)}
             items={selectedHotels.map(id => hotels.find(hotel => hotel.id === id)).filter(hotel => hotel)}
-            onDeleteSuccess={fetchHotels}
+            onDeleteSuccess={() => {
+              fetchHotels()
+              setSelectedHotels([]);
+            }}
             endpoint="/hotels/delete-bulk"
             title="Delete Hotels"
             message="Are you sure you want to delete the selected hotels?"

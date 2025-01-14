@@ -17,7 +17,8 @@ const DeleteModal = ({ open, onClose, items, onDeleteSuccess, endpoint, title, m
             onClose();
         } catch (error) {
             const itemType = title.replace('Delete', '').trim();
-            toast.error(`Error deleting ${itemType}`);
+            const errorMessage = error.response?.data?.message || `Error deleting ${itemType}`;
+            toast.error(errorMessage);
 
             console.error(`Error deleting ${itemType}`, error);
         }

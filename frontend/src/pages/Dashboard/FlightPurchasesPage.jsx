@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardCityFlag, DashboardHeader, formatDate } from '../../assets/CustomComponents';
+import { DashboardCityFlag, DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddFlightPurchaseModal from '../../components/Modal/FlightPurchase/AddFlightPurchaseModal';
@@ -8,6 +8,7 @@ import { getFlightPurchases } from '../../services/flightService';
 
 const FlightPurchasesPage = () => {
     const [flightPurchases, setFlightPurchases] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [selectedPurchase, setSelectedPurchase] = useState(null);
     const [selectedPurchases, setSelectedPurchases] = useState([]);
@@ -20,10 +21,13 @@ const FlightPurchasesPage = () => {
 
     const fetchFlightPurchases = async () => {
         try {
+            setLoading(true);
             const response = await getFlightPurchases();
             setFlightPurchases(response);
         } catch (error) {
             console.error('Error fetching flight purchases:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -94,26 +98,32 @@ const FlightPurchasesPage = () => {
     return (
         <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
             <div className='flex flex-col items-center justify-center'>
-                <DashboardHeader
-                    title="Flight Purchases"
-                    selectedItems={selectedPurchases}
-                    setAddItemOpen={setAddFlightPurchaseOpen}
-                    setDeleteItemOpen={setDeletePurchaseOpen}
-                    itemName="Flight Purchase"
-                />
+                {loading ? (
+                    <LoadingDataGrid />
+                ) : (
+                    <>
+                        <DashboardHeader
+                            title="Flight Purchases"
+                            selectedItems={selectedPurchases}
+                            setAddItemOpen={setAddFlightPurchaseOpen}
+                            setDeleteItemOpen={setDeletePurchaseOpen}
+                            itemName="Flight Purchase"
+                        />
 
-                <DashboardTable
-                    columns={columns}
-                    data={flightPurchases}
-                    selectedItems={selectedPurchases}
-                    onSelectItem={handleSelectPurchase}
-                    onSelectAll={handleSelectAll}
-                    itemsPerPage={itemsPerPage}
-                    currentPage={currentPage}
-                    onPageChange={handlePageClick}
-                    onEdit={handleEdit}
-                    containerClassName='flight-purchases'
-                />
+                        <DashboardTable
+                            columns={columns}
+                            data={flightPurchases}
+                            selectedItems={selectedPurchases}
+                            onSelectItem={handleSelectPurchase}
+                            onSelectAll={handleSelectAll}
+                            itemsPerPage={itemsPerPage}
+                            currentPage={currentPage}
+                            onPageChange={handlePageClick}
+                            onEdit={handleEdit}
+                            containerClassName='flight-purchases'
+                        />
+                    </>
+                )}
 
                 <AddFlightPurchaseModal open={addFlightPurchaseOpen} onClose={() => setAddFlightPurchaseOpen(false)} onAddSuccess={fetchFlightPurchases} />
                 <EditFlightPurchaseModal open={editFlightPurchaseOpen} onClose={() => setEditFlightPurchaseOpen(false)} flight={selectedPurchase} onEditSuccess={fetchFlightPurchases} />
@@ -121,7 +131,10 @@ const FlightPurchasesPage = () => {
                     open={deletePurchaseOpen}
                     onClose={() => setDeletePurchaseOpen(false)}
                     items={selectedPurchases.map(id => flightPurchases.find(purchase => purchase.id === id)).filter(purchase => purchase)}
-                    onDeleteSuccess={fetchFlightPurchases}
+                    onDeleteSuccess={() => {
+                        fetchFlightPurchases()
+                        setSelectedPurchases([]);
+                    }}
                     endpoint="/FlightPurchases/delete-bulk"
                     title="Delete Purchases"
                     message="Are you sure you want to delete the selected purchases?"

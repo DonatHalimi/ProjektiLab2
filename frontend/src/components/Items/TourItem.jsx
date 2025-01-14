@@ -1,7 +1,6 @@
-import { East } from '@mui/icons-material';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CityFlag, formatDate, formatPrice } from '../../assets/CustomComponents';
+import { CityFlag, formatDate, formatFullDate, formatPrice } from '../../assets/CustomComponents';
 
 const TourItem = ({ tour, purchaseDate, reservedTickets, totalPrice }) => {
     const { id, name, city, startDate, endDate } = tour || {};
@@ -27,14 +26,15 @@ const TourItem = ({ tour, purchaseDate, reservedTickets, totalPrice }) => {
 
                 <div className="border-t border-stone-100 mt-4 mb-4" />
 
-                <div className="flex items-center justify-start gap-3">
-                    <div className="flex flex-col items-center">
-                        <CityFlag city={city} />
-                    </div>
-
-                    <div className="flex flex-col items-center">
-                        <p>Tour Start Date: {formatDate(startDate)}</p>
-                        <p>Tour End Date: {formatDate(endDate)}</p>
+                <div className="flex items-center gap-4">
+                    <CityFlag city={city} />
+                    <div className="flex flex-col items-start gap-2 ml-3">
+                        <p>
+                            <span className="font-semibold">Start Date:</span> {formatFullDate(startDate)}
+                        </p>
+                        <p>
+                            <span className="font-semibold">End Date:</span> {formatFullDate(endDate)}
+                        </p>
                     </div>
                 </div>
             </div>

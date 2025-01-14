@@ -34,7 +34,7 @@ namespace backend.Controllers
                 room.Id,
                 room.HotelID,
                 HotelName = room.Hotel.Name,
-                HotelLocation=room.Hotel.Location,
+                HotelLocation = room.Hotel.Location,
                 room.RoomType,
                 room.Capacity,
                 room.Price,
@@ -106,7 +106,7 @@ namespace backend.Controllers
                     room.Id,
                     room.HotelID,
                     HotelName = room.Hotel.Name,
-                    HotelLocation=room.Hotel.Location,
+                    HotelLocation = room.Hotel.Location,
                     room.RoomType,
                     room.Capacity,
                     room.Price,
@@ -139,8 +139,8 @@ namespace backend.Controllers
                 RoomType = roomRequest.RoomType,
                 Capacity = roomRequest.Capacity,
                 Price = roomRequest.Price,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
             };
 
             _context.Rooms.Add(room);
@@ -256,7 +256,7 @@ namespace backend.Controllers
             foreach (var image in room.Images)
             {
                 var imagePath = Path.Combine(uploadsDirectory, Path.GetFileName(image.Url));
-                if (System.IO.File.Exists(imagePath)) 
+                if (System.IO.File.Exists(imagePath))
                 {
                     System.IO.File.Delete(imagePath);
                 }
@@ -280,43 +280,61 @@ namespace backend.Controllers
         [RequireAdmin]
         public async Task<IActionResult> DeleteRoomsBulk([FromBody] BulkDeleteRequest request)
         {
-            if (request?.Ids == null || !request.Ids.Any())
-            {
-                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
-            }
 
-            var roomsToDelete = await _context.Rooms
-                .Include(r => r.Images)
-                .Where(r => request.Ids.Contains(r.Id))
-                .ToListAsync();
-
-            if (!roomsToDelete.Any())
+            try
             {
-                return NotFound(new { success = false, message = "No rooms found for the provided IDs" });
-            }
-
-            var uploadsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
-            foreach (var room in roomsToDelete)
-            {
-                foreach (var image in room.Images)
+                if (request?.Ids == null || !request.Ids.Any())
                 {
-                    var imagePath = Path.Combine(uploadsDirectory, Path.GetFileName(image.Url));
-                    if (System.IO.File.Exists(imagePath))
+                    return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+                }
+
+                var itemsToDelete = await _context.Rooms
+                    .Include(r => r.Images)
+                    .Where(r => request.Ids.Contains(r.Id))
+                    .ToListAsync();
+
+                if (!itemsToDelete.Any())
+                {
+                    return NotFound(new { success = false, message = "No rooms found for the provided IDs" });
+                }
+
+                var uploadsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+                foreach (var room in itemsToDelete)
+                {
+                    foreach (var image in room.Images)
                     {
-                        System.IO.File.Delete(imagePath);
+                        var imagePath = Path.Combine(uploadsDirectory, Path.GetFileName(image.Url));
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
                     }
                 }
-            }
 
-            foreach (var room in roomsToDelete)
+                foreach (var room in itemsToDelete)
+                {
+                    _context.RoomImages.RemoveRange(room.Images);
+                    _context.Rooms.Remove(room);
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true, message = "Rooms and their images deleted successfully" });
+            }
+            catch (DbUpdateException ex)
             {
-                _context.RoomImages.RemoveRange(room.Images);
-                _context.Rooms.Remove(room);
+                if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
+                    sqlEx.Number == 547)
+                {
+                    return Conflict(new
+                    {
+                        success = false,
+                        message = "Cannot delete rooms with existing purchases. Please ensure no related purchases are linked to these rooms."
+                    });
+                }
+
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, new { success = false, message = "An error occurred while deleting rooms." });
             }
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new { success = true, message = "Rooms and their images deleted successfully" });
         }
     }
 }

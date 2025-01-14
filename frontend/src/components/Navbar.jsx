@@ -1,7 +1,7 @@
 import { Button, Tooltip } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LoginButton, OutlinedBlueButton, ProfileDropdown, ProfileIcon } from "../assets/CustomComponents";
+import { LoginButton, ProfileDropdown, ProfileIcon } from "../assets/CustomComponents";
 import { getCurrentUser } from "../services/authService";
 
 const Navbar = () => {

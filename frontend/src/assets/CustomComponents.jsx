@@ -16,8 +16,7 @@ import {
     MenuOutlined,
     Person,
     Search,
-    StarOutlined,
-    X
+    StarOutlined
 } from "@mui/icons-material";
 import {
     Box,
@@ -30,12 +29,10 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    MenuItem,
     Modal,
     AppBar as MuiAppBar, Drawer as MuiDrawer,
     Pagination,
     PaginationItem,
-    Select,
     Skeleton,
     Stack,
     styled,
@@ -46,8 +43,9 @@ import {
 } from "@mui/material";
 import { GridToolbar } from "@mui/x-data-grid";
 import { AnimatePresence, motion } from "framer-motion";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import * as XLSX from 'xlsx';
 import ProfileSidebar from "../pages/Profile/ProfileSidebar";
 import { getCurrentUser } from "../services/authService";
 
@@ -79,6 +77,66 @@ export const LoadingFlightItem = () => {
                     </Box>
                 ))}
             </Box>
+        </>
+    );
+};
+
+export const LoadingDataGrid = () => {
+    const rows = Array(10).fill(null);
+    const columns = Array(6).fill({ width: [280, 220, 280, 220, 280, 110] });
+
+    return (
+        <>
+            {/* Actions Header */}
+            <div className="bg-white p-4 flex items-center justify-between w-full mb-4 rounded-md">
+                <WaveSkeleton variant="text" width="10%" height={25} />
+                <WaveSkeleton variant="rectangular" width="6%" height={25} className="rounded-md mr-3" />
+            </div>
+
+            <div className="bg-white p-4 rounded-md">
+                {/* Table Header */}
+                <div className="flex justify-end items-center pb-4 border-b gap-3">
+                    {[...Array(4)].map((_, i) => (
+                        <WaveSkeleton
+                            key={`header-${i}`}
+                            variant="rectangular"
+                            width={60}
+                            height={25}
+                            className="rounded-md"
+                        />
+                    ))}
+                </div>
+
+                {/* Table Rows */}
+                {rows.map((_, rowIdx) => (
+                    <div key={rowIdx} className="flex gap-4 border-b py-3">
+                        {columns[0].width.map((width, colIdx) => (
+                            <WaveSkeleton
+                                key={`row-${rowIdx}-col-${colIdx}`}
+                                variant="rectangular"
+                                width={width}
+                                height={25}
+                                className="rounded-md"
+                            />
+                        ))}
+                    </div>
+                ))}
+
+                {/* Footer */}
+                <div className="flex justify-end items-center mt-1 pt-4 gap-3">
+                    <WaveSkeleton variant="rectangular" width={150} height={25} className="rounded" />
+                    <WaveSkeleton variant="rectangular" width={50} height={25} className="rounded" />
+                    {[...Array(2)].map((_, i) => (
+                        <WaveSkeleton
+                            key={`footer-${i}`}
+                            variant="circular"
+                            width={25}
+                            height={25}
+                            className="rounded"
+                        />
+                    ))}
+                </div>
+            </div>
         </>
     );
 };
@@ -204,7 +262,7 @@ export const RoundIconButton = styled(IconButton)(({ theme }) => ({
     height: '40px',
 }));
 
-export const ProfileButton = styled(IconButton)(({ theme, isDropdownOpen }) => ({
+export const ProfileButton = styled(IconButton, { shouldForwardProp: (prop) => prop !== 'isDropdownOpen', })(({ theme, isDropdownOpen }) => ({
     color: 'black',
     width: '100px',
     height: '40px',
@@ -225,6 +283,15 @@ export const formatDate = (dateString) => {
     const formattedTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 
     return `${formattedDate} at ${formattedTime}`;
+};
+
+export const formatFullDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
 };
 
 export const formatPrice = (price) => {
@@ -251,7 +318,7 @@ export const LoginButton = () => {
 }
 
 const getEmptyStateMessage = (context, items, searchTerm, statusFilter) => {
-    const entity = context === 'flights' ? 'flight booking' : context === 'tours' ? 'tour purchase' : context === 'hotel' ? 'hotel booking' : 'flights';
+    const entity = context === 'flights' ? 'flight booking' : context === 'tours' ? 'tour purchase' : context === 'hotel' ? 'hotel booking' : context = 'rooms' ? 'room booking' : 'flights';
 
     if (items.length === 0 && searchTerm) return `No ${entity} match your search term!`;
 
@@ -402,55 +469,60 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
                     <>
                         <button
                             onClick={() => handleNavigate('/dashboard/users')}
-                            className="flex items-center px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 no-underline w-full text-left"
+                            className='flex items-center w-full px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 text-left'
                         >
-                            <Dashboard className="mr-2 text-[#5c6675]" />
+                            <Dashboard className='mr-2 text-[#5c6675]' />
                             Dashboard
                         </button>
-                        <Divider className='!mb-2' />
+                        <Divider className="!mb-2" />
                     </>
                 )}
+
                 <button
                     onClick={() => handleNavigate('/profile/me')}
-                    className="flex items-center px-2 py-2 text-stone-700 hover:bg-stone-100 no-underline w-full text-left"
+                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
                 >
-                    <Person className="mr-2 text-[#5c6675]" />
+                    <Person className='mr-2 text-[#5c6675]' />
                     Profile
                 </button>
+
                 <button
                     onClick={() => handleNavigate('/profile/flight-purchases')}
-                    className="flex items-center px-2 py-2 text-stone-700 hover:bg-stone-100 no-underline w-full text-left"
+                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
                 >
-                    <AirplaneTicket className="mr-2 text-[#5c6675]" />
+                    <AirplaneTicket className='mr-2 text-[#5c6675]' />
                     Flights
                 </button>
+
                 <button
                     onClick={() => handleNavigate('/profile/tour-purchases')}
-                    className="flex items-center px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 no-underline w-full text-left"
+                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
                 >
-                    <Map className="mr-2 text-[#5c6675]" />
+                    <Map className='mr-2 text-[#5c6675]' />
                     Tours
                 </button>
+
                 <button
                     onClick={() => handleNavigate('/profile/room-purchases')}
-                    className="flex items-center px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 no-underline w-full text-left"
+                    className='flex items-center w-full px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 text-left'
                 >
-                    <Map className="mr-2 text-[#5c6675]" />
+                    <Hotel className='mr-2 text-[#5c6675]' />
                     Rooms
                 </button>
-                <Divider className='!mb-2' />
+
+                <Divider className="!mb-2" />
+
                 <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left"
+                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
                 >
-                    <Logout className="mr-2 text-[#5c6675]" />
+                    <Logout className='mr-2 text-[#5c6675]' />
                     Log Out
                 </button>
             </DropdownAnimation>
         </div>
     );
 };
-
 export const CustomPerson = ({ sx }) => <Person sx={{ ...sx, color: '#5c6675' }} />;
 export const CustomAirplaneTicket = ({ sx }) => <AirplaneTicket sx={{ ...sx, color: '#5c6675' }} />;
 export const CustomMap = ({ sx }) => <Map sx={{ ...sx, color: '#5c6675' }} />;
@@ -623,7 +695,9 @@ export const ImagePreviewModal = ({ open, onClose, imageUrls }) => {
             aria-labelledby="image-preview-modal"
             className="flex items-center justify-center"
         >
-            <div className="fixed inset-0 flex items-center justify-center bg-black/70">
+            <div
+                onClick={onClose}
+                className="fixed inset-0 flex items-center justify-center bg-black/70">
                 <button
                     onClick={onClose}
                     className="fixed top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
@@ -677,18 +751,15 @@ export const BounceAnimation = forwardRef(({ children }, ref) => (
         ref={ref}
         initial={{
             y: "100%",
-            opacity: 0,
-            filter: "blur(10px)"
+            opacity: 0
         }}
         animate={{
             y: 0,
-            opacity: 1,
-            filter: "blur(0px)"
+            opacity: 1
         }}
         exit={{
             y: "100%",
-            opacity: 0,
-            filter: "blur(10px)"
+            opacity: 0
         }}
         transition={{
             type: "spring",
@@ -843,7 +914,7 @@ export const AuthActions = ({
     );
 };
 
-const drawerWidth = 240;
+const drawerWidth = 250;
 
 export const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
@@ -1090,7 +1161,7 @@ export const DashboardNavbar = ({ open, toggleDrawer, auth, isDropdownOpen, hand
             <DashboardToolbar>
                 <ExtendIcon toggleDrawer={toggleDrawer} open={open} />
 
-                <div className="flex justify-between items-center top-0 left-0 right-0 z-50 mx-auto-xl px-20 w-full">
+                <div className="flex justify-between items-center top-0 left-0 right-0 z-50 mx-auto-xl px-12 w-full">
                     <Tooltip title="Home" arrow>
                         <div onClick={() => navigate('/')} className="cursor-pointer text-black text-2xl">
                             Travel Agency
@@ -1129,9 +1200,18 @@ export const pluralize = (word, count) => {
     return word.endsWith('y') ? `${word.slice(0, -1)}ies` : `${word}s`;
 };
 
+export const getLocalStorageState = (key, defaultValue) => {
+    const savedState = localStorage.getItem(key);
+    return savedState !== null ? JSON.parse(savedState) : defaultValue;
+};
+
+export const saveLocalStorageState = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+};
+
 export const DashboardHeader = ({
     title,
-    selectedItems,
+    selectedItems = [],
     setAddItemOpen,
     setDeleteItemOpen,
     itemName
@@ -1139,9 +1219,30 @@ export const DashboardHeader = ({
     const isMultipleSelected = selectedItems.length > 1;
     const itemNamePlural = pluralize(itemName, selectedItems.length);
 
+    const handleScrollToTop = () => {
+        const mainContent = document.querySelector('[role="main"]');
+        if (mainContent) {
+            mainContent.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     return (
-        <div className='bg-white p-4 flex items-center justify-between w-full mb-4 rounded-md'>
-            <Typography variant='h5'>{title}</Typography>
+        <div className="bg-white sticky top-16 z-50 p-4 flex items-center justify-between w-full mb-4 rounded-md shadow-sm border-b">
+            <Tooltip title="Scroll to top" arrow>
+                <Button
+                    onClick={handleScrollToTop}
+                    sx={{
+                        fontSize: '1.3rem',
+                        fontWeight: 500,
+                        padding: '4px 10px',
+                    }}
+                >
+                    {title}
+                </Button>
+            </Tooltip>
             <div>
                 <OutlinedBlueButton onClick={() => setAddItemOpen(true)} className='!mr-4'>
                     Add {itemName}
@@ -1149,7 +1250,6 @@ export const DashboardHeader = ({
                 {selectedItems.length > 0 && (
                     <OutlinedBlueButton
                         onClick={() => setDeleteItemOpen(true)}
-                        disabled={selectedItems.length === 0}
                     >
                         {isMultipleSelected ? `Delete ${itemNamePlural}` : `Delete ${itemName}`}
                     </OutlinedBlueButton>
@@ -1281,6 +1381,241 @@ export const DashboardCityFlag = ({ city }) => {
             {city}
         </div>
     );
+};
+
+// Shared styling configuration
+const getColumnStyles = () => ({
+    alignment: {
+        horizontal: 'center',
+        vertical: 'center',
+        wrapText: true
+    },
+    font: {
+        bold: false,
+        color: { rgb: '2F4F4F' },
+        name: 'Arial',
+        sz: 11
+    }
+});
+
+const getHeaderStyles = () => ({
+    alignment: {
+        horizontal: 'center',
+        vertical: 'center'
+    },
+    font: {
+        bold: true,
+        color: { rgb: 'FFFFFF' },
+        name: 'Arial',
+        sz: 12
+    },
+    fill: {
+        fgColor: { rgb: '4F81BD' },
+        patternType: 'solid'
+    }
+});
+
+const formatWorksheet = (worksheet) => {
+    // Set column widths
+    const cols = worksheet['!cols'] = [];
+    const standardWidth = { wch: 18 };
+    const dateWidth = { wch: 25 };
+    const emailWidth = { wch: 18 };
+    const nameWidth = { wch: 18 };
+
+    // Assign specific column widths
+    cols[0] = nameWidth;
+    cols[1] = emailWidth;
+    cols[2] = standardWidth;
+    cols[3] = standardWidth;
+    cols[4] = dateWidth;
+    cols[5] = dateWidth;
+    cols[6] = dateWidth;
+
+    // Set row height
+    const rows = worksheet['!rows'] = [];
+    rows[0] = { hpt: 25 }; // Header row height
+
+    // Apply alternating row colors
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+            const cell_address = { c: C, r: R };
+            const cell_ref = XLSX.utils.encode_cell(cell_address);
+
+            if (!worksheet[cell_ref]) continue;
+
+            // Apply basic cell styling
+            worksheet[cell_ref].s = getColumnStyles();
+
+            // Apply header row styling
+            if (R === 0) {
+                worksheet[cell_ref].s = getHeaderStyles();
+            }
+            // Apply alternating row colors
+            else if (R % 2 === 1) {
+                worksheet[cell_ref].s = {
+                    ...getColumnStyles(),
+                    fill: {
+                        fgColor: { rgb: 'F0F8FF' },
+                        patternType: 'solid'
+                    }
+                };
+            }
+        }
+    }
+
+    return worksheet;
+};
+
+export const handleExportFlightToExcel = (reportData) => {
+    const formatCurrency = (amount) =>
+        new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(amount);
+
+    const formatDate = (date) =>
+        new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+    const formatDateTime = (date) =>
+        new Date(date).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+    const worksheet = XLSX.utils.json_to_sheet(reportData.map(row => ({
+        'Flight Name': row.flight.name,
+        'User Email': row.user.email,
+        'Seats Reserved': row.seatsReserved,
+        'Total Price': formatCurrency(row.totalPrice),
+        'Purchase Date': formatDate(row.purchaseDate),
+        'Start Date': formatDateTime(row.flight.startDate),
+        'End Date': formatDateTime(row.flight.endDate),
+    })));
+
+    // Apply formatting
+    const formattedWorksheet = formatWorksheet(worksheet);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, formattedWorksheet, 'Flight Report');
+
+    // Add metadata
+    workbook.Props = {
+        Title: "Flight Booking Report",
+        Subject: "Flight Reservations",
+        Author: "Travel Booking System",
+        CreatedDate: new Date()
+    };
+
+    XLSX.writeFile(workbook, `flight_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+};
+
+export const handleExportTourToExcel = (reportData) => {
+    const formatCurrency = (amount) =>
+        new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(amount);
+
+    const formatDate = (date) =>
+        new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+    const formatDateTime = (date) =>
+        new Date(date).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+    const worksheet = XLSX.utils.json_to_sheet(reportData.map(row => ({
+        'Tour Name': row.tour.name,
+        'User Email': row.user.email,
+        'Reserved Tickets': row.reservedTickets,
+        'Total Price': formatCurrency(row.totalPrice),
+        'Purchase Date': formatDate(row.purchaseDate),
+        'Start Date': formatDateTime(row.tour.startDate),
+        'End Date': formatDateTime(row.tour.endDate),
+    })));
+
+    // Apply formatting
+    const formattedWorksheet = formatWorksheet(worksheet);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, formattedWorksheet, 'Tour Report');
+
+    // Add metadata
+    workbook.Props = {
+        Title: "Tour Booking Report",
+        Subject: "Tour Reservations",
+        Author: "Travel Booking System",
+        CreatedDate: new Date()
+    };
+
+    XLSX.writeFile(workbook, `tour_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+};
+
+export const handleExportRoomToExcel = (reportData) => {
+    const formatCurrency = (amount) =>
+        new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(amount);
+
+    const formatDate = (date) =>
+        new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+    const formatDateTime = (date) =>
+        new Date(date).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+    const worksheet = XLSX.utils.json_to_sheet(reportData.map(row => ({
+        'Room Type': row.room.roomType,
+        'User Email': row.user.email,
+        'Guests': row.guests,
+        'Total Price': formatCurrency(row.totalPrice),
+        'Status': row.status,
+        'Start Date': formatDateTime(row.startDate),
+        'End Date': formatDateTime(row.endDate),
+    })));
+
+    // Apply formatting
+    const formattedWorksheet = formatWorksheet(worksheet);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, formattedWorksheet, 'Room Report');
+
+    // Add metadata
+    workbook.Props = {
+        Title: "Room Booking Report",
+        Subject: "Room Reservations",
+        Author: "Hotel Booking System",
+        CreatedDate: new Date()
+    };
+
+    XLSX.writeFile(workbook, `room_report_${new Date().toISOString().split('T')[0]}.xlsx`);
 };
 
 export const knownEmailProviders = [

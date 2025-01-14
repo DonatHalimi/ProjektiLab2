@@ -128,26 +128,49 @@ namespace backend.Controllers
             return _context.Tours.Any(e => e.Id == id);
         }
 
-        // DELETE: /api/Tour/delete-bulk
         [HttpDelete("delete-bulk")]
         public async Task<IActionResult> DeleteToursBulk([FromBody] BulkDeleteRequest request)
         {
-            if (request?.Ids == null || !request.Ids.Any())
+            try
             {
-                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+                if (request?.Ids == null || !request.Ids.Any())
+                {
+                    return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+                }
+
+                var itemsToDelete = await _context.Tours
+                    .Where(t => request.Ids.Contains(t.Id))
+                    .ToListAsync();
+
+                if (!itemsToDelete.Any())
+                {
+                    return NotFound(new { success = false, message = "No tours found for the provided IDs" });
+                }
+
+                foreach (var tour in itemsToDelete)
+                {
+                    _context.Tours.Remove(tour);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "Tours deleted successfully" });
             }
-
-            var itemsToDelete = await _context.Tours.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
-
-            if (!itemsToDelete.Any())
+            catch (DbUpdateException ex)
             {
-                return NotFound(new { success = false, message = "No tours found for the provided IDs" });
+                if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx &&
+                    sqlEx.Number == 547)
+                {
+                    return Conflict(new
+                    {
+                        success = false,
+                        message = "Cannot delete tours with existing purchases. Please ensure no related purchases are linked to these tours."
+                    });
+                }
+
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, new { success = false, message = "An error occurred while deleting tours." });
             }
-
-            _context.Tours.RemoveRange(itemsToDelete);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { success = true, message = "Tours deleted successfully" });
         }
     }
 }

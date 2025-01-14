@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardCityFlag, DashboardHeader, formatDate } from '../../assets/CustomComponents';
+import { DashboardCityFlag, DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddTourPurchaseModal from '../../components/Modal/TourPurchase/AddTourPurchaseModal';
@@ -8,6 +8,7 @@ import { getTourPurchases } from '../../services/tourService';
 
 const TourPurchasesPage = () => {
     const [tourPurchases, setTourPurchases] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [selectedPurchase, setSelectedPurchase] = useState(null);
     const [selectedPurchases, setSelectedPurchases] = useState([]);
@@ -20,10 +21,13 @@ const TourPurchasesPage = () => {
 
     const fetchTourPurchases = async () => {
         try {
+            setLoading(true);
             const response = await getTourPurchases();
             setTourPurchases(response);
         } catch (error) {
             console.error('Error fetching tour purchases:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -61,62 +65,44 @@ const TourPurchasesPage = () => {
     };
 
     const columns = [
-        {
-            key: 'user',
-            label: 'User',
-            render: (row) => row.user ? `${row.user.email}` : 'Unknown',
-        },
-        {
-            key: 'tourDetails',
-            label: 'Tour Name',
-            render: (row) => (
-                <>
-                    #{row.tour?.id} - {row.tour?.name}
-                </>
-            ),
-        },
-        {
-            key: 'city',
-            label: 'City',
-            render: (row) => <DashboardCityFlag city={row.tour?.city} />,
-        },
-        {
-            key: 'purchaseDate',
-            label: 'Purchase Date',
-            render: (row) => formatDate(row.purchaseDate),
-        },
-        { key: 'reservedTickets', label: 'Tickets Reserved' },
-        {
-            key: 'totalPrice',
-            label: 'Total Price',
-            render: (row) => `€ ${row.totalPrice}`
-        },
+        { key: 'user', label: 'User', render: (row) => `${row.user?.email ?? 'Unknown'}` },
+        { key: 'tourDetails', label: 'Tour Name', render: (row) => `#${row.tour?.id} - ${row.tour?.name ?? ''}` },
+        { key: 'city', label: 'City', render: (row) => <DashboardCityFlag city={row.tour?.city} /> },
+        { key: 'purchaseDate', label: 'Purchase Date', render: (row) => formatDate(row.purchaseDate) },
+        { key: 'reservedTickets', label: 'Tickets Reserved', render: (row) => row.reservedTickets },
+        { key: 'totalPrice', label: 'Total Price', render: (row) => `€ ${row.totalPrice?.toFixed(2) ?? ''}` },
         { key: 'actions', label: 'Actions' },
     ];
 
     return (
         <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
             <div className='flex flex-col items-center justify-center'>
-                <DashboardHeader
-                    title="Tour Purchases"
-                    selectedItems={selectedPurchases}
-                    setAddItemOpen={setAddTourPurchaseOpen}
-                    setDeleteItemOpen={setDeletePurchaseOpen}
-                    itemName="Tour Purchase"
-                />
+                {loading ? (
+                    <LoadingDataGrid />
+                ) : (
+                    <>
+                        <DashboardHeader
+                            title="Tour Purchases"
+                            selectedItems={selectedPurchases}
+                            setAddItemOpen={setAddTourPurchaseOpen}
+                            setDeleteItemOpen={setDeletePurchaseOpen}
+                            itemName="Tour Purchase"
+                        />
 
-                <DashboardTable
-                    columns={columns}
-                    data={tourPurchases}
-                    selectedItems={selectedPurchases}
-                    onSelectItem={handleSelectPurchase}
-                    onSelectAll={handleSelectAll}
-                    itemsPerPage={itemsPerPage}
-                    currentPage={currentPage}
-                    onPageChange={handlePageClick}
-                    onEdit={handleEdit}
-                    containerClassName='tour-purchases'
-                />
+                        <DashboardTable
+                            columns={columns}
+                            data={tourPurchases}
+                            selectedItems={selectedPurchases}
+                            onSelectItem={handleSelectPurchase}
+                            onSelectAll={handleSelectAll}
+                            itemsPerPage={itemsPerPage}
+                            currentPage={currentPage}
+                            onPageChange={handlePageClick}
+                            onEdit={handleEdit}
+                            containerClassName='tour-purchases'
+                        />
+                    </>
+                )}
 
                 <AddTourPurchaseModal open={addTourPurchaseOpen} onClose={() => setAddTourPurchaseOpen(false)} onAddSuccess={fetchTourPurchases} />
                 <EditTourPurchaseModal open={editTourPurchaseOpen} onClose={() => setEditTourPurchaseOpen(false)} tour={selectedPurchase} onEditSuccess={fetchTourPurchases} />
@@ -124,7 +110,10 @@ const TourPurchasesPage = () => {
                     open={deletePurchaseOpen}
                     onClose={() => setDeletePurchaseOpen(false)}
                     items={selectedPurchases.map(id => tourPurchases.find(purchase => purchase.id === id)).filter(purchase => purchase)}
-                    onDeleteSuccess={fetchTourPurchases}
+                    onDeleteSuccess={() => {
+                        fetchTourPurchases()
+                        setSelectedPurchases([]);
+                    }}
                     endpoint="/TourPurchase/delete-bulk"
                     title="Delete Purchases"
                     message="Are you sure you want to delete the selected purchases?"

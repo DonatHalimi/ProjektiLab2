@@ -1,6 +1,5 @@
 ﻿using backend.Data;
 using backend.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +16,7 @@ namespace backend.Controllers
             _context = context;
         }
 
+        // GET: /api/RoomPurchases/
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoomPurchase>>> GetRoomPurchases()
         {
@@ -27,6 +27,7 @@ namespace backend.Controllers
                 .ToListAsync();
         }
 
+        // GET: /api/RoomPurchases/5
         [HttpGet("{id}")]
         public async Task<ActionResult<RoomPurchase>> GetRoomPurchase(int id)
         {
@@ -42,8 +43,44 @@ namespace backend.Controllers
 
             return roomPurchase;
         }
-      
 
+        // GET: /api/RoomPurchases/my/5
+        [HttpGet("my/{id}")]
+        public async Task<ActionResult<List<object>>> GetMyRoomPurchases(int id)
+        {
+            var roomPurchases = await _context.RoomPurchases
+                .Include(rp => rp.Room)
+                    .ThenInclude(r => r.Hotel)
+                .Include(rp => rp.Room.Images)
+                .Where(rp => rp.UserId == id)
+                .Select(rp => new
+                {
+                    rp.Id,
+                    Room = new
+                    {
+                        rp.Room.Id,
+                        rp.Room.RoomType,
+                        City = rp.Room.Hotel.Location,
+                        CheckInDate = rp.StartDate,
+                        CheckOutDate = rp.EndDate,
+                        Images = rp.Room.Images.Select(img => img.Url).ToList()
+                    },
+                    PurchaseDate = rp.StartDate,
+                    ReservedNights = (rp.EndDate - rp.StartDate).Days,
+                    rp.Guests,
+                    rp.TotalPrice
+                })
+                .ToListAsync();
+
+            if (roomPurchases == null || !roomPurchases.Any())
+            {
+                return NotFound(new { success = false, message = "No room purchases found for the user." });
+            }
+
+            return Ok(roomPurchases);
+        }
+
+        // POST: /api/RoomPurchase
         [HttpPost]
         public async Task<ActionResult<RoomPurchase>> CreateRoomPurchase(RoomPurchaseDTO roomPurchaseDTO)
         {
@@ -54,13 +91,11 @@ namespace backend.Controllers
                 return BadRequest("The check-in date cannot be in the past.");
             }
 
-           
             var room = await _context.Rooms.FindAsync(roomPurchaseDTO.RoomId);
             if (room == null)
             {
                 return NotFound("Room not found.");
             }
-
         
             var conflictingReservation = await _context.RoomPurchases
                 .Where(rp => rp.RoomId == roomPurchaseDTO.RoomId)
@@ -70,14 +105,12 @@ namespace backend.Controllers
             {
                 return BadRequest("The room is already reserved for the selected dates.");
             }
-
             
             var stayDuration = (roomPurchaseDTO.EndDate - roomPurchaseDTO.StartDate).TotalDays;
             if (stayDuration <= 0)
             {
                 return BadRequest("End date must be later than start date.");
             }
-
          
             var totalPrice = room.Price * (decimal)stayDuration;
 
@@ -90,16 +123,14 @@ namespace backend.Controllers
                 EndDate = roomPurchaseDTO.EndDate,
                 Guests = roomPurchaseDTO.Guests,
                 TotalPrice = totalPrice,
-                Status = "Confirmed"
+                Status = "Pending"
             };
-
         
             _context.RoomPurchases.Add(roomPurchase);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRoomPurchase", new { id = roomPurchase.Id }, roomPurchase);
         }
-
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRoomPurchase(int id, RoomPurchaseDTO roomPurchaseDTO)
@@ -110,7 +141,7 @@ namespace backend.Controllers
             }
 
             var existingRoomPurchase = await _context.RoomPurchases
-                .Include(rp => rp.Room) 
+                .Include(rp => rp.Room)
                 .FirstOrDefaultAsync(rp => rp.Id == id);
 
             if (existingRoomPurchase == null)
@@ -118,28 +149,27 @@ namespace backend.Controllers
                 return NotFound("Room Purchase not found.");
             }
 
-            
             var room = await _context.Rooms.FindAsync(roomPurchaseDTO.RoomId);
             if (room == null)
             {
                 return NotFound("Selected room not found.");
             }
 
-        
             var stayDuration = (roomPurchaseDTO.EndDate - roomPurchaseDTO.StartDate).TotalDays;
             if (stayDuration <= 0)
             {
                 return BadRequest("End date must be later than start date.");
             }
 
-       
             var totalPrice = room.Price * (decimal)stayDuration;
 
+            // Assign values including status
             existingRoomPurchase.RoomId = roomPurchaseDTO.RoomId;
             existingRoomPurchase.StartDate = roomPurchaseDTO.StartDate;
             existingRoomPurchase.EndDate = roomPurchaseDTO.EndDate;
             existingRoomPurchase.Guests = roomPurchaseDTO.Guests;
             existingRoomPurchase.TotalPrice = totalPrice;
+            existingRoomPurchase.Status = roomPurchaseDTO.Status;
 
             try
             {
@@ -160,7 +190,7 @@ namespace backend.Controllers
             return NoContent();
         }
 
-
+        // DELETE: api/RoomPurchase/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRoomPurchase(int id)
         {
@@ -175,6 +205,7 @@ namespace backend.Controllers
 
             return NoContent();
         }
+
         // DELETE: /api/RoomPurchases/delete-bulk
         [HttpDelete("delete-bulk")]
         public async Task<IActionResult> DeleteRoomPurchasesBulk([FromBody] BulkDeleteRequest request)
@@ -196,7 +227,5 @@ namespace backend.Controllers
 
             return Ok(new { success = true, message = "Room purchases deleted successfully" });
         }
-
-
     }
 }

@@ -46,8 +46,7 @@ const ProfileSidebar = () => {
         { key: 'me', label: 'Profile', icon: <CustomPerson isActive={true} />, inactiveIcon: <PersonOutlined />, },
         { key: 'flight-purchases', label: 'Flights', icon: <CustomAirplaneTicket isActive={true} />, inactiveIcon: <AirplaneTicketOutlined />, },
         { key: 'tour-purchases', label: 'Tours', icon: <CustomMap isActive={true} />, inactiveIcon: <MapOutlined />, },
-        { key: 'room-purchases', label: 'Rooms', icon: <CustomMap isActive={true} />, inactiveIcon: <MapOutlined />, },
-        { key: 'hotels', label: 'Hotels', icon: <CustomHotel isActive={true} />, inactiveIcon: <HotelOutlined />, },
+        { key: 'room-purchases', label: 'Rooms', icon: <CustomHotel isActive={true} />, inactiveIcon: <HotelOutlined />, },
         { key: 'reviews', label: 'Reviews', icon: <CustomStar isActive={true} />, inactiveIcon: <StarBorderOutlined />, },
     ];
 

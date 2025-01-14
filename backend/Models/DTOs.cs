@@ -81,6 +81,7 @@ namespace backend.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Guests { get; set; }
+        public string Status { get; set; }
     }
 
     public class BulkDeleteRequest

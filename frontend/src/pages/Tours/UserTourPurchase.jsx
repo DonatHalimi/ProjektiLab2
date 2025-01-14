@@ -1,9 +1,9 @@
 import { Alert, Box, Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Pagination, Select, Snackbar, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
 import { createTourPurchase, getTours } from '../../services/tourService';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 
 const UserTourPurchase = () => {
   const [tours, setTours] = useState([]);
@@ -26,7 +26,7 @@ const UserTourPurchase = () => {
         const response = await getCurrentUser();
         setProfile(response);
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        setProfile(null);
       }
     };
 

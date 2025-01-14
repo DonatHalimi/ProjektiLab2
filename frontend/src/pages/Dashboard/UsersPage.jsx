@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader } from '../../assets/CustomComponents';
+import { DashboardHeader, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddUserModal from '../../components/Modal/User/AddUserModal';
@@ -8,6 +8,7 @@ import { getUsers } from '../../services/userService';
 
 const UsersPage = () => {
     const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedUsers, setSelectedUsers] = useState([]);
@@ -19,10 +20,13 @@ const UsersPage = () => {
 
     const fetchUsers = async () => {
         try {
+            setLoading(true);
             const response = await getUsers();
             setUsers(response.data);
         } catch (error) {
             console.error('Error fetching users:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -75,26 +79,32 @@ const UsersPage = () => {
     return (
         <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
             <div className='flex flex-col items-center justify-center'>
-                <DashboardHeader
-                    title="Users"
-                    selectedItems={selectedUsers}
-                    setAddItemOpen={setAddUserOpen}
-                    setDeleteItemOpen={setDeleteUserOpen}
-                    itemName="User"
-                />
+                {loading ? (
+                    <LoadingDataGrid />
+                ) : (
+                    <>
+                        <DashboardHeader
+                            title="Users"
+                            selectedItems={selectedUsers}
+                            setAddItemOpen={setAddUserOpen}
+                            setDeleteItemOpen={setDeleteUserOpen}
+                            itemName="User"
+                        />
 
-                <DashboardTable
-                    columns={columns}
-                    data={users}
-                    selectedItems={selectedUsers}
-                    onSelectItem={handleSelectUser}
-                    onSelectAll={handleSelectAll}
-                    itemsPerPage={itemsPerPage}
-                    currentPage={currentPage}
-                    onPageChange={handlePageClick}
-                    onEdit={handleEdit}
-                    containerClassName='user'
-                />
+                        <DashboardTable
+                            columns={columns}
+                            data={users}
+                            selectedItems={selectedUsers}
+                            onSelectItem={handleSelectUser}
+                            onSelectAll={handleSelectAll}
+                            itemsPerPage={itemsPerPage}
+                            currentPage={currentPage}
+                            onPageChange={handlePageClick}
+                            onEdit={handleEdit}
+                            containerClassName='user'
+                        />
+                    </>
+                )}
 
                 <AddUserModal open={addUserOpen} onClose={() => setAddUserOpen(false)} onAddSuccess={fetchUsers} />
                 <EditUserModal open={editUserOpen} onClose={() => setEditUserOpen(false)} user={selectedUser} onEditSuccess={fetchUsers} />
@@ -102,13 +112,16 @@ const UsersPage = () => {
                     open={deleteUserOpen}
                     onClose={() => setDeleteUserOpen(false)}
                     items={selectedUsers.map(id => users.find(user => user.id === id)).filter(user => user)}
-                    onDeleteSuccess={fetchUsers}
+                    onDeleteSuccess={() => {
+                        fetchUsers()
+                        setSelectedUsers([]);
+                    }}
                     endpoint="/users/delete-bulk"
                     title="Delete Users"
                     message="Are you sure you want to delete the selected users?"
                 />
             </div>
-        </div>
+        </div >
     );
 };
 

@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {calculatePageCount,
-    CustomPagination,
-    EmptyState,
-    getPaginatedItems,
-    handlePageChange,
-    Header,
-    LoadingFlightItem as LoadingRoomItem, // Reuse loading component
-    ProfileLayout
-} from '../../assets/CustomComponents';
+import { calculatePageCount, CustomPagination, EmptyState, getPaginatedItems, handlePageChange, Header, LoadingFlightItem as LoadingRoomItem, ProfileLayout } from '../../assets/CustomComponents';
 import emptyRoomsImage from '../../assets/img/empty/not-found.png';
 import Footer from '../../components/Footer';
-import RoomItem from '../../components/Items/RoomItem'; // Assuming RoomItem is created similarly to TourItem
+import RoomItem from '../../components/Items/RoomItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { getMyRoomPurchases } from '../../services/roomService'; // Replace with actual service
+import { getMyRoomPurchases } from '../../services/roomService';
 
 const itemsPerPage = 5;
 
@@ -102,7 +94,7 @@ const Rooms = () => {
                 />
 
                 {loading ? (
-                    <LoadingRoomItem /> // Reusing loading component
+                    <LoadingRoomItem />
                 ) : filteredRoomPurchases.length === 0 ? (
                     <EmptyState
                         imageSrc={emptyRoomsImage}

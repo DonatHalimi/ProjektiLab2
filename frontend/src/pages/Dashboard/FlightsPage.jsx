@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardCityFlag, DashboardHeader, formatDate } from '../../assets/CustomComponents';
+import { DashboardCityFlag, DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddFlightModal from '../../components/Modal/Flight/AddFlightModal';
@@ -8,6 +8,7 @@ import { getFlights } from '../../services/flightService';
 
 const FlightsPage = () => {
   const [flights, setFlights] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedFlight, setSelectedFlight] = useState(null);
   const [selectedFlights, setSelectedFlights] = useState([]);
@@ -20,10 +21,13 @@ const FlightsPage = () => {
 
   const fetchFlights = async () => {
     try {
+      setLoading(true);
       const response = await getFlights();
       setFlights(response);
     } catch (error) {
       console.error('Error fetching flights:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,26 +95,32 @@ const FlightsPage = () => {
   return (
     <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
       <div className='flex flex-col items-center justify-center'>
-        <DashboardHeader
-          title="Flights"
-          selectedItems={selectedFlights}
-          setAddItemOpen={setAddFlightOpen}
-          setDeleteItemOpen={setDeleteFlightOpen}
-          itemName="Flight"
-        />
+        {loading ? (
+          <LoadingDataGrid />
+        ) : (
+          <>
+            <DashboardHeader
+              title="Flights"
+              selectedItems={selectedFlights}
+              setAddItemOpen={setAddFlightOpen}
+              setDeleteItemOpen={setDeleteFlightOpen}
+              itemName="Flight"
+            />
 
-        <DashboardTable
-          columns={columns}
-          data={flights}
-          selectedItems={selectedFlights}
-          onSelectItem={handleSelectFlight}
-          onSelectAll={handleSelectAll}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={handlePageClick}
-          onEdit={handleEdit}
-          containerClassName='flight'
-        />
+            <DashboardTable
+              columns={columns}
+              data={flights}
+              selectedItems={selectedFlights}
+              onSelectItem={handleSelectFlight}
+              onSelectAll={handleSelectAll}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageClick}
+              onEdit={handleEdit}
+              containerClassName='flight'
+            />
+          </>
+        )}
 
         <AddFlightModal open={addFlightOpen} onClose={() => setAddFlightOpen(false)} onAddSuccess={fetchFlights} />
         <EditFlightModal open={editFlightOpen} onClose={() => setEditFlightOpen(false)} flight={selectedFlight} onEditSuccess={fetchFlights} />
@@ -118,13 +128,16 @@ const FlightsPage = () => {
           open={deleteFlightOpen}
           onClose={() => setDeleteFlightOpen(false)}
           items={selectedFlights.map(id => flights.find(flight => flight.id === id)).filter(flight => flight)}
-          onDeleteSuccess={fetchFlights}
+          onDeleteSuccess={() => {
+            fetchFlights()
+            setSelectedFlights([]);
+          }}
           endpoint="/Flights/delete-bulk"
           title="Delete Flights"
           message="Are you sure you want to delete the selected flights?"
         />
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -114,9 +114,40 @@ export const updateRoomPurchase = async (id, roomPurchase) => {
 export const getMyRoomPurchases = async (userId) => {
     try {
         const response = await axiosInstance.get(`/RoomPurchase/my/${userId}`);
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error(`Error fetching my room purchases with ID ${userId}:`, error);
+        throw error;
+    }
+};
+
+export const getRoomImage = async (filename) => {
+    // Remove any leading "Uploads\" or similar from the filename
+    const sanitizedFilename = filename.replace(/^Uploads[\\/]/, ''); // Removes "Uploads\" or "Uploads/"
+
+    const imageUrl = `/rooms/uploads/${sanitizedFilename}`;
+    try {
+        // Fetch the image as an arraybuffer (binary data)
+        const response = await axiosInstance.get(imageUrl, { responseType: 'arraybuffer' });
+
+        // Convert arraybuffer to Base64 string
+        const base64Image = `data:image/png;base64,${btoa(
+            String.fromCharCode(...new Uint8Array(response.data))
+        )}`;
+        return base64Image;
+    } catch (error) {
+        console.error(`Error fetching image ${filename}:`, error);
+        throw error;
+    }
+};
+
+export const generateRoomReport = async (criteria) => {
+    try {
+        const response = await axiosInstance.post('/RoomReports/Generate', criteria);
+        return response.data;
+    } catch (error) {
+        console.error("Error generating room report:", error);
         throw error;
     }
 };

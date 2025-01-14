@@ -74,3 +74,15 @@
   width: 25px;
   height: 25px;
 }
+
+.custom-scrollbar {
+  overflow-x: hidden;
+}
+
+.custom-scrollbar::-webkit-scrollbar:horizontal {
+  height: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 0px;
+}

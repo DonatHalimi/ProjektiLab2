@@ -11,8 +11,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 const DashboardLayout = () => {
     const isAuthenticated = localStorage.getItem('token');
     const [isAdmin, setIsAdmin] = useState(false);
-
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(() => JSON.parse(localStorage.getItem('sidebarOpened')) ?? true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     useEffect(() => {
@@ -29,12 +28,12 @@ const DashboardLayout = () => {
     }, [isAuthenticated]);
 
     const toggleDrawer = () => {
-        setOpen(!open);
+        const newState = !open;
+        setOpen(newState);
+        localStorage.setItem('sidebarOpened', JSON.stringify(newState));
     };
 
-    const handleProfileDropdownToggle = () => {
-        setIsDropdownOpen(prev => !prev);
-    };
+    const handleProfileDropdownToggle = () => setIsDropdownOpen(prev => !prev);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -42,7 +41,7 @@ const DashboardLayout = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', bgcolor: '#F5F5F5' }}>
+        <Box className="flex h-screen overflow-hidden bg-[#F5F5F5]">
             <DashboardNavbar
                 open={open}
                 toggleDrawer={toggleDrawer}
@@ -52,26 +51,40 @@ const DashboardLayout = () => {
                 handleLogout={handleLogout}
                 isAdmin={isAdmin}
             />
-            <Drawer variant="permanent" open={open}>
+            <Drawer
+                variant="permanent"
+                open={open}
+                sx={{
+                    width: open ? 250 : 78,
+                    transition: 'width 0.4s ease-in-out',
+                    height: '100vh',
+                    overflow: 'hidden',
+                    '& .custom-scrollbar': { height: '100%', overflowY: 'auto' },
+                    '& .MuiDrawer-paper': {
+                        width: open ? 250 : 78,
+                        transition: 'width 0.4s ease-in-out',
+                    }
+                }}
+            >
                 <DashboardCollapse toggleDrawer={toggleDrawer} />
-
                 <Divider />
-
-                <List component="nav">
-                    {mainListItems({ setCurrentView: () => { } })}
-                    {/* <Divider sx={{ my: 1 }} /> */}
-                    {secondaryListItems}
-                </List>
+                <div className="custom-scrollbar">
+                    <List component="nav">
+                        {mainListItems({ setCurrentView: () => { }, collapsed: !open })}
+                        {secondaryListItems}
+                    </List>
+                </div>
             </Drawer>
             <Box
                 component="main"
+                role="main"
                 sx={{
                     backgroundColor: (theme) =>
                         theme.palette.mode === 'light'
                             ? theme.palette.grey[100]
                             : theme.palette.grey[900],
                     flexGrow: 1,
-                    height: '105vh',
+                    height: '100vh',
                     overflow: 'auto',
                 }}
             >

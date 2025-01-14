@@ -1,9 +1,9 @@
+import { Upload } from '@mui/icons-material';
+import { TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { updateHotel } from '../../../services/hotelService';
 import { AddChipButton, BlueButton, CustomBox, CustomModal, CustomTypography, OutlinedBlueButton, StyledChip, VisuallyHiddenInput } from '../../../assets/CustomComponents';
-import { TextField } from '@mui/material';
-import { Upload } from '@mui/icons-material';
+import { updateHotel } from '../../../services/hotelService';
 
 const EditHotelModal = ({ open, onClose, hotel, onEditSuccess }) => {
   const [hotelData, setHotelData] = useState({

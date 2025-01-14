@@ -1,9 +1,11 @@
-import { Alert, Box, Button, CircularProgress, Container, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Snackbar, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import { Button, CircularProgress, Collapse, Container, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import * as XLSX from 'xlsx';
+import { toast } from 'react-toastify';
+import { formatDate, handleExportFlightToExcel } from '../../assets/CustomComponents';
 import { generateReport } from '../../services/flightService';
 
-const Reports = () => {
+const FlightReports = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -11,7 +13,7 @@ const Reports = () => {
   const [sortBy, setSortBy] = useState('');
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [isFormOpen, setIsFormOpen] = useState(true);
 
   const handleGenerateReport = async () => {
     setLoading(true);
@@ -25,84 +27,84 @@ const Reports = () => {
 
     try {
       const response = await generateReport(criteria);
+      if (response.length === 0) {
+        toast.info('No data found with the selected filters');
+      }
       setReportData(response.data);
       setLoading(false);
     } catch (error) {
       console.error('Error generating report:', error);
-      setError('Failed to generate report. Please try again.');
+      toast.error('Failed to generate report. Please try again.');
       setLoading(false);
     }
   };
 
-  const handleExportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(reportData.map(row => ({
-      'Flight Name': row.flight.name,
-      'User Email': row.user.email,
-      'Seats Reserved': row.seatsReserved,
-      'Total Price': row.totalPrice,
-      'Purchase Date': new Date(row.purchaseDate).toLocaleDateString(),
-      'Start Date': new Date(row.flight.startDate).toISOString().slice(0, 16),
-      'End Date': new Date(row.flight.endDate).toISOString().slice(0, 16),
-    })));
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
-    XLSX.writeFile(workbook, 'report.xlsx');
-  };
-
-  const handleCloseSnackbar = () => {
-    setError('');
-  };
-
   return (
-    <>
-      <Container sx={{ mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Generate Report
-        </Typography>
-        <Box sx={{ mb: 4 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
+    <Container className="mt-16">
+      <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div
+          onClick={() => setIsFormOpen(!isFormOpen)}
+          className="bg-white rounded-lg mb-2 cursor-pointer"
+        >
+          <div className="bg-white flex justify-between items-center">
+            <Typography variant="h5" className="font-bold text-left mb-4">
+              Generate Flight Report
+            </Typography>
+            <IconButton>
+              {isFormOpen ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </div>
+        </div>
+
+        <Collapse in={isFormOpen}>
+          <form className="flex flex-wrap gap-4 mt-2 p-3">
+            <div className="flex-1 min-w-[200px]">
               <TextField
                 label="Start Date"
                 type="date"
-                InputLabelProps={{ shrink: true }}
                 fullWidth
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </div>
+            <div className="flex-1 min-w-[200px]">
               <TextField
                 label="End Date"
                 type="date"
-                InputLabelProps={{ shrink: true }}
                 fullWidth
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </div>
+            <div className="flex-1 min-w-[200px]">
               <TextField
                 label="User Email"
                 fullWidth
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
+                variant="outlined"
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </div>
+            <div className="flex-1 min-w-[200px]">
               <TextField
                 label="Flight Name"
                 fullWidth
                 value={flightName}
                 onChange={(e) => setFlightName(e.target.value)}
+                variant="outlined"
               />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            </div>
+            <div className="flex-1 min-w-[200px]">
               <FormControl fullWidth>
                 <InputLabel>Sort By</InputLabel>
                 <Select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
+                  label="Sort By"
                 >
                   <MenuItem value="">None</MenuItem>
                   <MenuItem value="PurchaseDate">Purchase Date</MenuItem>
@@ -110,17 +112,26 @@ const Reports = () => {
                   <MenuItem value="SeatsReserved">Seats Reserved</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={handleGenerateReport} disabled={loading}>
-                {loading ? <CircularProgress size={24} /> : 'Generate Report'}
+            </div>
+            <div className="w-full">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleGenerateReport}
+                disabled={loading}
+                className="px-6"
+              >
+                {loading ? <CircularProgress size={24} /> : 'Generate'}
               </Button>
-            </Grid>
-          </Grid>
-        </Box>
-        {reportData.length > 0 && (
-          <>
-            <Paper>
+            </div>
+          </form>
+        </Collapse>
+      </div>
+
+      {reportData.length > 0 && (
+        <>
+          <Paper className="mt-6 p-4">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHead>
                   <TableRow>
@@ -140,29 +151,28 @@ const Reports = () => {
                       <TableCell>{row.user.email}</TableCell>
                       <TableCell>{row.seatsReserved}</TableCell>
                       <TableCell>${row.totalPrice}</TableCell>
-                      <TableCell>{new Date(row.purchaseDate).toISOString().slice(0, 16)}</TableCell>
-                      <TableCell>{new Date(row.flight.startDate).toISOString().slice(0, 16)}</TableCell>
-                      <TableCell>{new Date(row.flight.endDate).toISOString().slice(0, 16)}</TableCell>
+                      <TableCell>{formatDate(row.purchaseDate)}</TableCell>
+                      <TableCell>{formatDate(row.flight.startDate)}</TableCell>
+                      <TableCell>{formatDate(row.flight.endDate)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </Paper>
-            <Box sx={{ m: 2 }}>
-              <Button variant="contained" sx={{ backgroundColor: 'green' }} onClick={handleExportToExcel}>
-                Export to Excel
-              </Button>
-            </Box>
-          </>
-        )}
-        <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-          <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
-            {error}
-          </Alert>
-        </Snackbar>
-      </Container>
-    </>
+            </div>
+          </Paper>
+
+          <div className="mt-4">
+            <Button
+              variant="contained"
+              onClick={() => handleExportFlightToExcel(reportData)}
+            >
+              Export to Excel
+            </Button>
+          </div>
+        </>
+      )}
+    </Container >
   );
 };
 
-export default Reports;
+export default FlightReports;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, formatDate, ImagePreviewModal } from '../../assets/CustomComponents.jsx';
+import { DashboardHeader, formatDate, ImagePreviewModal, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal.jsx';
 import AddRoomModal from '../../components/Modal/Room/AddRoomModal.jsx';
@@ -8,6 +8,8 @@ import { getRooms } from '../../services/roomService.js';
 
 const RoomsPage = () => {
   const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [addRoomOpen, setAddRoomOpen] = useState(false);
@@ -20,10 +22,13 @@ const RoomsPage = () => {
 
   const fetchRooms = async () => {
     try {
+      setLoading(true);
       const response = await getRooms();
       setRooms(response.data);
     } catch (error) {
       console.error('Error fetching rooms:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,25 +101,31 @@ const RoomsPage = () => {
     <>
       <div className="container mx-auto max-w-screen-2xl px-4 mt-20">
         <div className="flex flex-col items-center justify-center">
-          <DashboardHeader
-            title="Rooms"
-            selectedItems={selectedRooms}
-            setAddItemOpen={setAddRoomOpen}
-            setDeleteItemOpen={setDeleteRoomOpen}
-            itemName="Room"
-          />
+          {loading ? (
+            <LoadingDataGrid />
+          ) : (
+            <>
+              <DashboardHeader
+                title="Rooms"
+                selectedItems={selectedRooms}
+                setAddItemOpen={setAddRoomOpen}
+                setDeleteItemOpen={setDeleteRoomOpen}
+                itemName="Room"
+              />
 
-          <DashboardTable
-            columns={columns}
-            data={rooms}
-            selectedItems={selectedRooms}
-            onSelectItem={handleSelectRoom}
-            onSelectAll={handleSelectAll}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={handlePageClick}
-            onEdit={handleEdit}
-          />
+              <DashboardTable
+                columns={columns}
+                data={rooms}
+                selectedItems={selectedRooms}
+                onSelectItem={handleSelectRoom}
+                onSelectAll={handleSelectAll}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={handlePageClick}
+                onEdit={handleEdit}
+              />
+            </>
+          )}
 
           <AddRoomModal open={addRoomOpen} onClose={() => setAddRoomOpen(false)} onAddSuccess={fetchRooms} />
           <EditRoomModal open={editRoomOpen} onClose={() => setEditRoomOpen(false)} room={selectedRoom} onEditSuccess={fetchRooms} />
@@ -122,13 +133,16 @@ const RoomsPage = () => {
             open={deleteRoomOpen}
             onClose={() => setDeleteRoomOpen(false)}
             items={selectedRooms.map((id) => rooms.find((room) => room.id === id)).filter((room) => room)}
-            onDeleteSuccess={fetchRooms}
+            onDeleteSuccess={() => {
+              fetchRooms()
+              setSelectedRooms([]);
+            }}
             endpoint="/rooms/delete-bulk"
             title="Delete Rooms"
             message="Are you sure you want to delete the selected rooms?"
           />
         </div>
-      </div>
+      </div >
 
       <ImagePreviewModal
         open={imagePreviewOpen}

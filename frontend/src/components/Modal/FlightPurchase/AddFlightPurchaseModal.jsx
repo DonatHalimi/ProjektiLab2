@@ -54,7 +54,7 @@ const AddFlightPurchaseModal = ({ open, onClose, onAddSuccess }) => {
             };
 
             const response = await createFlightPurchase(data);
-            toast.success('Flight Purchase created successfully!');
+            toast.success('Flight Purchase created successfully');
             onAddSuccess(response.data);
             onClose();
         } catch (error) {

@@ -1,18 +1,39 @@
-import { East } from '@mui/icons-material';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { CityFlag, formatDate, formatPrice } from '../../assets/CustomComponents';
+import { Delete, East } from '@mui/icons-material';
+import { Button } from '@mui/material';
+import React, { useState } from 'react';
+import { CityFlag, CustomDeleteModal, formatDate, formatPrice } from '../../assets/CustomComponents';
 
-const FlightItem = ({ 
-    flight, 
-    purchaseDate, 
-    seatsReserved, 
-    totalPrice, 
-    onDelete, 
-    onCheckout 
+const FlightItem = ({
+    flight,
+    purchaseDate,
+    seatsReserved,
+    totalPrice,
+    onDelete,
+    onCheckout
 }) => {
     const { id, name, departureCity, arrivalCity } = flight || {};
     const symbol = '•';
+
+    // State to manage the confirmation modal
+    const [open, setOpen] = useState(false);
+    const [flightToDelete, setFlightToDelete] = useState(null);
+
+    const handleOpen = (flightId) => {
+        setFlightToDelete(flightId);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setFlightToDelete(null);
+    };
+
+    const handleDelete = () => {
+        if (flightToDelete !== null) {
+            onDelete(flightToDelete);  // Call the delete handler with the selected flight ID
+        }
+        handleClose(); // Close the modal after delete
+    };
 
     return (
         <div className="bg-white shadow rounded-md p-6 hover:shadow-md transition-shadow duration-300">
@@ -46,19 +67,29 @@ const FlightItem = ({
             </div>
 
             <div className="flex justify-end gap-4 mt-4">
-                <button 
-                    onClick={onDelete} 
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                <Button
+                    onClick={() => handleOpen(id)}
+                    color="error"
+                    startIcon={<Delete />}
                 >
                     Delete
-                </button>
-                <button 
-                    onClick={onCheckout} 
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+                </Button>
+                <Button
+                    onClick={onCheckout}
+                    color="success"
                 >
                     Checkout
-                </button>
+                </Button>
             </div>
+
+            {/* Confirmation Modal */}
+            <CustomDeleteModal
+                open={open}
+                onClose={handleClose}
+                onDelete={handleDelete}
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this flight purchase?"
+            />
         </div>
     );
 };

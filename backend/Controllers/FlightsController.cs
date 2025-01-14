@@ -134,22 +134,44 @@ namespace backend.Controllers
         [HttpDelete("delete-bulk")]
         public async Task<IActionResult> DeleteFlightsBulk([FromBody] BulkDeleteRequest request)
         {
-            if (request?.Ids == null || !request.Ids.Any())
+            try
             {
-                return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+                if (request?.Ids == null || !request.Ids.Any())
+                {
+                    return BadRequest(new { success = false, message = "No IDs provided for deletion" });
+                }
+
+                var itemsToDelete = await _context.Flights.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
+
+                if (!itemsToDelete.Any())
+                {
+                    return NotFound(new { success = false, message = "No flights found for the provided IDs" });
+                }
+
+                _context.Flights.RemoveRange(itemsToDelete);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "Flights deleted successfully" });
             }
-
-            var itemsToDelete = await _context.Flights.Where(r => request.Ids.Contains(r.Id)).ToListAsync();
-
-            if (!itemsToDelete.Any())
+            catch (DbUpdateException ex)
             {
-                return NotFound(new { success = false, message = "No flights found for the provided IDs" });
+                if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && sqlEx.Number == 547)
+                {
+                    return Conflict(new
+                    {
+                        success = false,
+                        message = "Cannot delete flights with existing dependencies. Please ensure no related purchases is linked to these flights."
+                    });
+                }
+
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, new { success = false, message = "An error occurred while deleting flights." });
             }
-
-            _context.Flights.RemoveRange(itemsToDelete);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { success = true, message = "Flights deleted successfully" });
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, new { success = false, message = "An unexpected error occurred while deleting flights." });
+            }
         }
     }
 }

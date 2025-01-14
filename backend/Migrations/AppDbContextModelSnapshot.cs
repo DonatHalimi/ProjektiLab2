@@ -360,7 +360,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Models.Flight", "Flight")
                         .WithMany("FlightPurchases")
                         .HasForeignKey("FlightId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("backend.Models.User", "User")
@@ -424,7 +424,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Models.Tour", "Tour")
                         .WithMany("TourPurchases")
                         .HasForeignKey("TourId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("backend.Models.User", "User")

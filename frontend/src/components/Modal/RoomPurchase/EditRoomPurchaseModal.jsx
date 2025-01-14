@@ -1,9 +1,8 @@
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { TextField, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
 import { toast } from 'react-toastify';
 import { BlueButton, CustomBox, CustomModal, CustomTypography } from '../../../assets/CustomComponents';
-import { updateRoomPurchase, getRooms } from '../../../services/roomService';
-import { getUsers } from '../../../services/userService';
+import { getRooms, updateRoomPurchase } from '../../../services/roomService';
 
 const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) => {
     const [formData, setFormData] = useState({
@@ -11,7 +10,8 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
         startDate: '',
         endDate: '',
         guests: '',
-        price: 0, // Price for the room
+        price: 0,
+        status: 'Confirmed',
     });
 
     const [rooms, setRooms] = useState([]);
@@ -35,7 +35,8 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
                 startDate: roomPurchase.startDate ? roomPurchase.startDate.split('T')[0] : '',
                 endDate: roomPurchase.endDate ? roomPurchase.endDate.split('T')[0] : '',
                 guests: roomPurchase.guests || '',
-                price: roomPurchase.price || 0, // Assuming price is part of roomPurchase
+                price: roomPurchase.price || 0,
+                status: roomPurchase.status || 'Confirmed',
             });
         }
     }, [open, roomPurchase]);
@@ -49,10 +50,10 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
         const start = new Date(startDate);
         const end = new Date(endDate);
         const timeDiff = end - start;
-        const numNights = timeDiff / (1000 * 3600 * 24); // Convert timeDiff to days
+        const numNights = timeDiff / (1000 * 3600 * 24);
 
         if (numNights <= 0) {
-            return 0; // Invalid date range, return 0
+            return 0;
         }
 
         // Calculate the price based on the number of nights
@@ -69,12 +70,11 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
                 updatedFormData.price = calculateTotalPrice(updatedFormData.startDate, updatedFormData.endDate, updatedFormData.roomId);
             }
 
-            // If guests change, check the room capacity limit
             if (name === 'guests') {
                 const room = rooms.find(room => room.id === updatedFormData.roomId);
                 if (room && updatedFormData.guests > room.capacity) {
                     toast.error('Number of guests exceeds room capacity');
-                    updatedFormData.guests = prev.guests; // Revert to previous value
+                    updatedFormData.guests = prev.guests;
                 }
             }
 
@@ -83,7 +83,7 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
     };
 
     const handleEditRoomPurchase = async () => {
-        const { roomId, startDate, endDate, guests, price } = formData;
+        const { roomId, startDate, endDate, guests, price, status } = formData;
 
         if (!roomId || !startDate || !endDate || !guests) {
             toast.error('Please fill in all fields');
@@ -103,16 +103,13 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
                 startDate,
                 endDate,
                 guests: parseInt(guests, 10),
-                price, // Sending the updated price
+                price,
+                status,
             };
 
             const response = await updateRoomPurchase(roomPurchase.id, data);
             toast.success('Room Purchase updated successfully!');
-
-            // Trigger success callback
             onEditSuccess(response.data);
-
-            // Close the modal
             onClose();
         } catch (error) {
             toast.error('Error updating room purchase');
@@ -124,7 +121,6 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
             <CustomBox>
                 <CustomTypography variant="h5">Edit Room Purchase</CustomTypography>
 
-                {/* Room Select (Room Type) */}
                 <FormControl fullWidth required className="!mb-4">
                     <InputLabel>Room</InputLabel>
                     <Select
@@ -141,7 +137,6 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
                     </Select>
                 </FormControl>
 
-                {/* Check-in Date */}
                 <TextField
                     fullWidth
                     required
@@ -154,7 +149,6 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
                     InputLabelProps={{ shrink: true }}
                 />
 
-                {/* Check-out Date */}
                 <TextField
                     fullWidth
                     required
@@ -163,11 +157,10 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
                     type="date"
                     value={formData.endDate}
                     onChange={handleChange}
-                    className="!mb-4"
                     InputLabelProps={{ shrink: true }}
+                    className="!mb-4"
                 />
 
-                {/* Guests */}
                 <TextField
                     fullWidth
                     required
@@ -176,11 +169,24 @@ const EditRoomPurchaseModal = ({ open, onClose, roomPurchase, onEditSuccess }) =
                     type="number"
                     value={formData.guests}
                     onChange={handleChange}
-                    className="!mb-4"
                     inputProps={{ min: 1 }}
+                    className="!mb-4"
                 />
 
-                {/* Display price */}
+                <FormControl fullWidth required className="!mb-4">
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        label="Status"
+                    >
+                        <MenuItem value="Pending">Pending</MenuItem>
+                        <MenuItem value="Confirmed">Confirmed</MenuItem>
+                        <MenuItem value="Canceled">Canceled</MenuItem>
+                    </Select>
+                </FormControl>
+
                 <TextField
                     fullWidth
                     label="Total Price"
