@@ -5,7 +5,8 @@ import Footer from '../../components/Footer';
 import RoomItem from '../../components/Items/RoomItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { getMyRoomPurchases } from '../../services/roomService';
+import { deleteRoomPurchase,getMyRoomPurchases } from '../../services/roomService';
+import { useNavigate } from 'react-router-dom';
 
 const itemsPerPage = 5;
 
@@ -15,6 +16,7 @@ const Rooms = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [roomPurchases, setRoomPurchases] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const [user, setUser] = useState(null);
 
@@ -53,6 +55,18 @@ const Rooms = () => {
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, statusFilter]);
+
+    const handleDeleteRoomPurchase = async (id) => {
+        try {
+            await deleteRoomPurchase(id);
+            setRoomPurchases((prevRoomPurchases) =>
+                prevRoomPurchases.filter((roomPurchase) => roomPurchase.id !== id)
+            );
+        } catch (error) {
+            console.error('Error deleting room purchase:', error);
+        }
+    };
+
 
     const filteredRoomPurchases = Array.isArray(roomPurchases)
         ? roomPurchases.filter(({ room, totalPrice, reservedNights, purchaseDate }) => {
@@ -114,6 +128,8 @@ const Rooms = () => {
                                     reservedNights={purchase.reservedNights}
                                     totalPrice={purchase.totalPrice}
                                     guests={purchase.guests}
+                                    onDelete={() => handleDeleteRoomPurchase(purchase.id)}
+                                    onCheckout={() => navigate(`/checkoutroom/${purchase.id}`)}
                                 />
                             ))}
                         </div>

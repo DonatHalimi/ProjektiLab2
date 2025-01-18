@@ -96,6 +96,7 @@ const UserRoomPurchase = () => {
       startDate,
       endDate,
       guests: parseInt(guests, 10),
+      status,
     };
 
     try {

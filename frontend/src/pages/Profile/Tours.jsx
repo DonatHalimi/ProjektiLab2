@@ -14,7 +14,8 @@ import Footer from '../../components/Footer';
 import TourItem from '../../components/Items/TourItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { getMyTourPurchases } from '../../services/tourService';
+import { deleteTourPurchase, getMyTourPurchases } from '../../services/tourService';
+import { useNavigate } from 'react-router-dom';
 
 const itemsPerPage = 5;
 
@@ -24,8 +25,8 @@ const Tours = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [tourPurchases, setTourPurchases] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -63,6 +64,19 @@ const Tours = () => {
         setCurrentPage(1);
     }, [searchTerm, statusFilter]);
 
+    const handleDelete = async (id) => {
+        try {
+            await deleteTourPurchase(id);
+            setTourPurchases((prev) => prev.filter((purchase) => purchase.id !== id));
+        } catch (error) {
+            console.error('Error deleting tour purchase:', error);
+        }
+    };
+
+    const handleCheckout = (id) => {
+        navigate(`/checkouttour/${id}`);
+    };
+
     const filteredTourPurchases = Array.isArray(tourPurchases)
         ? tourPurchases.filter(({ tour, totalPrice, reservedTickets, purchaseDate }) => {
             const fields = [
@@ -90,7 +104,6 @@ const Tours = () => {
         <>
             <Navbar />
             <ProfileLayout>
-
                 <Header
                     title='Tours'
                     searchTerm={searchTerm}
@@ -115,13 +128,15 @@ const Tours = () => {
                 ) : (
                     <div className="flex flex-col">
                         <div className="grid gap-4 mb-3">
-                            {currentPageItems.map(purchase => (
+                            {currentPageItems.map((purchase) => (
                                 <TourItem
                                     key={purchase.id}
                                     tour={purchase.tour}
                                     purchaseDate={purchase.purchaseDate}
                                     reservedTickets={purchase.reservedTickets}
                                     totalPrice={purchase.totalPrice}
+                                    onDelete={() => handleDelete(purchase.id)}
+                                    onCheckout={() => handleCheckout(purchase.id)}
                                 />
                             ))}
                         </div>

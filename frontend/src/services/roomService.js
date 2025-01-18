@@ -122,19 +122,30 @@ export const getMyRoomPurchases = async (userId) => {
     }
 };
 
+const arrayBufferToBase64 = (buffer) => {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const chunkSize = 8192; // Process 8192 bytes at a time
+
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+    }
+
+    return window.btoa(binary);
+};
+
 export const getRoomImage = async (filename) => {
-    // Remove any leading "Uploads\" or similar from the filename
-    const sanitizedFilename = filename.replace(/^Uploads[\\/]/, ''); // Removes "Uploads\" or "Uploads/"
+   
+    const sanitizedFilename = filename.replace(/^Uploads[\\/]/, ''); 
 
     const imageUrl = `/rooms/uploads/${sanitizedFilename}`;
     try {
-        // Fetch the image as an arraybuffer (binary data)
+      
         const response = await axiosInstance.get(imageUrl, { responseType: 'arraybuffer' });
 
-        // Convert arraybuffer to Base64 string
-        const base64Image = `data:image/png;base64,${btoa(
-            String.fromCharCode(...new Uint8Array(response.data))
-        )}`;
+       
+        const base64Image = `data:image/png;base64,${arrayBufferToBase64(response.data)}`;
         return base64Image;
     } catch (error) {
         console.error(`Error fetching image ${filename}:`, error);

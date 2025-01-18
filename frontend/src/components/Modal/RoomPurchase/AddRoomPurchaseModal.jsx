@@ -12,6 +12,7 @@ const AddRoomPurchaseModal = ({ open, onClose, onAddSuccess }) => {
         startDate: '',
         endDate: '',
         guests: '',
+        status: '',
     });
 
     const [users, setUsers] = useState([]);
@@ -36,7 +37,8 @@ const AddRoomPurchaseModal = ({ open, onClose, onAddSuccess }) => {
                 startDate: '',
                 endDate: '',
                 guests: '',
-            });  // Reset form data when modal opens
+                status: '', 
+            });  
         }
     }, [open]);
 
@@ -46,7 +48,7 @@ const AddRoomPurchaseModal = ({ open, onClose, onAddSuccess }) => {
     };
 
     const handleAddRoomPurchase = async () => {
-        const { userId, roomId, startDate, endDate, guests } = formData;
+        const { userId, roomId, startDate, endDate, guests, status } = formData;
 
         if (!userId || !roomId || !startDate || !endDate || !guests) {
             toast.error('Please fill in all fields');
@@ -60,6 +62,7 @@ const AddRoomPurchaseModal = ({ open, onClose, onAddSuccess }) => {
                 startDate,
                 endDate,
                 guests: parseInt(guests, 10),
+                status,
             };
 
             const response = await createRoomPurchase(data);

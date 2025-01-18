@@ -1,4 +1,13 @@
-import { Alert, Box, Button, Card, CardContent, Container, Grid, Snackbar, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Snackbar,
+  Typography,
+} from '@mui/material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import React, { useEffect, useState } from 'react';
@@ -6,23 +15,22 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { getTourPurchase } from '../../services/tourService';
+import { getRoomPurchase } from '../../services/roomService';
+import RoomItem from './RoomItem';
 
-const CheckoutTour = () => {
+const CheckoutRoom = () => {
   const { id } = useParams();
-  const [tourPurchase, setTourPurchase] = useState(null);
+  const [roomPurchase, setRoomPurchase] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [passengerNames, setPassengerNames] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchTourPurchase = async () => {
+    const fetchRoomPurchase = async () => {
       try {
-        const response = await getTourPurchase(id);
-        setTourPurchase(response);
-        setPassengerNames(Array(response.reservedTickets).fill(''));
+        const response = await getRoomPurchase(id);
+        setRoomPurchase(response);
       } catch (error) {
-        console.error('Error fetching tour purchase:', error);
+        console.error('Error fetching room purchase:', error);
       }
     };
 
@@ -35,47 +43,44 @@ const CheckoutTour = () => {
       }
     };
 
-    fetchTourPurchase();
+    fetchRoomPurchase();
     fetchProfile();
   }, [id]);
 
-  const handlePassengerNameChange = (index, value) => {
-    const newPassengerNames = [...passengerNames];
-    newPassengerNames[index] = value;
-    setPassengerNames(newPassengerNames);
-  };
-
   const handleDownloadReceipt = () => {
-    if (passengerNames.some(name => name.trim() === '')) {
-      setError('Please fill in all passenger names.');
+    if (!roomPurchase || !profile) {
+      setError('Unable to download receipt. Missing data.');
       return;
     }
 
     const doc = new jsPDF();
     doc.setFontSize(20);
-    doc.text('Tour Reservation Receipt', 60, 10);
+    doc.text('Room Reservation Receipt', 60, 10);
+
     doc.setFontSize(17);
-    doc.text(`Tour Info:`, 20, 30);
+    doc.text(`Room Info:`, 20, 30);
     doc.setFontSize(12);
-    doc.text(`Tour: ${tourPurchase.tour.name}`, 20, 40);
-    doc.text(`City: ${tourPurchase.tour.city}`, 20, 50);
-    doc.text(`Start Date: ${new Date(tourPurchase.tour.startDate).toLocaleDateString()}`, 20, 70);
-    doc.text(`End Date: ${new Date(tourPurchase.tour.endDate).toLocaleDateString()}`, 20, 80);
-    doc.text(`ReservedTickets: ${tourPurchase.reservedTickets}`, 20, 90);
-    doc.text(`Total Price: $${tourPurchase.totalPrice}`, 20, 100);
+    doc.text(`Hotel Name: ${roomPurchase.room.hotelName}`, 20, 40);
+    doc.text(`Location: ${roomPurchase.room.hotelLocation}`, 20, 50);
+    doc.text(`Room Type: ${roomPurchase.room.roomType}`, 20, 60);
+    doc.text(
+      `Check-In Date: ${new Date(roomPurchase.startDate).toLocaleDateString()}`,
+      20,
+      70
+    );
+    doc.text(
+      `Check-Out Date: ${new Date(roomPurchase.endDate).toLocaleDateString()}`,
+      20,
+      80
+    );
+    doc.text(`Guests: ${roomPurchase.guests}`, 20, 90);
+    doc.text(`Total Price: $${roomPurchase.totalPrice}`, 20, 100);
 
     doc.setFontSize(17);
     doc.text(`User Info:`, 140, 30);
     doc.setFontSize(12);
     doc.text(`User Name: ${profile.firstName} ${profile.lastName}`, 140, 40);
     doc.text(`User Email: ${profile.email}`, 140, 50);
-
-    doc.setFontSize(17);
-    doc.text(`Passenger Names:`, 20, 120);
-    doc.setFontSize(12);
-    passengerNames.forEach((name, index) => {
-      doc.text(`Ticket ${index + 1}: ${name}`, 20, 130 + index * 10);
-    });
 
     doc.setFontSize(12);
     doc.text('Company Signature:', 20, 250);
@@ -86,14 +91,18 @@ const CheckoutTour = () => {
     doc.text('Your Signature:', 140, 250);
     doc.text('_________________________', 140, 260);
     doc.text('Company Address: 123 Street, Prishtina, Kosovo', 60, 280);
-    doc.save('receipt.pdf');
+    doc.save('room_receipt.pdf');
   };
 
   const handleClose = () => {
     setError('');
   };
 
-  if (!tourPurchase || !profile) {
+  const handleCheckout = (roomId) => {
+    console.log(`Room with ID ${roomId} checked out!`);
+  };
+
+  if (!roomPurchase || !profile) {
     return <div>Loading...</div>;
   }
 
@@ -102,27 +111,30 @@ const CheckoutTour = () => {
       <Navbar />
       <Container sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Checkout
+          Room Checkout
         </Typography>
         <Card>
           <CardContent>
             <Typography variant="h5" component="div">
-              Tour: {tourPurchase.tour.name}
+              Hotel Name: {roomPurchase.room.hotelName}
             </Typography>
             <Typography color="textSecondary">
-              City: {tourPurchase.tour.city}
+              Location: {roomPurchase.room.hotelLocation}
             </Typography>
             <Typography color="textSecondary">
-              Start Date: {new Date(tourPurchase.tour.startDate).toLocaleDateString()}
+              Room Type: {roomPurchase.room.roomType}
             </Typography>
             <Typography color="textSecondary">
-              End Date: {new Date(tourPurchase.tour.endDate).toLocaleDateString()}
+              Check-In Date: {new Date(roomPurchase.startDate).toLocaleDateString()}
             </Typography>
             <Typography color="textSecondary">
-              Tickets Reserved: {tourPurchase.reservedTickets}
+              Check-Out Date: {new Date(roomPurchase.endDate).toLocaleDateString()}
             </Typography>
             <Typography color="textSecondary">
-              Total Price: ${tourPurchase.totalPrice}
+              Guests: {roomPurchase.guests}
+            </Typography>
+            <Typography color="textSecondary">
+              Total Price: ${roomPurchase.totalPrice}
             </Typography>
             <Typography color="textSecondary">
               User Name: {profile.firstName} {profile.lastName}
@@ -130,23 +142,6 @@ const CheckoutTour = () => {
             <Typography color="textSecondary">
               User Email: {profile.email}
             </Typography>
-            <Box sx={{ mt: 4 }}>
-              <Typography variant="h6">Passenger Names</Typography>
-              <Grid container spacing={2}>
-                {passengerNames.map((name, index) => (
-                  <Grid item xs={12} sm={6} key={index}>
-                    <TextField
-                      label={`Ticket ${index + 1}`}
-                      value={name}
-                      onChange={(e) => handlePassengerNameChange(index, e.target.value)}
-                      fullWidth
-                      required
-                    />
-                  </Grid>
-
-                ))}
-              </Grid>
-            </Box>
           </CardContent>
         </Card>
         <Box sx={{ m: 4 }}>
@@ -157,8 +152,26 @@ const CheckoutTour = () => {
             Download Receipt
           </Button>
         </Box>
+
+        <RoomItem
+          room={roomPurchase.room}
+          purchaseDate={roomPurchase.purchaseDate}
+          reservedNights={roomPurchase.nights}
+          guests={roomPurchase.guests}
+          totalPrice={roomPurchase.totalPrice}
+          onDelete={(roomId) => console.log(`Room with ID ${roomId} deleted`)}
+          onCheckout={handleCheckout}
+        />
+
         {error && (
-          <Snackbar open={true} autoHideDuration={6000} onClose={handleClose}>
+          <Snackbar
+            open={true}
+            autoHideDuration={6000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            role="alert"
+            aria-live="assertive"
+          >
             <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
               {error}
             </Alert>
@@ -170,4 +183,4 @@ const CheckoutTour = () => {
   );
 };
 
-export default CheckoutTour;
+export default CheckoutRoom;

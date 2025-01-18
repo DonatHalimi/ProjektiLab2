@@ -1,13 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CityFlag, formatDate, formatPrice, ImagePreviewModal } from '../../assets/CustomComponents';
+import { CityFlag, formatDate, formatPrice, ImagePreviewModal, CustomDeleteModal } from '../../assets/CustomComponents';
 import { getRoomImage } from '../../services/roomService';
+import { Button } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 
-const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice }) => {
+const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice, onDelete, onCheckout }) => {
     const { id, roomType, city, checkInDate, checkOutDate, images } = room || {};
     const [imageUrls, setImageUrls] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [roomToDelete, setRoomToDelete] = useState(null);
     const symbol = '•';
+
+    const handleOpen = (roomId) => {
+        setRoomToDelete(roomId);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setRoomToDelete(null);
+    };
+
+    const handleDelete = () => {
+        if (roomToDelete !== null) {
+            onDelete(roomToDelete); 
+        }
+        handleClose(); 
+    };
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -79,8 +100,37 @@ const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice }) =>
                         </div>
                     </div>
                 </Link>
+
+                <div className="flex justify-end gap-4 mt-4">
+                    {/* Delete Button */}
+                    <Button
+                        onClick={() => handleOpen(id)}
+                        color="error"
+                        startIcon={<Delete />}
+                    >
+                        Delete
+                    </Button>
+
+                    {/* Checkout Button */}
+                    <Button
+                        onClick={() => onCheckout(id)}
+                        color="success"
+                    >
+                        Checkout
+                    </Button>
+                </div>
             </div>
 
+            {/* Confirmation Modal */}
+            <CustomDeleteModal
+                open={open}
+                onClose={handleClose}
+                onDelete={handleDelete}
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this room purchase?"
+            />
+
+            {/* Image Preview Modal */}
             <ImagePreviewModal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
