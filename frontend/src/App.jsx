@@ -17,6 +17,7 @@ import Rooms from "./pages/Profile/Rooms";
 import Tours from "./pages/Profile/Tours";
 import UserRoomPurchase from "./pages/Rooms/UserRoomPurchase";
 import CheckoutTour from "./pages/Tours/CheckoutTour";
+import CheckoutRoom from "./pages/Rooms/CheckoutRoom";
 import UserTourPurchase from "./pages/Tours/UserTourPurchase";
 
 const App = () => {
@@ -34,6 +35,7 @@ const App = () => {
         <Route path="/user-tours" element={<UserTourPurchase />} />
         <Route path="/user-rooms" element={<UserRoomPurchase />} />
         <Route path="/checkouttour/:id" element={<CheckoutTour />} />
+        <Route path="/checkoutroom/:id" element={<CheckoutRoom />} />
 
         <Route path="/dashboard" element={<ProtectedRoute adminOnly><DashboardLayout /></ProtectedRoute>}>
           {Object.entries(pages).map(([name, Page]) => (

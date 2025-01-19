@@ -1,13 +1,4 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Container,
-  Snackbar,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Container, Grid, Snackbar, TextField, Typography } from '@mui/material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import React, { useEffect, useState } from 'react';
@@ -16,11 +7,11 @@ import Footer from '../../components/Footer';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
 import { getRoomPurchase } from '../../services/roomService';
-import RoomItem from './RoomItem';
 
 const CheckoutRoom = () => {
   const { id } = useParams();
   const [roomPurchase, setRoomPurchase] = useState(null);
+  const [guestNames, setGuestNames] = useState([]);
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
 
@@ -29,6 +20,7 @@ const CheckoutRoom = () => {
       try {
         const response = await getRoomPurchase(id);
         setRoomPurchase(response);
+        setGuestNames(Array(response.guests).fill(''));
       } catch (error) {
         console.error('Error fetching room purchase:', error);
       }
@@ -47,9 +39,15 @@ const CheckoutRoom = () => {
     fetchProfile();
   }, [id]);
 
+  const handleGuestNameChange = (index, value) => {
+    const newGuestNames = [...guestNames];
+    newGuestNames[index] = value;
+    setGuestNames(newGuestNames);
+  };
+
   const handleDownloadReceipt = () => {
-    if (!roomPurchase || !profile) {
-      setError('Unable to download receipt. Missing data.');
+    if (guestNames.some(name => name.trim() === '')) {
+      setError('Please fill in all passenger names.');
       return;
     }
 
@@ -60,8 +58,8 @@ const CheckoutRoom = () => {
     doc.setFontSize(17);
     doc.text(`Room Info:`, 20, 30);
     doc.setFontSize(12);
-    doc.text(`Hotel Name: ${roomPurchase.room.hotelName}`, 20, 40);
-    doc.text(`Location: ${roomPurchase.room.hotelLocation}`, 20, 50);
+    doc.text(`Hotel Name: ${roomPurchase?.room?.hotel?.name}`, 20, 40);
+    doc.text(`Location: ${roomPurchase?.room?.hotel?.location}`, 20, 50);
     doc.text(`Room Type: ${roomPurchase.room.roomType}`, 20, 60);
     doc.text(
       `Check-In Date: ${new Date(roomPurchase.startDate).toLocaleDateString()}`,
@@ -81,6 +79,13 @@ const CheckoutRoom = () => {
     doc.setFontSize(12);
     doc.text(`User Name: ${profile.firstName} ${profile.lastName}`, 140, 40);
     doc.text(`User Email: ${profile.email}`, 140, 50);
+ 
+    doc.setFontSize(17);
+    doc.text(`Guest Names:`, 20, 120);
+    doc.setFontSize(12);
+    guestNames.forEach((name, index) => {
+      doc.text(`Ticket ${index + 1}: ${name}`, 20, 130 + index * 10);
+    });
 
     doc.setFontSize(12);
     doc.text('Company Signature:', 20, 250);
@@ -116,10 +121,10 @@ const CheckoutRoom = () => {
         <Card>
           <CardContent>
             <Typography variant="h5" component="div">
-              Hotel Name: {roomPurchase.room.hotelName}
+            Hotel Name: {roomPurchase?.room?.hotel?.name || 'N/A'}
             </Typography>
             <Typography color="textSecondary">
-              Location: {roomPurchase.room.hotelLocation}
+            Location: {roomPurchase?.room?.hotel?.location || 'N/A'}
             </Typography>
             <Typography color="textSecondary">
               Room Type: {roomPurchase.room.roomType}
@@ -142,6 +147,23 @@ const CheckoutRoom = () => {
             <Typography color="textSecondary">
               User Email: {profile.email}
             </Typography>
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="h6">Guests Names</Typography>
+              <Grid container spacing={2}>
+                {guestNames.map((name, index) => (
+                  <Grid item xs={12} sm={6} key={index}>
+                    <TextField
+                      label={`Guest Name ${index + 1}`}
+                      value={name}
+                      onChange={(e) => handleGuestNameChange(index, e.target.value)}
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+
+                ))}
+              </Grid>
+            </Box>
           </CardContent>
         </Card>
         <Box sx={{ m: 4 }}>
@@ -152,18 +174,7 @@ const CheckoutRoom = () => {
             Download Receipt
           </Button>
         </Box>
-
-        <RoomItem
-          room={roomPurchase.room}
-          purchaseDate={roomPurchase.purchaseDate}
-          reservedNights={roomPurchase.nights}
-          guests={roomPurchase.guests}
-          totalPrice={roomPurchase.totalPrice}
-          onDelete={(roomId) => console.log(`Room with ID ${roomId} deleted`)}
-          onCheckout={handleCheckout}
-        />
-
-        {error && (
+         {error && (
           <Snackbar
             open={true}
             autoHideDuration={6000}

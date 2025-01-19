@@ -33,6 +33,7 @@ namespace backend.Controllers
         {
             var roomPurchase = await _context.RoomPurchases
                 .Include(rp => rp.Room)
+                  .ThenInclude(r => r.Hotel)
                 .Include(rp => rp.User)
                 .FirstOrDefaultAsync(rp => rp.Id == id);
 
