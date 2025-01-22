@@ -74,6 +74,9 @@ const Navbar = () => {
                                 <Link to="/contact" className="text-black hover:underline">
                                     <Button>Contact</Button>
                                 </Link>
+                                <Link to="/faq" className="text-black hover:underline">
+                                    <Button>FAQ</Button>
+                                </Link>
                                     
                                 <div ref={profileRef} className="relative z-[1000]">
                                     <ProfileIcon
