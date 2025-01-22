@@ -53,10 +53,12 @@ const ContactsPage = () => {
     }, []);
 
     const handleSelectContact = (contactId) => {
+        const id = Array.isArray(contactId) ? contactId[0] : contactId;
+
         setSelectedContacts(prev => 
-            prev.includes(contactId)
-                ? prev.filter(id => id !== contactId)
-                : [...prev, contactId]
+            prev.includes(id)
+                ? prev.filter(selectedId => selectedId !== id)
+                : [...prev, id]
         );
     };
 
@@ -74,9 +76,8 @@ const ContactsPage = () => {
 
     const handleDeleteContacts = async () => {
         try {
-            const idsToDelete = selectedContacts.map(id => id.toString());
-            await axiosInstance.post('/Contact/delete-bulk', { 
-                Ids: idsToDelete 
+            await axiosInstance.delete('/Contact/delete-bulk', { 
+                data: { ids: selectedContacts } 
             });
             toast.success('Contacts deleted successfully');
             await fetchContacts();
@@ -126,8 +127,12 @@ const ContactsPage = () => {
                 <DeleteModal
                     open={deleteContactOpen}
                     onClose={() => setDeleteContactOpen(false)}
-                    items={selectedContacts}
-                    onDelete={handleDeleteContacts}
+                    items={selectedContacts.map(id => contacts.find(contact => contact.id === id)).filter(contact => contact)}
+                    onDeleteSuccess={() => {
+                        fetchContacts();
+                        setSelectedContacts([]);
+                    }}
+                    endpoint="/Contact/delete-bulk"
                     title="Delete Contacts"
                     message={`Are you sure you want to delete ${selectedContacts.length} selected contact${selectedContacts.length === 1 ? '' : 's'}?`}
                 />
@@ -136,4 +141,4 @@ const ContactsPage = () => {
     );
 };
 
-export default ContactsPage; 
+export default ContactsPage;

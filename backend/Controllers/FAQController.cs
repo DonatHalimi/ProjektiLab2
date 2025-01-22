@@ -112,7 +112,7 @@ namespace backend.Controllers
             public string[] Ids { get; set; }
         }
 
-        [HttpPost("delete-bulk")]
+        [HttpDelete("delete-bulk")]
         public async Task<IActionResult> DeleteBulk([FromBody] DeleteFAQsRequest request)
         {
             try
