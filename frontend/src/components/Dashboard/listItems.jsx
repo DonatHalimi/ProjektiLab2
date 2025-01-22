@@ -24,7 +24,11 @@ import {
     Person,
     PersonOutline,
     SingleBed,
-    SingleBedRounded
+    SingleBedRounded,
+    QuestionAnswer,
+    QuestionAnswerOutlined,
+    Email,
+    EmailOutlined
 } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -146,6 +150,33 @@ const mainSections = [
         label: 'Reports',
         items: reportMenuItems,
         stateKey: 'reportsOpen'
+    },
+    {
+        id: 'faqs',
+        icon: { active: QuestionAnswer, inactive: QuestionAnswerOutlined },
+        label: 'FAQs',
+        items: [
+            {
+                id: 'faqs',
+                icon: { active: QuestionAnswer, inactive: QuestionAnswerOutlined },
+                label: 'Manage FAQs'
+            }
+        ],
+        stateKey: 'faqsOpen'
+    },
+    {
+        id: 'contacts',
+        icon: { active: Email, inactive: EmailOutlined },
+        label: 'Contacts',
+        items: [
+            {
+                id: 'contacts',
+                path: '/dashboard/contacts',
+                icon: { active: Email, inactive: EmailOutlined },
+                label: 'Manage Contacts'
+            }
+        ],
+        stateKey: 'contactsOpen'
     }
 ];
 
@@ -157,6 +188,8 @@ export const mainListItems = ({ setCurrentView, collapsed }) => {
         toursOpen: true,
         hotelsOpen: true,
         reportsOpen: true,
+        faqsOpen: true,
+        contactsOpen: true
     };
 
     const [menuState, setMenuState] = useState(getLocalStorageState('menuState', defaultState));

@@ -64,6 +64,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IAuthChecker, AuthChecker>();
+builder.Services.AddSingleton<MongoDBService>();
+builder.Services.AddSingleton<ContactService>();
 
 // Fetch JWT values from environment variables
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");

@@ -71,6 +71,10 @@ const Navbar = () => {
                                 <Link to="/user-rooms" className="text-black hover:underline">
                                     <Button>Rooms</Button>
                                 </Link>
+                                <Link to="/contact" className="text-black hover:underline">
+                                    <Button>Contact</Button>
+                                </Link>
+                                    
                                 <div ref={profileRef} className="relative z-[1000]">
                                     <ProfileIcon
                                         handleProfileDropdownToggle={() => toggleDropdown('profile')}

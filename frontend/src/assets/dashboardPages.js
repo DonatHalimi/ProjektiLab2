@@ -1,4 +1,5 @@
 import React from 'react';
+import { Email } from '@mui/icons-material';
 
 const pages = {
     users: React.lazy(() => import('../pages/Dashboard/UsersPage')),
@@ -13,6 +14,8 @@ const pages = {
     flightPurchaseReports: React.lazy(() => import('../pages/Dashboard/flightPurchaseReports')),
     tourPurchaseReports: React.lazy(() => import('../pages/Dashboard/TourPurchaseReports')),
     roomPurchaseReports: React.lazy(() => import('../pages/Dashboard/RoomPurchaseReports')),
+    faqs: React.lazy(() => import('../pages/Dashboard/FAQsPage')),
+    contacts: React.lazy(() => import('../pages/Dashboard/ContactsPage')),
 };
 
 export default pages;

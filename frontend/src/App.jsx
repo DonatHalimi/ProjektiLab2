@@ -19,6 +19,10 @@ import UserRoomPurchase from "./pages/Rooms/UserRoomPurchase";
 import CheckoutTour from "./pages/Tours/CheckoutTour";
 import CheckoutRoom from "./pages/Rooms/CheckoutRoom";
 import UserTourPurchase from "./pages/Tours/UserTourPurchase";
+import FAQPage from "./pages/FAQPage";
+import FAQsDashboardPage from "./pages/Dashboard/FAQsPage";
+import ContactsPage from './pages/Dashboard/ContactsPage';
+import ContactPage from './pages/ContactPage';
 
 const App = () => {
   return (
@@ -36,6 +40,20 @@ const App = () => {
         <Route path="/user-rooms" element={<UserRoomPurchase />} />
         <Route path="/checkouttour/:id" element={<CheckoutTour />} />
         <Route path="/checkoutroom/:id" element={<CheckoutRoom />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+
+        {/* <Route path="/dashboard/*" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Routes>
+                {Object.entries(pages).map(([name, Page]) => (
+                  <Route key={name} path={name} element={<ProtectedRoute adminOnly><Page /></ProtectedRoute>} />
+                ))}
+              </Routes>
+            </DashboardLayout>
+          </ProtectedRoute>
+        } /> */}
 
         <Route path="/dashboard" element={<ProtectedRoute adminOnly><DashboardLayout /></ProtectedRoute>}>
           {Object.entries(pages).map(([name, Page]) => (
@@ -43,7 +61,10 @@ const App = () => {
           ))}
         </Route>
 
+        {/* <Route path="/dashboard/faqs" element={<FAQsDashboardPage />} /> */}
+
         <Route path="/not-allowed" element={<NotAllowed />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
