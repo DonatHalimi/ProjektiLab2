@@ -13,14 +13,14 @@ const Footer = () => {
         quick: [
             { to: '/', label: 'Home' },
             { to: '/about-us', label: 'About Us' },
-            { to: '/contact-us', label: 'Contact' },
-            { to: '/faqs', label: 'FAQs' },
+            { to: '/contact', label: 'Contact' },
+            { to: '/faq', label: 'FAQs' },
         ],
         customerService: [
             { to: '/profile/me', label: 'My Account' },
             { to: '/profile/flight-purchases', label: 'Flight Purchases' },
             { to: '/profile/tour-purchases', label: 'Tour Purchases' },
-            { to: '/profile/hotel-purchases', label: 'Hotel Purchases' },
+            { to: '/profile/room-purchases', label: 'Hotel Purchases' },
         ],
         contact: [
             { linkType: 'external', href: 'mailto:support@travel.com', icon: <Email />, label: 'Email' },

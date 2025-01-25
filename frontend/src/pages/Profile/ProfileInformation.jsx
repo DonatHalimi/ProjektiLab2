@@ -26,8 +26,6 @@ const ProfileInformation = () => {
     const [firstNameValid, setFirstNameValid] = useState(true);
     const [lastNameValid, setLastNameValid] = useState(true);
     const [emailValid, setEmailValid] = useState(true);
-    const [passwordValid, setPasswordValid] = useState(true);
-    const [newPasswordValid, setNewPasswordValid] = useState(true);
 
     const [focusedField, setFocusedField] = useState(null);
 
@@ -60,7 +58,7 @@ const ProfileInformation = () => {
 
     const validateFirstName = (name) => /^[A-Z][a-zA-Z]{1,9}$/.test(name);
     const validateLastName = (name) => /^[A-Z][a-zA-Z]{1,9}$/.test(name);
-    const validatePassword = (password) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+
     const validateEmail = (email) => {
         const regex = new RegExp(`^[a-zA-Z0-9._%+-]+@(${knownEmailProviders.join('|')})$`, 'i');
         return regex.test(email);
@@ -87,48 +85,81 @@ const ProfileInformation = () => {
     const handlePasswordChange = (e) => {
         const value = e.target.value;
         setPassword(value);
-        setPasswordValid(validatePassword(value));
     };
 
     const handleNewPasswordChange = (e) => {
         const value = e.target.value;
         setNewPassword(value);
-        setNewPasswordValid(validatePassword(value));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const updatedData = {};
-        if (firstName !== initialData.firstName) updatedData.firstName = firstName;
-        if (lastName !== initialData.lastName) updatedData.lastName = lastName;
-        if (email !== initialData.email) updatedData.email = email;
-        if (newPassword) updatedData.newPassword = newPassword;
-        if (password) updatedData.password = password;
+        const updatedData = {
+            firstName: firstName !== initialData.firstName ? firstName : undefined,
+            lastName: lastName !== initialData.lastName ? lastName : undefined,
+            email: email !== initialData.email ? email : undefined,
+            newPassword: newPassword || undefined,
+            currentPassword: password || undefined,
+        };
 
-        if (Object.keys(updatedData).length === 0) {
+        const filteredData = Object.fromEntries(
+            Object.entries(updatedData).filter(([_, value]) => value !== undefined)
+        );
+
+        if (Object.keys(filteredData).length === 0) {
             toast.info('No changes detected');
             return;
         }
 
         try {
-            const response = await axiosInstance.put('/auth/update-profile', updatedData);
+            const userId = user?.id;
+            const response = await axiosInstance.put(`/users/update-info/${userId}`, filteredData);
+
             if (response.data.success) {
                 toast.success('Profile updated successfully!');
+
+                // Generate new token on email change
+                if (response.data.token) {
+                    localStorage.setItem('token', response.data.token);
+                    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+                }
+
+                // Re-fetch the current user's data
+                const userResponse = await axiosInstance.get('/auth/me');
+                setUser(userResponse.data);
+
+                window.location.reload();
             } else {
                 toast.error(response.data.error || 'Profile update failed');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
-            toast.error('Profile update failed');
+
+            if (error.response) {
+                const { status, data } = error.response;
+                switch (status) {
+                    case 400:
+                        toast.error(data?.message || 'Bad Request');
+                        break;
+                    case 401:
+                        toast.error(data?.message || 'Invalid current password');
+                        break;
+                    case 409:
+                        toast.error(data?.message || 'Email already in use');
+                        break;
+                    default:
+                        toast.error(data?.message || 'An unexpected error occurred');
+                }
+            } else if (error.request) {
+                toast.error('No response from the server. Please try again later.');
+            } else {
+                toast.error('Error occurred while updating profile');
+            }
         }
     };
 
-    const isFormValid = (
-        firstNameValid && lastNameValid && emailValid &&
-        (password ? passwordValid : true) &&
-        (newPassword ? newPasswordValid : true)
-    );
+    const isFormValid = firstNameValid && lastNameValid && emailValid && password;
 
     const isFormUnchanged = (
         firstName === initialData.firstName &&
@@ -258,19 +289,12 @@ const ProfileInformation = () => {
                                                         onMouseDown={handleMouseDownPassword}
                                                         edge="end"
                                                     >
-                                                        {showPassword ? <VisibilityIcon className="text-stone-500" /> : <VisibilityOffIcon className="text-stone-500" />}
+                                                        {showPassword ? <VisibilityIcon className="text-gray-500" /> : <VisibilityOffIcon className="text-gray-500" />}
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),
                                         }}
                                     />
-                                    {focusedField === 'password' && !passwordValid && (
-                                        <div className="absolute left-0 bottom-[-70px] bg-white text-red-500 text-sm p-2 rounded-lg shadow-md w-full z-10">
-                                            <span className="block text-xs font-semibold mb-1">Invalid Password</span>
-                                            Must be 8 characters long with uppercase, lowercase, number, and special character.
-                                            <div className="absolute top-[-5px] left-[20px] w-0 h-0 border-l-[5px] border-r-[5px] border-b-[5px] border-transparent border-b-white"></div>
-                                        </div>
-                                    )}
                                 </div>
 
                                 <div className="relative flex-grow">
@@ -296,19 +320,12 @@ const ProfileInformation = () => {
                                                         onMouseDown={handleMouseDownPassword}
                                                         edge="end"
                                                     >
-                                                        {showNewPassword ? <VisibilityIcon className="text-stone-500" /> : <VisibilityOffIcon className="text-stone-500" />}
+                                                        {showNewPassword ? <VisibilityIcon className="text-gray-500" /> : <VisibilityOffIcon className="text-gray-500" />}
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),
                                         }}
                                     />
-                                    {focusedField === 'newPassword' && !newPasswordValid && (
-                                        <div className="absolute left-0 bottom-[-70px] bg-white text-red-500 text-sm p-2 rounded-lg shadow-md w-full z-10">
-                                            <span className="block text-xs font-semibold mb-1">Invalid New Password</span>
-                                            Must be 8 characters long with uppercase, lowercase, number, and special character.
-                                            <div className="absolute top-[-5px] left-[20px] w-0 h-0 border-l-[5px] border-r-[5px] border-b-[5px] border-transparent border-b-white"></div>
-                                        </div>
-                                    )}
                                 </div>
                             </Box>
 

@@ -28,7 +28,9 @@ import {
     QuestionAnswer,
     QuestionAnswerOutlined,
     Email,
-    EmailOutlined
+    EmailOutlined,
+    Help,
+    HelpOutline
 } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -114,6 +116,19 @@ const reportMenuItems = [
     }
 ];
 
+const supportMenuItems = [
+    {
+        id: 'faqs',
+        icon: { active: QuestionAnswer, inactive: QuestionAnswerOutlined },
+        label: 'FAQs'
+    },
+    {
+        id: 'contacts',
+        icon: { active: Email, inactive: EmailOutlined },
+        label: 'Contacts'
+    },
+]
+
 // Collapsible sections
 const mainSections = [
     {
@@ -152,31 +167,11 @@ const mainSections = [
         stateKey: 'reportsOpen'
     },
     {
-        id: 'faqs',
-        icon: { active: QuestionAnswer, inactive: QuestionAnswerOutlined },
-        label: 'FAQs',
-        items: [
-            {
-                id: 'faqs',
-                icon: { active: QuestionAnswer, inactive: QuestionAnswerOutlined },
-                label: 'Manage FAQs'
-            }
-        ],
-        stateKey: 'faqsOpen'
-    },
-    {
-        id: 'contacts',
-        icon: { active: Email, inactive: EmailOutlined },
-        label: 'Contacts',
-        items: [
-            {
-                id: 'contacts',
-                path: '/dashboard/contacts',
-                icon: { active: Email, inactive: EmailOutlined },
-                label: 'Manage Contacts'
-            }
-        ],
-        stateKey: 'contactsOpen'
+        id: 'support',
+        icon: { active: Help, inactive: HelpOutline },
+        label: 'Customer Support',
+        items: supportMenuItems,
+        stateKey: 'supportOpen'
     }
 ];
 
@@ -188,8 +183,7 @@ export const mainListItems = ({ setCurrentView, collapsed }) => {
         toursOpen: true,
         hotelsOpen: true,
         reportsOpen: true,
-        faqsOpen: true,
-        contactsOpen: true
+        supportOpen: true
     };
 
     const [menuState, setMenuState] = useState(getLocalStorageState('menuState', defaultState));

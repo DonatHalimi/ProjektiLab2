@@ -1,5 +1,4 @@
 import React from 'react';
-import { Email } from '@mui/icons-material';
 
 const pages = {
     users: React.lazy(() => import('../pages/Dashboard/UsersPage')),

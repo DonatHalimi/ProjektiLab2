@@ -1,7 +1,8 @@
+import { TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
-import { updateFAQ } from '../../../services/faqService';
 import { toast } from 'react-toastify';
+import { BlueButton, CustomBox, CustomModal, CustomTypography } from '../../../assets/CustomComponents';
+import { updateFAQ } from '../../../services/faqService';
 
 const EditFAQModal = ({ open, onClose, faq, onEditSuccess }) => {
     const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ const EditFAQModal = ({ open, onClose, faq, onEditSuccess }) => {
         }
     }, [faq]);
 
-    const handleSubmit = async (e) => {
+    const handleEditFaq = async (e) => {
         e.preventDefault();
         try {
             await updateFAQ(faq._id, formData);
@@ -31,38 +32,42 @@ const EditFAQModal = ({ open, onClose, faq, onEditSuccess }) => {
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Edit FAQ</DialogTitle>
-            <form onSubmit={handleSubmit}>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Question"
-                        type="text"
-                        fullWidth
-                        value={formData.question}
-                        onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                        required
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Answer"
-                        type="text"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        value={formData.answer}
-                        onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                        required
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
-                    <Button type="submit" variant="contained" color="primary">Update FAQ</Button>
-                </DialogActions>
-            </form>
-        </Dialog>
+        <CustomModal open={open} onClose={onClose}>
+            <CustomBox>
+                <CustomTypography variant="h5">Edit FAQ</CustomTypography>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    label="Question"
+                    type="text"
+                    fullWidth
+                    value={formData.question}
+                    onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                    required
+                />
+                <TextField
+                    margin="dense"
+                    label="Answer"
+                    type="text"
+                    fullWidth
+                    multiline
+                    rows={4}
+                    value={formData.answer}
+                    onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+                    required
+                />
+
+                <BlueButton
+                    onClick={handleEditFaq}
+                    variant="contained"
+                    color="primary"
+                    className="!mt-4 w-full"
+                >
+                    Save
+                </BlueButton>
+            </CustomBox>
+        </CustomModal>
+
     );
 };
 

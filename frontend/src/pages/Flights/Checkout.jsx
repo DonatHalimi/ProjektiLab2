@@ -1,28 +1,25 @@
-import { Alert, Box, Button, Card, CardContent, Container, Grid, Snackbar, TextField, Typography } from '@mui/material';
+import { Box, Grid, TextField, Typography } from '@mui/material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Footer from '../../components/Footer';
-import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
 import { getFlightPurchase } from '../../services/flightService';
+import { BlueButton, CustomBox, CustomModal, CustomTypography, formatDate } from '../../assets/CustomComponents';
+import { toast } from 'react-toastify';
 
-const Checkout = () => {
-  const { id } = useParams();
+const Checkout = ({ open, onClose, flightId }) => {
   const [flightPurchase, setFlightPurchase] = useState(null);
-  const [profile, setProfile] = useState(null);
   const [passengerNames, setPassengerNames] = useState([]);
-  const [error, setError] = useState('');
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const fetchFlightPurchase = async () => {
       try {
-        const response = await getFlightPurchase(id);
+        const response = await getFlightPurchase(flightId);
         setFlightPurchase(response);
         setPassengerNames(Array(response.seatsReserved).fill(''));
       } catch (error) {
-        console.error('Error fetching flight purchase:', error);
+        toast.error('Failed to fetch flight purchase data.');
       }
     };
 
@@ -31,13 +28,15 @@ const Checkout = () => {
         const response = await getCurrentUser();
         setProfile(response);
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        toast.error('Failed to fetch user profile.');
       }
     };
 
-    fetchFlightPurchase();
-    fetchProfile();
-  }, [id]);
+    if (open) {
+      fetchFlightPurchase();
+      fetchProfile();
+    }
+  }, [open, flightId]);
 
   const handlePassengerNameChange = (index, value) => {
     const newPassengerNames = [...passengerNames];
@@ -47,22 +46,27 @@ const Checkout = () => {
 
   const handleDownloadReceipt = () => {
     if (passengerNames.some(name => name.trim() === '')) {
-      setError('Please fill in all passenger names.');
+      toast.error('Please fill in all passenger names.');
       return;
     }
+
+    const currentDate = new Date().toLocaleDateString('en-CA');
+
     const doc = new jsPDF();
     doc.setFontSize(20);
     doc.text('Flight Reservation Receipt', 60, 10);
+
     doc.setFontSize(17);
     doc.text(`Flight Info:`, 20, 30);
     doc.setFontSize(12);
     doc.text(`Flight: ${flightPurchase.flight.name}`, 20, 40);
     doc.text(`Departure: ${flightPurchase.flight.departureCity}`, 20, 50);
     doc.text(`Arrival: ${flightPurchase.flight.arrivalCity}`, 20, 60);
-    doc.text(`Start Date: ${new Date(flightPurchase.flight.startDate).toLocaleDateString()}`, 20, 70);
-    doc.text(`End Date: ${new Date(flightPurchase.flight.endDate).toLocaleDateString()}`, 20, 80);
+    doc.text(`Start Date: ${formatDate(flightPurchase.flight.startDate)}`, 20, 70);
+    doc.text(`End Date: ${formatDate(flightPurchase.flight.endDate)}`, 20, 80);
     doc.text(`Seats Reserved: ${flightPurchase.seatsReserved}`, 20, 90);
     doc.text(`Total Price: $${flightPurchase.totalPrice}`, 20, 100);
+
     doc.setFontSize(17);
     doc.text(`User Info:`, 140, 30);
     doc.setFontSize(12);
@@ -85,89 +89,122 @@ const Checkout = () => {
     doc.text('Your Signature:', 140, 250);
     doc.text('_________________________', 140, 260);
     doc.text('Company Address: 123 Street, Prishtina, Kosovo', 60, 280);
-    doc.save('receipt.pdf');
-  };
 
-  const handleClose = () => {
-    setError('');
+    doc.save(`flight_receipt_${currentDate}.pdf`);
   };
 
   if (!flightPurchase || !profile) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (
-    <>
-      <Navbar />
-      <Container sx={{ mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Checkout
-        </Typography>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="div">
-              Flight: {flightPurchase.flight.name}
-            </Typography>
-            <Typography color="textSecondary">
-              Departure: {flightPurchase.flight.departureCity}
-            </Typography>
-            <Typography color="textSecondary">
-              Arrival: {flightPurchase.flight.arrivalCity}
-            </Typography>
-            <Typography color="textSecondary">
-              Start Date: {new Date(flightPurchase.flight.startDate).toLocaleDateString()}
-            </Typography>
-            <Typography color="textSecondary">
-              End Date: {new Date(flightPurchase.flight.endDate).toLocaleDateString()}
-            </Typography>
-            <Typography color="textSecondary">
-              Seats Reserved: {flightPurchase.seatsReserved}
-            </Typography>
-            <Typography color="textSecondary">
-              Total Price: ${flightPurchase.totalPrice}
-            </Typography>
-            <Typography color="textSecondary">
-              User Name: {profile.firstName} {profile.lastName}
-            </Typography>
-            <Typography color="textSecondary">
-              User Email: {profile.email}
-            </Typography>
-            <Box sx={{ mt: 4 }}>
-              <Typography variant="h6">Passenger Names</Typography>
-              <Grid container spacing={2}>
-                {passengerNames.map((name, index) => (
-                  <Grid item xs={12} sm={6} key={index}>
-                    <TextField
-                      label={`Seat ${index + 1}`}
-                      value={name}
-                      onChange={(e) => handlePassengerNameChange(index, e.target.value)}
-                      fullWidth
-                      required
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </CardContent>
-        </Card>
-        <Box sx={{ m: 4 }}>
-          <Button variant="contained" color="primary" sx={{ mr: 2 }}>
-            Proceed to Payment
-          </Button>
-          <Button variant="contained" color="secondary" onClick={handleDownloadReceipt}>
-            Download Receipt
-          </Button>
+    <CustomModal open={open} onClose={onClose}>
+      <CustomBox>
+        <CustomTypography variant="h5">Flight Checkout</CustomTypography>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            margin='dense'
+            label="Full Name"
+            value={`${profile.firstName} ${profile.lastName}`}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+
+          <TextField
+            margin='dense'
+            label="User Email"
+            value={profile.email}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
         </Box>
-        {error && (
-          <Snackbar open={true} autoHideDuration={6000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-              {error}
-            </Alert>
-          </Snackbar>
-        )}
-      </Container>
-      <Footer />
-    </>
+
+        <TextField
+          margin='dense'
+          label="Flight Name"
+          value={flightPurchase?.flight?.name || 'N/A'}
+          fullWidth
+          InputProps={{ readOnly: true }}
+        />
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            margin='dense'
+            label="Departure City"
+            value={flightPurchase?.flight?.departureCity || 'N/A'}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+
+          <TextField
+            margin='dense'
+            label="Arrival City"
+            value={flightPurchase?.flight?.arrivalCity || 'N/A'}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+        </Box>
+
+        <TextField
+          margin='dense'
+          label="Seats Reserved"
+          value={flightPurchase.seatsReserved}
+          fullWidth
+          InputProps={{ readOnly: true }}
+        />
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            margin='dense'
+            label="Start Date"
+            value={formatDate(flightPurchase.flight.startDate)}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+
+          <TextField
+            margin='dense'
+            label="End Date"
+            value={formatDate(flightPurchase.flight.endDate)}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+        </Box>
+
+        <TextField
+          margin='dense'
+          label="Total Price"
+          value={`$${flightPurchase.totalPrice}`}
+          fullWidth
+          InputProps={{ readOnly: true }}
+        />
+
+        <Typography variant="h6" className="!mb-2 !mt-2">
+          Passenger Names
+        </Typography>
+        <Grid container spacing={2}>
+          {passengerNames.map((name, index) => (
+            <Grid item xs={12} sm={6} key={index}>
+              <TextField
+                label={`Seat ${index + 1}`}
+                value={name}
+                onChange={(e) => handlePassengerNameChange(index, e.target.value)}
+                fullWidth
+                required
+              />
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+          Proceed to Payment
+        </Button> */}
+        <BlueButton onClick={handleDownloadReceipt} variant="contained" color="primary" className="w-full !mt-4">
+          Download Receipt
+        </BlueButton>
+      </CustomBox>
+    </CustomModal>
   );
 };
 

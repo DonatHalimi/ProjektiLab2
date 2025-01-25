@@ -1,28 +1,25 @@
-import { Alert, Box, Button, Card, CardContent, Container, Grid, Snackbar, TextField, Typography } from '@mui/material';
+import { Box, Grid, TextField, Typography } from '@mui/material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Footer from '../../components/Footer';
-import Navbar from '../../components/Navbar';
+import { toast } from 'react-toastify';
+import { BlueButton, CustomBox, CustomModal, CustomTypography, formatDate } from '../../assets/CustomComponents';
 import { getCurrentUser } from '../../services/authService';
 import { getTourPurchase } from '../../services/tourService';
 
-const CheckoutTour = () => {
-  const { id } = useParams();
+const CheckoutTour = ({ open, onClose, tourId }) => {
   const [tourPurchase, setTourPurchase] = useState(null);
-  const [profile, setProfile] = useState(null);
   const [passengerNames, setPassengerNames] = useState([]);
-  const [error, setError] = useState('');
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const fetchTourPurchase = async () => {
       try {
-        const response = await getTourPurchase(id);
+        const response = await getTourPurchase(tourId);
         setTourPurchase(response);
         setPassengerNames(Array(response.reservedTickets).fill(''));
       } catch (error) {
-        console.error('Error fetching tour purchase:', error);
+        toast.error('Failed to fetch tour purchase data.');
       }
     };
 
@@ -31,13 +28,15 @@ const CheckoutTour = () => {
         const response = await getCurrentUser();
         setProfile(response);
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        toast.error('Failed to fetch profile data.');
       }
     };
 
-    fetchTourPurchase();
-    fetchProfile();
-  }, [id]);
+    if (open) {
+      fetchTourPurchase();
+      fetchProfile();
+    }
+  }, [open, tourId]);
 
   const handlePassengerNameChange = (index, value) => {
     const newPassengerNames = [...passengerNames];
@@ -47,21 +46,24 @@ const CheckoutTour = () => {
 
   const handleDownloadReceipt = () => {
     if (passengerNames.some(name => name.trim() === '')) {
-      setError('Please fill in all passenger names.');
+      toast.error('Please fill in all passenger names.');
       return;
     }
+
+    const currentDate = new Date().toLocaleDateString('en-CA');
 
     const doc = new jsPDF();
     doc.setFontSize(20);
     doc.text('Tour Reservation Receipt', 60, 10);
+
     doc.setFontSize(17);
     doc.text(`Tour Info:`, 20, 30);
     doc.setFontSize(12);
     doc.text(`Tour: ${tourPurchase.tour.name}`, 20, 40);
     doc.text(`City: ${tourPurchase.tour.city}`, 20, 50);
-    doc.text(`Start Date: ${new Date(tourPurchase.tour.startDate).toLocaleDateString()}`, 20, 70);
-    doc.text(`End Date: ${new Date(tourPurchase.tour.endDate).toLocaleDateString()}`, 20, 80);
-    doc.text(`ReservedTickets: ${tourPurchase.reservedTickets}`, 20, 90);
+    doc.text(`Start Date: ${formatDate(tourPurchase.tour.startDate)}`, 20, 70);
+    doc.text(`End Date: ${formatDate(tourPurchase.tour.endDate)}`, 20, 80);
+    doc.text(`Reserved Tickets: ${tourPurchase.reservedTickets}`, 20, 90);
     doc.text(`Total Price: $${tourPurchase.totalPrice}`, 20, 100);
 
     doc.setFontSize(17);
@@ -86,87 +88,114 @@ const CheckoutTour = () => {
     doc.text('Your Signature:', 140, 250);
     doc.text('_________________________', 140, 260);
     doc.text('Company Address: 123 Street, Prishtina, Kosovo', 60, 280);
-    doc.save('receipt.pdf');
-  };
 
-  const handleClose = () => {
-    setError('');
+    doc.save(`tour_receipt_${currentDate}.pdf`);
   };
 
   if (!tourPurchase || !profile) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (
-    <>
-      <Navbar />
-      <Container sx={{ mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Checkout
-        </Typography>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="div">
-              Tour: {tourPurchase.tour.name}
-            </Typography>
-            <Typography color="textSecondary">
-              City: {tourPurchase.tour.city}
-            </Typography>
-            <Typography color="textSecondary">
-              Start Date: {new Date(tourPurchase.tour.startDate).toLocaleDateString()}
-            </Typography>
-            <Typography color="textSecondary">
-              End Date: {new Date(tourPurchase.tour.endDate).toLocaleDateString()}
-            </Typography>
-            <Typography color="textSecondary">
-              Tickets Reserved: {tourPurchase.reservedTickets}
-            </Typography>
-            <Typography color="textSecondary">
-              Total Price: ${tourPurchase.totalPrice}
-            </Typography>
-            <Typography color="textSecondary">
-              User Name: {profile.firstName} {profile.lastName}
-            </Typography>
-            <Typography color="textSecondary">
-              User Email: {profile.email}
-            </Typography>
-            <Box sx={{ mt: 4 }}>
-              <Typography variant="h6">Passenger Names</Typography>
-              <Grid container spacing={2}>
-                {passengerNames.map((name, index) => (
-                  <Grid item xs={12} sm={6} key={index}>
-                    <TextField
-                      label={`Ticket ${index + 1}`}
-                      value={name}
-                      onChange={(e) => handlePassengerNameChange(index, e.target.value)}
-                      fullWidth
-                      required
-                    />
-                  </Grid>
+    <CustomModal open={open} onClose={onClose}>
+      <CustomBox>
+        <CustomTypography variant="h5">Tour Checkout</CustomTypography>
 
-                ))}
-              </Grid>
-            </Box>
-          </CardContent>
-        </Card>
-        <Box sx={{ m: 4 }}>
-          <Button variant="contained" color="primary" sx={{ mr: 2 }}>
-            Proceed to Payment
-          </Button>
-          <Button variant="contained" color="secondary" onClick={handleDownloadReceipt}>
-            Download Receipt
-          </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            margin="dense"
+            label="Full Name"
+            value={`${profile.firstName} ${profile.lastName}`}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+
+          <TextField
+            margin="dense"
+            label="User Email"
+            value={profile.email}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
         </Box>
-        {error && (
-          <Snackbar open={true} autoHideDuration={6000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-              {error}
-            </Alert>
-          </Snackbar>
-        )}
-      </Container>
-      <Footer />
-    </>
+
+        <TextField
+          margin="dense"
+          label="Tour Name"
+          value={tourPurchase?.tour?.name || 'N/A'}
+          fullWidth
+          InputProps={{ readOnly: true }}
+        />
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            margin="dense"
+            label="City"
+            value={tourPurchase?.tour?.city || 'N/A'}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+
+          <TextField
+            margin="dense"
+            label="Reserved Tickets"
+            value={tourPurchase.reservedTickets}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            margin="dense"
+            label="Start Date"
+            value={new Date(tourPurchase.tour.startDate).toLocaleDateString()}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+
+          <TextField
+            margin="dense"
+            label="End Date"
+            value={new Date(tourPurchase.tour.endDate).toLocaleDateString()}
+            fullWidth
+            InputProps={{ readOnly: true }}
+          />
+        </Box>
+
+        <TextField
+          margin="dense"
+          label="Total Price"
+          value={`$${tourPurchase.totalPrice}`}
+          fullWidth
+          InputProps={{ readOnly: true }}
+        />
+
+        <Typography variant="h6" className="!mb-2 !mt-2">
+          Passenger Names
+        </Typography>
+        <Grid container spacing={2}>
+          {passengerNames.map((name, index) => (
+            <Grid item xs={12} sm={6} key={index}>
+              <TextField
+                label={`Passenger ${index + 1}`}
+                value={name}
+                onChange={(e) => handlePassengerNameChange(index, e.target.value)}
+                fullWidth
+                required
+              />
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+          Proceed to Payment
+        </Button> */}
+        <BlueButton onClick={handleDownloadReceipt} variant="contained" color="primary" className="w-full !mt-4">
+          Download Receipt
+        </BlueButton>
+      </CustomBox>
+    </CustomModal>
   );
 };
 

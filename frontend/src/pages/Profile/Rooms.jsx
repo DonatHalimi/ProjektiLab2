@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { calculatePageCount, CustomPagination, EmptyState, getPaginatedItems, handlePageChange, Header, LoadingFlightItem as LoadingRoomItem, ProfileLayout } from '../../assets/CustomComponents';
+import {
+    calculatePageCount,
+    CustomPagination,
+    EmptyState,
+    getPaginatedItems,
+    handlePageChange,
+    Header,
+    LoadingFlightItem as LoadingRoomItem,
+    ProfileLayout,
+} from '../../assets/CustomComponents';
 import emptyRoomsImage from '../../assets/img/empty/not-found.png';
 import Footer from '../../components/Footer';
 import RoomItem from '../../components/Items/RoomItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
-import { deleteRoomPurchase,getMyRoomPurchases } from '../../services/roomService';
-import { useNavigate } from 'react-router-dom';
+import { deleteRoomPurchase, getMyRoomPurchases } from '../../services/roomService';
+import CheckoutRoom from '../Rooms/CheckoutRoom';
 
 const itemsPerPage = 5;
 
@@ -16,9 +25,9 @@ const Rooms = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [roomPurchases, setRoomPurchases] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-
     const [user, setUser] = useState(null);
+    const [selectedRoomId, setSelectedRoomId] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -38,7 +47,6 @@ const Rooms = () => {
 
         const fetchRoomPurchases = async () => {
             setLoading(true);
-
             try {
                 const response = await getMyRoomPurchases(user.id);
                 setRoomPurchases(response);
@@ -67,7 +75,6 @@ const Rooms = () => {
         }
     };
 
-
     const filteredRoomPurchases = Array.isArray(roomPurchases)
         ? roomPurchases.filter(({ room, totalPrice, reservedNights, purchaseDate }) => {
             const fields = [
@@ -90,6 +97,16 @@ const Rooms = () => {
 
     const pageCount = calculatePageCount(filteredRoomPurchases, itemsPerPage);
     const currentPageItems = getPaginatedItems(filteredRoomPurchases, currentPage, itemsPerPage);
+
+    const openCheckoutModal = (roomId) => {
+        setSelectedRoomId(roomId);
+        setModalOpen(true);
+    };
+
+    const closeCheckoutModal = () => {
+        setSelectedRoomId(null);
+        setModalOpen(false);
+    };
 
     return (
         <>
@@ -129,7 +146,7 @@ const Rooms = () => {
                                     totalPrice={purchase.totalPrice}
                                     guests={purchase.guests}
                                     onDelete={() => handleDeleteRoomPurchase(purchase.id)}
-                                    onCheckout={() => navigate(`/checkoutroom/${purchase.id}`)}
+                                    onCheckout={() => openCheckoutModal(purchase.id)}
                                 />
                             ))}
                         </div>
@@ -155,6 +172,8 @@ const Rooms = () => {
 
             {filteredRoomPurchases.length === 1 && <div className='mb-48' />}
             <Footer />
+
+            <CheckoutRoom open={modalOpen} onClose={closeCheckoutModal} roomId={selectedRoomId} />
         </>
     );
 };

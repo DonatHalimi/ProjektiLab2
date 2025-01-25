@@ -1,7 +1,8 @@
+import { TextField } from '@mui/material';
 import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
-import { createFAQ } from '../../../services/faqService';
 import { toast } from 'react-toastify';
+import { BlueButton, CustomBox, CustomModal, CustomTypography } from '../../../assets/CustomComponents';
+import { createFAQ } from '../../../services/faqService';
 
 const AddFAQModal = ({ open, onClose, onAddSuccess }) => {
     const [formData, setFormData] = useState({
@@ -9,8 +10,12 @@ const AddFAQModal = ({ open, onClose, onAddSuccess }) => {
         answer: ''
     });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleAddFaq = async (e) => {
+        if (!formData.question || !formData.answer) {
+            toast.error('Please fill in all the fields');
+            return;
+        }
+
         try {
             await createFAQ(formData);
             toast.success('FAQ created successfully');
@@ -18,43 +23,49 @@ const AddFAQModal = ({ open, onClose, onAddSuccess }) => {
             onClose();
             setFormData({ question: '', answer: '' });
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                toast.error('You do not have permission to perform this action');
+            } else {
+                toast.error('Error adding FAQ');
+            }
             toast.error('Error creating FAQ');
         }
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Add New FAQ</DialogTitle>
-            <form onSubmit={handleSubmit}>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Question"
-                        type="text"
-                        fullWidth
-                        value={formData.question}
-                        onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                        required
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Answer"
-                        type="text"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        value={formData.answer}
-                        onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                        required
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
-                    <Button type="submit" variant="contained" color="primary">Add FAQ</Button>
-                </DialogActions>
-            </form>
-        </Dialog>
+        <CustomModal open={open} onClose={onClose}>
+            <CustomBox>
+                <CustomTypography variant="h5">Add FAQ</CustomTypography>
+
+                <TextField
+                    fullWidth
+                    required
+                    label="Question"
+                    type="text"
+                    value={formData.question}
+                    onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                    className='!mb-4'
+                />
+                <TextField
+                    fullWidth
+                    required
+                    label="Answer"
+                    multiline
+                    rows={4}
+                    value={formData.answer}
+                    onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+                />
+
+                <BlueButton
+                    onClick={handleAddFaq}
+                    variant="contained"
+                    color="primary"
+                    className="!mt-4 w-full"
+                >
+                    Add
+                </BlueButton>
+            </CustomBox>
+        </CustomModal>
     );
 };
 

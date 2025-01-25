@@ -1,6 +1,7 @@
+import { TextField } from '@mui/material';
 import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
 import { toast } from 'react-toastify';
+import { BlueButton, CustomBox, CustomModal, CustomTypography } from '../../../assets/CustomComponents';
 import axiosInstance from '../../../utils/axiosInstance';
 
 const AddContactModal = ({ open, onClose, onAddSuccess }) => {
@@ -12,8 +13,19 @@ const AddContactModal = ({ open, onClose, onAddSuccess }) => {
         message: ''
     });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const isValidPhoneNumber = (v) => /^0(44|45|48|49)\d{6}$/.test(v);
+
+    const handleAddContact = async (e) => {
+        if (!formData.name || !formData.email || !formData.phone || !formData.subject || !formData.message) {
+            toast.error('Please fill in all the fields');
+            return;
+        }
+
+        if (!isValidPhoneNumber(formData.phone)) {
+            toast.error('Phone number must start with 044, 045, 048 or 049 followed by 6 digits');
+            return;
+        }
+
         try {
             await axiosInstance.post('/Contact', formData);
             toast.success('Contact created successfully');
@@ -32,63 +44,68 @@ const AddContactModal = ({ open, onClose, onAddSuccess }) => {
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Add New Contact</DialogTitle>
-            <form onSubmit={handleSubmit}>
-                <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Name"
-                        type="text"
-                        fullWidth
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Email"
-                        type="email"
-                        fullWidth
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        required
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Phone"
-                        type="tel"
-                        fullWidth
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        required
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Subject"
-                        type="text"
-                        fullWidth
-                        value={formData.subject}
-                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                        required
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Message"
-                        multiline
-                        rows={4}
-                        fullWidth
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        required
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
-                    <Button type="submit" variant="contained" color="primary">Add Contact</Button>
-                </DialogActions>
-            </form>
-        </Dialog>
+        <CustomModal open={open} onClose={onClose}>
+            <CustomBox>
+                <CustomTypography variant="h5">Add Contact</CustomTypography>
+
+                <TextField
+                    fullWidth
+                    required
+                    label="Name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className='!mb-4'
+                />
+                <TextField
+                    fullWidth
+                    required
+                    label="Email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className='!mb-4'
+                />
+                <TextField
+                    fullWidth
+                    required
+                    label="Phone"
+                    type="tel"
+                    placeholder="044/45/48 XXXXXX"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className='!mb-4'
+                />
+                <TextField
+                    fullWidth
+                    required
+                    label="Subject"
+                    type="text"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className='!mb-4'
+                />
+                <TextField
+                    fullWidth
+                    required
+                    label="Message"
+                    multiline
+                    rows={4}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className='!mb-4'
+                />
+
+                <BlueButton
+                    onClick={handleAddContact}
+                    variant="contained"
+                    color="primary"
+                    className="!mt-4 w-full"
+                >
+                    Add
+                </BlueButton>
+            </CustomBox>
+        </CustomModal>
     );
 };
 

@@ -37,8 +37,8 @@ const AddRoomPurchaseModal = ({ open, onClose, onAddSuccess }) => {
                 startDate: '',
                 endDate: '',
                 guests: '',
-                status: '', 
-            });  
+                status: '',
+            });
         }
     }, [open]);
 

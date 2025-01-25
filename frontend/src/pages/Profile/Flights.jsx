@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { calculatePageCount, CustomPagination, EmptyState, getPaginatedItems, handlePageChange, Header, LoadingFlightItem, ProfileLayout } from '../../assets/CustomComponents';
 import emptyFlightsImage from '../../assets/img/empty/not-found.png';
 import Footer from '../../components/Footer';
@@ -7,6 +6,7 @@ import FlightItem from '../../components/Items/FlightItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
 import { deleteFlightPurchase, getMyFlightPurchases } from '../../services/flightService';
+import Checkout from '../Flights/Checkout';
 
 const itemsPerPage = 5;
 
@@ -16,9 +16,9 @@ const Flights = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [flightPurchases, setFlightPurchases] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-
     const [user, setUser] = useState(null);
+    const [selectedFlightId, setSelectedFlightId] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -65,10 +65,6 @@ const Flights = () => {
         }
     };
 
-    const handleCheckout = (id) => {
-        navigate(`/checkout/${id}`);
-    };
-
     const filteredFlightPurchases = Array.isArray(flightPurchases)
         ? flightPurchases.filter(({ flight, totalPrice, seatsReserved, purchaseDate, departureCity, arrivalCity }) => {
             const fields = [
@@ -92,6 +88,16 @@ const Flights = () => {
 
     const pageCount = calculatePageCount(filteredFlightPurchases, itemsPerPage);
     const currentPageItems = getPaginatedItems(filteredFlightPurchases, currentPage, itemsPerPage);
+
+    const openCheckoutModal = (tourId) => {
+        setSelectedFlightId(tourId);
+        setModalOpen(true);
+    };
+
+    const closeCheckoutModal = () => {
+        setSelectedFlightId(null);
+        setModalOpen(false);
+    };
 
     return (
         <>
@@ -129,7 +135,7 @@ const Flights = () => {
                                     seatsReserved={purchase.seatsReserved}
                                     totalPrice={purchase.totalPrice}
                                     onDelete={() => handleDelete(purchase.id)}
-                                    onCheckout={() => handleCheckout(purchase.id)}
+                                    onCheckout={() => openCheckoutModal(purchase.id)}
                                 />
                             ))}
                         </div>
@@ -155,6 +161,8 @@ const Flights = () => {
 
             {filteredFlightPurchases.length === 1 && <div className='mb-48' />}
             <Footer />
+
+            <Checkout open={modalOpen} onClose={closeCheckoutModal} flightId={selectedFlightId} />
         </>
     );
 };

@@ -28,6 +28,15 @@ namespace backend.Models
         public string Password { get; set; }
     }
 
+    public class UpdateUserInfoRequest
+    {
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public string? CurrentPassword { get; set; }
+        public string? NewPassword { get; set; }
+    }
+
     public class FlightPurchaseDTO
     {
         public int Id { get; set; }

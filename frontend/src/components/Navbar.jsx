@@ -55,47 +55,49 @@ const Navbar = () => {
     return (
         <nav className="bg-white border-b border-gray-100 py-4 px-6 pl-60 pr-60 w-full z-10">
             <div className="flex justify-between items-center">
-                <Tooltip title="Home" arrow>
-                    <div onClick={() => navigate('/')} className="cursor-pointer text-black text-2xl">
-                        Travel Agency
-                    </div>
-                </Tooltip>
+                <div className="flex items-center space-x-4">
+                    <Tooltip title="Home" arrow>
+                        <div onClick={() => navigate('/')} className="cursor-pointer text-black text-2xl">
+                            Travel Agency
+                        </div>
+                    </Tooltip>
 
-                <div className="space-x-4">
-                    <div className="flex items-center space-x-1">
-                        {isLoggedIn ? (
-                            <>
-                                <Link to="/user-tours" className="text-black hover:underline">
-                                    <Button>Tours</Button>
-                                </Link>
-                                <Link to="/user-rooms" className="text-black hover:underline">
-                                    <Button>Rooms</Button>
-                                </Link>
-                                <Link to="/contact" className="text-black hover:underline">
-                                    <Button>Contact</Button>
-                                </Link>
-                                <Link to="/faq" className="text-black hover:underline">
-                                    <Button>FAQ</Button>
-                                </Link>
-                                    
-                                <div ref={profileRef} className="relative z-[1000]">
-                                    <ProfileIcon
-                                        handleProfileDropdownToggle={() => toggleDropdown('profile')}
-                                        isDropdownOpen={isProfileDropdownOpen}
-                                    />
-                                    {isProfileDropdownOpen && (
-                                        <ProfileDropdown
-                                            isOpen={isProfileDropdownOpen}
-                                            isAdmin={isAdmin}
-                                            handleLogout={handleLogout}
-                                        />
-                                    )}
-                                </div>
-                            </>
-                        ) : (
-                            <LoginButton />
-                        )}
-                    </div>
+                    {isLoggedIn && (
+                        <>
+                            {/* <Link to="/user-flights" className="text-black hover:underline">
+                                <Button>Flights</Button>
+                            </Link> */}
+                            <Link to="/user-tours" className="text-black hover:underline">
+                                <Button>Tours</Button>
+                            </Link>
+                            <Link to="/user-rooms" className="text-black hover:underline">
+                                <Button>Rooms</Button>
+                            </Link>
+                            <Link to="/contact" className="text-black hover:underline">
+                                <Button>Contact</Button>
+                            </Link>
+                        </>
+                    )}
+                </div>
+
+                <div className="flex items-center space-x-1">
+                    {isLoggedIn ? (
+                        <div ref={profileRef} className="relative z-[1000]">
+                            <ProfileIcon
+                                handleProfileDropdownToggle={() => toggleDropdown('profile')}
+                                isDropdownOpen={isProfileDropdownOpen}
+                            />
+                            {isProfileDropdownOpen && (
+                                <ProfileDropdown
+                                    isOpen={isProfileDropdownOpen}
+                                    isAdmin={isAdmin}
+                                    handleLogout={handleLogout}
+                                />
+                            )}
+                        </div>
+                    ) : (
+                        <LoginButton />
+                    )}
                 </div>
             </div>
         </nav>

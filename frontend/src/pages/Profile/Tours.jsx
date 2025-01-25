@@ -15,7 +15,7 @@ import TourItem from '../../components/Items/TourItem';
 import Navbar from '../../components/Navbar';
 import { getCurrentUser } from '../../services/authService';
 import { deleteTourPurchase, getMyTourPurchases } from '../../services/tourService';
-import { useNavigate } from 'react-router-dom';
+import CheckoutTour from '../Tours/CheckoutTour';
 
 const itemsPerPage = 5;
 
@@ -26,7 +26,8 @@ const Tours = () => {
     const [tourPurchases, setTourPurchases] = useState([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
+    const [selectedTourId, setSelectedTourId] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -73,10 +74,6 @@ const Tours = () => {
         }
     };
 
-    const handleCheckout = (id) => {
-        navigate(`/checkouttour/${id}`);
-    };
-
     const filteredTourPurchases = Array.isArray(tourPurchases)
         ? tourPurchases.filter(({ tour, totalPrice, reservedTickets, purchaseDate }) => {
             const fields = [
@@ -99,6 +96,16 @@ const Tours = () => {
 
     const pageCount = calculatePageCount(filteredTourPurchases, itemsPerPage);
     const currentPageItems = getPaginatedItems(filteredTourPurchases, currentPage, itemsPerPage);
+
+    const openCheckoutModal = (tourId) => {
+        setSelectedTourId(tourId);
+        setModalOpen(true);
+    };
+
+    const closeCheckoutModal = () => {
+        setSelectedTourId(null);
+        setModalOpen(false);
+    };
 
     return (
         <>
@@ -136,7 +143,7 @@ const Tours = () => {
                                     reservedTickets={purchase.reservedTickets}
                                     totalPrice={purchase.totalPrice}
                                     onDelete={() => handleDelete(purchase.id)}
-                                    onCheckout={() => handleCheckout(purchase.id)}
+                                    onCheckout={() => openCheckoutModal(purchase.id)}
                                 />
                             ))}
                         </div>
@@ -162,6 +169,8 @@ const Tours = () => {
 
             {filteredTourPurchases.length === 1 && <div className='mb-48' />}
             <Footer />
+
+            <CheckoutTour open={modalOpen} onClose={closeCheckoutModal} tourId={selectedTourId} />
         </>
     );
 };

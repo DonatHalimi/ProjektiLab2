@@ -1,9 +1,9 @@
-import { TextField, IconButton, Chip } from '@mui/material';
+import { Upload } from '@mui/icons-material';
+import { TextField } from '@mui/material';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { AddChipButton, BlueButton, CustomBox, CustomModal, CustomTypography, OutlinedBlueButton, StyledChip, VisuallyHiddenInput } from '../../../assets/CustomComponents';
 import { createHotel } from '../../../services/hotelService';
-import { Upload, AddCircle } from '@mui/icons-material';
 
 const AddHotelModal = ({ open, onClose, onAddSuccess }) => {
   const [hotel, setHotel] = useState({

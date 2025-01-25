@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-    Box,
-    TextField,
-    InputAdornment,
-    IconButton,
-    Typography,
-    Paper
-} from '@mui/material';
-import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
-import { DashboardHeader, LoadingDataGrid } from '../../assets/CustomComponents';
+import { DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddFAQModal from '../../components/Modal/FAQ/AddFAQModal';
@@ -26,7 +17,6 @@ const FAQsPage = () => {
     const [editFAQOpen, setEditFAQOpen] = useState(false);
     const [deleteFAQOpen, setDeleteFAQOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
-    const [searchQuery, setSearchQuery] = useState('');
     const itemsPerPage = 5;
 
     const fetchFAQs = async () => {
@@ -80,48 +70,20 @@ const FAQsPage = () => {
     };
 
     const columns = [
+        { key: 'id', label: 'ID', },
+        { key: 'question', label: 'Question', },
+        { key: 'answer', label: 'Answer', },
         {
-            key: 'id',
-            label: 'ID',
-            flex: 1,
-            renderCell: (params) => (
-                <Typography noWrap title={params.value}>
-                    {params.value}
-                </Typography>
-            )
+            key: 'createdAt',
+            label: 'Created At',
+            render: (row) => formatDate(row.createdAt),
         },
         {
-            key: 'question', 
-            label: 'Question', 
-            flex: 1,
-            renderCell: (params) => (
-                <Typography noWrap title={params.value}>
-                    {params.value}
-                </Typography>
-            )
+            key: 'updatedAt',
+            label: 'Updated At',
+            render: (row) => formatDate(row.updatedAt),
         },
-        { 
-            key: 'answer', 
-            label: 'Answer', 
-            flex: 2,
-            renderCell: (params) => (
-                <Typography noWrap title={params.value}>
-                    {params.value}
-                </Typography>
-            )
-        },
-        { 
-            key: 'createdAt', 
-            label: 'Created At', 
-            flex: 1,
-            valueFormatter: (params) => new Date(params.value).toLocaleDateString() 
-        },
-        { 
-            key: 'updatedAt', 
-            label: 'Updated At', 
-            flex: 1,
-            valueFormatter: (params) => new Date(params.value).toLocaleDateString() 
-        }
+        { key: 'actions', label: 'Actions' },
     ];
 
     return (
@@ -139,38 +101,9 @@ const FAQsPage = () => {
                             itemName="FAQ"
                         />
 
-                        <Paper className="w-full mb-4 p-4">
-                            <Box className="flex items-center">
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    placeholder="Search FAQs..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <SearchIcon />
-                                            </InputAdornment>
-                                        ),
-                                        endAdornment: searchQuery && (
-                                            <InputAdornment position="end">
-                                                <IconButton onClick={() => setSearchQuery('')}>
-                                                    <ClearIcon />
-                                                </IconButton>
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                />
-                            </Box>
-                        </Paper>
-
                         <DashboardTable
                             columns={columns}
-                            data={faqs.filter(faq => 
-                                faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-                            )}
+                            data={faqs}
                             selectedItems={selectedFAQs}
                             onSelectItem={handleSelectFAQ}
                             onSelectAll={handleSelectAll}

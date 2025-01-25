@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import icon from '../../assets/img/brand/icon.png';
+import React, { useEffect, useRef, useState } from 'react';
 
 const ContactSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [dragStart, setDragStart] = useState(null);
+    const sliderRef = useRef(null);
 
     const slides = [
         {
@@ -26,10 +27,10 @@ const ContactSlider = () => {
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
-        }, 5000);
+        }, 10000);
 
         return () => clearInterval(timer);
-    }, []);
+    }, [slides.length]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -39,27 +40,49 @@ const ContactSlider = () => {
         setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
     };
 
+    const handleDragStart = (e) => {
+        setDragStart(e.clientX || e.touches[0].clientX);
+    };
+
+    const handleDragEnd = (e) => {
+        if (!dragStart) return;
+        const dragEnd = e.clientX || e.changedTouches[0].clientX;
+        if (dragStart - dragEnd > 50) {
+            nextSlide();
+        } else if (dragEnd - dragStart > 50) {
+            prevSlide();
+        }
+        setDragStart(null);
+    };
+
     return (
-        <div className="relative h-[400px] overflow-hidden rounded-lg shadow-xl mb-8">
+        <div
+            ref={sliderRef}
+            onMouseDown={handleDragStart}
+            onMouseMove={(e) => e.preventDefault()}
+            onMouseUp={handleDragEnd}
+            onTouchStart={handleDragStart}
+            onTouchMove={(e) => e.preventDefault()}
+            onTouchEnd={handleDragEnd}
+            className="relative h-[580px] overflow-hidden rounded-md shadow-md mb-8"
+        >
             {slides.map((slide, index) => (
                 <div
                     key={index}
-                    className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${
-                        index === currentSlide ? 'translate-x-0' : 'translate-x-full'
-                    }`}
+                    className={`absolute w-full h-full transition-transform duration-500 ease-in-out ${index === currentSlide ? 'translate-x-0' : index < currentSlide ? '-translate-x-full' : 'translate-x-full'}`}
                 >
                     <img
                         src={slide.image}
                         alt={slide.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover select-none"
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white p-4">
-                        <h2 className="text-4xl font-bold mb-4">{slide.title}</h2>
-                        <p className="text-xl text-center">{slide.description}</p>
+                        <h2 className="text-4xl font-bold mb-4 select-none">{slide.title}</h2>
+                        <p className="text-xl text-center select-none">{slide.description}</p>
                     </div>
                 </div>
             ))}
-            
+
             <button
                 onClick={prevSlide}
                 className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition-all"
@@ -78,9 +101,7 @@ const ContactSlider = () => {
                     <button
                         key={index}
                         onClick={() => setCurrentSlide(index)}
-                        className={`w-3 h-3 rounded-full ${
-                            index === currentSlide ? 'bg-white' : 'bg-white bg-opacity-50'
-                        }`}
+                        className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-white' : 'bg-white bg-opacity-50'}`}
                     />
                 ))}
             </div>
@@ -88,4 +109,4 @@ const ContactSlider = () => {
     );
 };
 
-export default ContactSlider; 
+export default ContactSlider;

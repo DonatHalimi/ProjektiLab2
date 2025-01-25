@@ -1,8 +1,8 @@
-import { AirplaneTicketOutlined, HotelOutlined, MapOutlined, PersonOutlined, StarBorderOutlined } from '@mui/icons-material';
+import { AirplaneTicketOutlined, HotelOutlined, MapOutlined, PersonOutlined } from '@mui/icons-material';
 import { Divider, List, Skeleton, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ActiveListItem, CustomAirplaneTicket, CustomHotel, CustomMap, CustomPerson, CustomStar, SidebarLayout } from '../../assets/CustomComponents';
+import { ActiveListItem, CustomAirplaneTicket, CustomHotel, CustomMap, CustomPerson, SidebarLayout } from '../../assets/CustomComponents';
 import { getCurrentUser } from '../../services/authService';
 
 const ProfileSidebar = () => {
@@ -47,7 +47,7 @@ const ProfileSidebar = () => {
         { key: 'flight-purchases', label: 'Flights', icon: <CustomAirplaneTicket isActive={true} />, inactiveIcon: <AirplaneTicketOutlined />, },
         { key: 'tour-purchases', label: 'Tours', icon: <CustomMap isActive={true} />, inactiveIcon: <MapOutlined />, },
         { key: 'room-purchases', label: 'Rooms', icon: <CustomHotel isActive={true} />, inactiveIcon: <HotelOutlined />, },
-        { key: 'reviews', label: 'Reviews', icon: <CustomStar isActive={true} />, inactiveIcon: <StarBorderOutlined />, },
+        // { key: 'reviews', label: 'Reviews', icon: <CustomStar isActive={true} />, inactiveIcon: <StarBorderOutlined />, },
     ];
 
     return (

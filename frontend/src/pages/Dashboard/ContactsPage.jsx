@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, LoadingDataGrid } from '../../assets/CustomComponents';
-import DashboardTable from '../../components/Dashboard/DashboardTable';
-import DeleteModal from '../../components/Modal/DeleteModal';
-import AddContactModal from '../../components/Modal/Contact/AddContactModal';
 import { toast } from 'react-toastify';
+import { DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
+import DashboardTable from '../../components/Dashboard/DashboardTable';
+import AddContactModal from '../../components/Modal/Contact/AddContactModal';
+import DeleteModal from '../../components/Modal/DeleteModal';
 import axiosInstance from '../../utils/axiosInstance';
 
 const ContactsPage = () => {
@@ -20,20 +20,12 @@ const ContactsPage = () => {
         { key: 'email', label: 'Email' },
         { key: 'phone', label: 'Phone' },
         { key: 'subject', label: 'Subject' },
-        { 
-            key: 'message', 
-            label: 'Message',
-            render: (row) => (
-                <div className="max-w-md truncate" title={row.message}>
-                    {row.message}
-                </div>
-            )
-        },
-        { 
-            key: 'createdAt', 
+        { key: 'message', label: 'Message', },
+        {
+            key: 'createdAt',
             label: 'Submitted At',
-            render: (row) => new Date(row.createdAt).toLocaleString()
-        }
+            render: (row) => formatDate(row.createdAt),
+        },
     ];
 
     const fetchContacts = async () => {
@@ -55,7 +47,7 @@ const ContactsPage = () => {
     const handleSelectContact = (contactId) => {
         const id = Array.isArray(contactId) ? contactId[0] : contactId;
 
-        setSelectedContacts(prev => 
+        setSelectedContacts(prev =>
             prev.includes(id)
                 ? prev.filter(selectedId => selectedId !== id)
                 : [...prev, id]
@@ -76,8 +68,8 @@ const ContactsPage = () => {
 
     const handleDeleteContacts = async () => {
         try {
-            await axiosInstance.delete('/Contact/delete-bulk', { 
-                data: { ids: selectedContacts } 
+            await axiosInstance.delete('/Contact/delete-bulk', {
+                data: { ids: selectedContacts }
             });
             toast.success('Contacts deleted successfully');
             await fetchContacts();
@@ -118,10 +110,10 @@ const ContactsPage = () => {
                     </>
                 )}
 
-                <AddContactModal 
-                    open={addContactOpen} 
-                    onClose={() => setAddContactOpen(false)} 
-                    onAddSuccess={fetchContacts} 
+                <AddContactModal
+                    open={addContactOpen}
+                    onClose={() => setAddContactOpen(false)}
+                    onAddSuccess={fetchContacts}
                 />
 
                 <DeleteModal

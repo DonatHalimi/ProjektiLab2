@@ -114,7 +114,6 @@ export const updateRoomPurchase = async (id, roomPurchase) => {
 export const getMyRoomPurchases = async (userId) => {
     try {
         const response = await axiosInstance.get(`/RoomPurchase/my/${userId}`);
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error(`Error fetching my room purchases with ID ${userId}:`, error);
@@ -136,15 +135,15 @@ const arrayBufferToBase64 = (buffer) => {
 };
 
 export const getRoomImage = async (filename) => {
-   
-    const sanitizedFilename = filename.replace(/^Uploads[\\/]/, ''); 
+
+    const sanitizedFilename = filename.replace(/^Uploads[\\/]/, '');
 
     const imageUrl = `/rooms/uploads/${sanitizedFilename}`;
     try {
-      
+
         const response = await axiosInstance.get(imageUrl, { responseType: 'arraybuffer' });
 
-       
+
         const base64Image = `data:image/png;base64,${arrayBufferToBase64(response.data)}`;
         return base64Image;
     } catch (error) {

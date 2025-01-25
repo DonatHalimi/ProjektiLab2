@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { CityFlag, CustomDeleteModal, formatDate, formatFullDate, formatPrice } from '../../assets/CustomComponents';
 import { Delete } from '@mui/icons-material';
 import { Button } from '@mui/material';
+import React, { useState } from 'react';
+import { CityFlag, CustomDeleteModal, formatDate, formatFullDate, formatPrice } from '../../assets/CustomComponents';
 
 const TourItem = ({ tour, purchaseDate, reservedTickets, totalPrice, onDelete, onCheckout }) => {
     const { id, name, city, startDate, endDate } = tour || {};
     const symbol = '•';
-
 
     const [open, setOpen] = useState(false);
     const [tourToDelete, setTourToDelete] = useState(null);
@@ -24,9 +22,9 @@ const TourItem = ({ tour, purchaseDate, reservedTickets, totalPrice, onDelete, o
 
     const handleDelete = () => {
         if (tourToDelete !== null) {
-            onDelete(tourToDelete); 
+            onDelete(tourToDelete);
         }
-        handleClose(); 
+        handleClose();
     };
 
     return (
@@ -76,7 +74,6 @@ const TourItem = ({ tour, purchaseDate, reservedTickets, totalPrice, onDelete, o
                 </Button>
             </div>
 
-            {/* Confirmation Modal */}
             <CustomDeleteModal
                 open={open}
                 onClose={handleClose}

@@ -15,6 +15,7 @@ import {
     Map,
     MenuOutlined,
     Person,
+    QuestionAnswerOutlined,
     Search,
     StarOutlined
 } from "@mui/icons-material";
@@ -469,7 +470,7 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
                     <>
                         <button
                             onClick={() => handleNavigate('/dashboard/users')}
-                            className='flex items-center w-full px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 text-left'
+                            className='flex items-center w-full px-2 py-2 mb-2 text-gray-700 hover:bg-stone-100 text-left'
                         >
                             <Dashboard className='mr-2 text-[#5c6675]' />
                             Dashboard
@@ -480,7 +481,7 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
 
                 <button
                     onClick={() => handleNavigate('/profile/me')}
-                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
+                    className='flex items-center w-full px-2 py-2 text-gray-700 hover:bg-stone-100 text-left'
                 >
                     <Person className='mr-2 text-[#5c6675]' />
                     Profile
@@ -488,7 +489,7 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
 
                 <button
                     onClick={() => handleNavigate('/profile/flight-purchases')}
-                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
+                    className='flex items-center w-full px-2 py-2 text-gray-700 hover:bg-stone-100 text-left'
                 >
                     <AirplaneTicket className='mr-2 text-[#5c6675]' />
                     Flights
@@ -496,7 +497,7 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
 
                 <button
                     onClick={() => handleNavigate('/profile/tour-purchases')}
-                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
+                    className='flex items-center w-full px-2 py-2 text-gray-700 hover:bg-stone-100 text-left'
                 >
                     <Map className='mr-2 text-[#5c6675]' />
                     Tours
@@ -504,7 +505,7 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
 
                 <button
                     onClick={() => handleNavigate('/profile/room-purchases')}
-                    className='flex items-center w-full px-2 py-2 mb-2 text-stone-700 hover:bg-stone-100 text-left'
+                    className='flex items-center w-full px-2 py-2 mb-2 text-gray-700 hover:bg-stone-100 text-left'
                 >
                     <Hotel className='mr-2 text-[#5c6675]' />
                     Rooms
@@ -514,7 +515,7 @@ export const ProfileDropdown = ({ isOpen, isAdmin, handleLogout }) => {
 
                 <button
                     onClick={handleLogout}
-                    className='flex items-center w-full px-2 py-2 text-stone-700 hover:bg-stone-100 text-left'
+                    className='flex items-center w-full px-2 py-2 text-gray-700 hover:bg-stone-100 text-left'
                 >
                     <Logout className='mr-2 text-[#5c6675]' />
                     Log Out
@@ -535,7 +536,7 @@ export const ActiveListItemButton = styled(ListItemButton)(({ selected }) => ({
     borderRight: selected ? '4px solid #5c6675' : '',
     borderRadius: '6px',
     '&:hover': {
-        backgroundColor: selected ? '#7C7164' : '#F8F8F8',
+        backgroundColor: selected ? '#4B5563' : '#F8F8F8',
     },
 }));
 
@@ -705,10 +706,6 @@ export const ImagePreviewModal = ({ open, onClose, imageUrls }) => {
                     <Close className="w-6 h-6 text-white" />
                 </button>
 
-                <IconButton onClick={onClose} className="fixed top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors">
-                    <Close />
-                </IconButton>
-
                 {imageUrls.length > 1 && (
                     <>
                         <button
@@ -837,12 +834,13 @@ export const Header = ({
                 )}
                 {isUserData && (
                     <>
-                        <BlueButton
+                        <OutlinedBlueButton
+                            variant="outlined"
                             onClick={onDownloadUserData}
                             startIcon={<Download />}
                         >
                             Download Data
-                        </BlueButton>
+                        </OutlinedBlueButton>
                     </>
                 )}
             </div>
@@ -1087,7 +1085,7 @@ export function CustomNoRowsOverlay() {
                     d="M0 10C0 4.477 4.477 0 10 0h380c5.523 0 10 4.477 10 10s-4.477 10-10 10H10C4.477 20 0 15.523 0 10ZM0 59c0-5.523 4.477-10 10-10h231c5.523 0 10 4.477 10 10s-4.477 10-10 10H10C4.477 69 0 64.523 0 59ZM0 106c0-5.523 4.477-10 10-10h203c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10ZM0 153c0-5.523 4.477-10 10-10h195.5c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10ZM0 200c0-5.523 4.477-10 10-10h203c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10ZM0 247c0-5.523 4.477-10 10-10h231c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10Z"
                 />
             </svg>
-            <Box className='mt-4 font-bold text-stone-500' style={{ color: '#5C6675' }}>No rows found</Box>
+            <Box className='mt-4 font-bold text-gray-500' style={{ color: '#5C6675' }}>No rows found</Box>
         </StyledGridOverlay>
     );
 }
@@ -1616,6 +1614,80 @@ export const handleExportRoomToExcel = (reportData) => {
     };
 
     XLSX.writeFile(workbook, `room_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+};
+
+export const GoBackArrow = () => {
+    return (
+        <div className="flex justify-start">
+            <ChevronLeft className="text-gray-600" />
+        </div>
+    );
+};
+
+export const GoBackButton = () => {
+    const navigate = useNavigate();
+
+    const goBack = () => {
+        navigate(-1);
+    };
+
+    return (
+        <div className="flex justify-left mb-4">
+            <RoundIconButton
+                onClick={goBack}
+                className="text-black rounded-md px-4 py-2"
+            >
+                <GoBackArrow />
+            </RoundIconButton>
+        </div>
+    );
+};
+
+export const FAQItem = ({ question, answer, shouldCollapse, expandAll }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        if (shouldCollapse) {
+            setIsOpen(expandAll);
+        }
+    }, [shouldCollapse, expandAll]);
+
+    return (
+        <div className="mb-4">
+            <motion.button
+                onClick={() => setIsOpen(!isOpen)}
+                whileHover={!isOpen ? { scale: 1.02 } : {}}
+                whileTap={!isOpen ? { scale: 0.98 } : {}}
+                className={`flex justify-between items-center w-full p-4 text-left bg-white rounded-md transition-shadow duration-200 ${isOpen ? 'shadow' : 'shadow hover:shadow-lg'}`}
+            >
+                <span className="flex items-center text-brown-800 font-semibold">
+                    <QuestionAnswerOutlined className="mr-2 text-brown-600" />
+                    {question}
+                </span>
+                <motion.span
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <ExpandMore className="text-brown-600" />
+                </motion.span>
+            </motion.button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-white rounded-b-md shadow-md mt-1 overflow-hidden"
+                    >
+                        <div className="p-4 text-brown-700">
+                            <p>{answer}</p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
 };
 
 export const knownEmailProviders = [

@@ -1,9 +1,9 @@
+import { Delete } from '@mui/icons-material';
+import { Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CityFlag, formatDate, formatPrice, ImagePreviewModal, CustomDeleteModal } from '../../assets/CustomComponents';
+import { CityFlag, CustomDeleteModal, formatDate, formatPrice, ImagePreviewModal } from '../../assets/CustomComponents';
 import { getRoomImage } from '../../services/roomService';
-import { Button } from '@mui/material';
-import { Delete } from '@mui/icons-material';
 
 const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice, onDelete, onCheckout }) => {
     const { id, roomType, city, checkInDate, checkOutDate, images } = room || {};
@@ -25,9 +25,9 @@ const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice, onDe
 
     const handleDelete = () => {
         if (roomToDelete !== null) {
-            onDelete(roomToDelete); 
+            onDelete(roomToDelete);
         }
-        handleClose(); 
+        handleClose();
     };
 
     useEffect(() => {
@@ -102,7 +102,6 @@ const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice, onDe
                 </Link>
 
                 <div className="flex justify-end gap-4 mt-4">
-                    {/* Delete Button */}
                     <Button
                         onClick={() => handleOpen(id)}
                         color="error"
@@ -111,7 +110,6 @@ const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice, onDe
                         Delete
                     </Button>
 
-                    {/* Checkout Button */}
                     <Button
                         onClick={() => onCheckout(id)}
                         color="success"
@@ -121,7 +119,6 @@ const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice, onDe
                 </div>
             </div>
 
-            {/* Confirmation Modal */}
             <CustomDeleteModal
                 open={open}
                 onClose={handleClose}
@@ -130,7 +127,6 @@ const RoomItem = ({ room, purchaseDate, reservedNights, guests, totalPrice, onDe
                 message="Are you sure you want to delete this room purchase?"
             />
 
-            {/* Image Preview Modal */}
             <ImagePreviewModal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}

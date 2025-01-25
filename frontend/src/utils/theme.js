@@ -34,7 +34,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#7c7164',
+                        borderColor: '#4B5563',
                     },
                 },
             },

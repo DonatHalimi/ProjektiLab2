@@ -3,18 +3,10 @@ import { Button } from '@mui/material';
 import React, { useState } from 'react';
 import { CityFlag, CustomDeleteModal, formatDate, formatPrice } from '../../assets/CustomComponents';
 
-const FlightItem = ({
-    flight,
-    purchaseDate,
-    seatsReserved,
-    totalPrice,
-    onDelete,
-    onCheckout
-}) => {
+const FlightItem = ({ flight, purchaseDate, seatsReserved, totalPrice, onDelete, onCheckout }) => {
     const { id, name, departureCity, arrivalCity } = flight || {};
     const symbol = '•';
 
-    // State to manage the confirmation modal
     const [open, setOpen] = useState(false);
     const [flightToDelete, setFlightToDelete] = useState(null);
 
@@ -30,9 +22,9 @@ const FlightItem = ({
 
     const handleDelete = () => {
         if (flightToDelete !== null) {
-            onDelete(flightToDelete);  // Call the delete handler with the selected flight ID
+            onDelete(flightToDelete);
         }
-        handleClose(); // Close the modal after delete
+        handleClose();
     };
 
     return (
@@ -82,7 +74,6 @@ const FlightItem = ({
                 </Button>
             </div>
 
-            {/* Confirmation Modal */}
             <CustomDeleteModal
                 open={open}
                 onClose={handleClose}
