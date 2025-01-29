@@ -65,8 +65,24 @@ const RoomPurchasesPage = () => {
 
     const columns = [
         { key: 'user', label: 'User', render: (row) => row.user ? `${row.user.email}` : 'Unknown', },
-        { key: 'roomDetails', label: 'Room Type', render: (row) => (<>{row.room?.roomType}</>), },
+        {
+            key: 'image',
+            label: 'Image',
+            render: (row) => row.room?.hotel?.image ? (
+              <img
+                src={`data:image/jpeg;base64,${row.room?.hotel?.image}`}
+                alt="Hotel"
+                className="w-14 h-14 object-cover rounded-md hotel-image cursor-pointer"
+                onClick={() => handleImageClick(`data:image/jpeg;base64,${row.room?.hotel?.image}`)}
+              />
+            ) : (
+              <div className="w-14 h-14 bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
+                No Image
+              </div>
+            )
+          },
         { key: 'hotel', label: 'Hotel Name', render: (row) => (<>{row.room?.hotel?.name}</>), },
+        { key: 'roomDetails', label: 'Room Type', render: (row) => (<>{row.room?.roomType}</>), },
         { key: 'location', label: 'Location', render: (row) => (<>{row.room?.hotel?.location}</>), },
         { key: 'checkInDate', label: 'Check-In Date', render: (row) => formatDate(row.startDate), },
         { key: 'checkOutDate', label: 'Check-Out Date', render: (row) => formatDate(row.endDate), },

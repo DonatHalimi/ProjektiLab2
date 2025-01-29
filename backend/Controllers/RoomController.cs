@@ -35,6 +35,7 @@ namespace backend.Controllers
                 room.HotelID,
                 HotelName = room.Hotel.Name,
                 HotelLocation = room.Hotel.Location,
+                HotelImage = room.Hotel.Image != null ? Convert.ToBase64String(room.Hotel.Image) : null,
                 room.RoomType,
                 room.Capacity,
                 room.Price,
