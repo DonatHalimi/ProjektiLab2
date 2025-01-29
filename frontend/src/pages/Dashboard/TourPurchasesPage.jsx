@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardCityFlag, DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
+import { DashboardCityFlag, DashboardHeader, exportOptions, exportToExcel, exportToJSON, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddTourPurchaseModal from '../../components/Modal/TourPurchase/AddTourPurchaseModal';
@@ -74,6 +74,16 @@ const TourPurchasesPage = () => {
         { key: 'actions', label: 'Actions' },
     ];
 
+    const handleExport = (data, format) => {
+        const flattenedData = data.map((tourPurchase) => ({
+            ...tourPurchase,
+            user: tourPurchase.user ? tourPurchase.user.email : null,
+            tour: tourPurchase.tour ? tourPurchase.tour.name : null,
+        }))
+
+        format === 'excel' ? exportToExcel(flattenedData, 'tourPurchases_data') : exportToJSON(data, 'tourPurchases_data');
+    };
+
     return (
         <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
             <div className='flex flex-col items-center justify-center'>
@@ -87,6 +97,7 @@ const TourPurchasesPage = () => {
                             setAddItemOpen={setAddTourPurchaseOpen}
                             setDeleteItemOpen={setDeletePurchaseOpen}
                             itemName="Tour Purchase"
+                            exportOptions={exportOptions(tourPurchases, handleExport)}
                         />
 
                         <DashboardTable

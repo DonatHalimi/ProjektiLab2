@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardCityFlag, DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
+import { DashboardCityFlag, DashboardHeader, exportOptions, exportToExcel, exportToJSON, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddFlightPurchaseModal from '../../components/Modal/FlightPurchase/AddFlightPurchaseModal';
@@ -95,6 +95,16 @@ const FlightPurchasesPage = () => {
         { key: 'actions', label: 'Actions' },
     ];
 
+    const handleExport = (data, format) => {
+        const flattenedData = data.map((purchase) => ({
+            ...purchase,
+            flight: purchase.flight ? purchase.flight.name : null,
+            user: purchase.user ? purchase.user.email : null,
+        }))
+
+        format === 'excel' ? exportToExcel(flattenedData, 'flightPurchases_data') : exportToJSON(data, 'flightPurchases_data');
+    };
+
     return (
         <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
             <div className='flex flex-col items-center justify-center'>
@@ -108,6 +118,7 @@ const FlightPurchasesPage = () => {
                             setAddItemOpen={setAddFlightPurchaseOpen}
                             setDeleteItemOpen={setDeletePurchaseOpen}
                             itemName="Flight Purchase"
+                            exportOptions={exportOptions(flightPurchases, handleExport)}
                         />
 
                         <DashboardTable

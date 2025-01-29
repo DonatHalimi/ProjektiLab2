@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, formatDate, ImagePreviewModal, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
+import { DashboardHeader, exportOptions, exportToExcel, exportToJSON, formatDate, ImagePreviewModal, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal.jsx';
 import AddRoomModal from '../../components/Modal/Room/AddRoomModal.jsx';
@@ -97,6 +97,15 @@ const RoomsPage = () => {
     { key: 'actions', label: 'Actions' },
   ];
 
+  const handleExport = (data, format) => {
+    const flattenedData = data.map((room) => ({
+      ...room,
+      images: room.images && room.images.length > 0 ? room.images[0] : null
+    }))
+
+    format === 'excel' ? exportToExcel(flattenedData, 'rooms_data') : exportToJSON(data, 'rooms_data');
+  };
+
   return (
     <>
       <div className="container mx-auto max-w-screen-2xl px-4 mt-20">
@@ -111,6 +120,7 @@ const RoomsPage = () => {
                 setAddItemOpen={setAddRoomOpen}
                 setDeleteItemOpen={setDeleteRoomOpen}
                 itemName="Room"
+                exportOptions={exportOptions(rooms, handleExport)}
               />
 
               <DashboardTable

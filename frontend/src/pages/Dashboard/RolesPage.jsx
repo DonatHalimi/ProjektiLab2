@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
+import { DashboardHeader, exportOptions, exportToExcel, exportToJSON, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal.jsx';
 import AddRoleModal from '../../components/Modal/Role/AddRoleModal.jsx';
@@ -62,6 +62,10 @@ const RolesPage = () => {
     { key: 'actions', label: 'Actions' }
   ];
 
+  const handleExport = (data, format) => {
+    format === 'excel' ? exportToExcel(data, 'roles_data') : exportToJSON(data, 'roles_data');
+  };
+
   return (
     <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
       <div className='flex flex-col items-center justify-center'>
@@ -75,6 +79,7 @@ const RolesPage = () => {
               setAddItemOpen={setAddRoleOpen}
               setDeleteItemOpen={setDeleteRoleOpen}
               itemName="Role"
+              exportOptions={exportOptions(roles, handleExport)}
             />
 
             <DashboardTable

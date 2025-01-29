@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, formatDate, ImagePreviewModal, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
+import { DashboardHeader, exportOptions, exportToExcel, exportToJSON, formatDate, ImagePreviewModal, LoadingDataGrid } from '../../assets/CustomComponents.jsx';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal.jsx';
 import AddHotelModal from '../../components/Modal/Hotel/AddHotelModal.jsx';
@@ -91,6 +91,17 @@ const HotelsPage = () => {
     { key: 'actions', label: 'Actions' }
   ];
 
+  const handleExport = (data, format) => {
+    const flattenedData = data.map((hotel) => ({
+      ...hotel,
+      image: 'N/A', // image = N/A since it exceeds character limit for excel (image declared as byte array)
+      amenities: hotel.amenities.join(', '),
+      roomTypes: hotel.roomTypes.join(', '),
+    }))
+
+    format === 'excel' ? exportToExcel(flattenedData, 'hotels_data') : exportToJSON(data, 'hotels_data');
+  };
+
   return (
     <>
       <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
@@ -105,6 +116,7 @@ const HotelsPage = () => {
                 setAddItemOpen={setAddHotelOpen}
                 setDeleteItemOpen={setDeleteHotelOpen}
                 itemName="Hotel"
+                exportOptions={exportOptions(hotels, handleExport)}
               />
 
               <DashboardTable

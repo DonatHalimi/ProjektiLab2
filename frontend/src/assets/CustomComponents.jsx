@@ -9,11 +9,13 @@ import {
     Download,
     ExpandLess,
     ExpandMore,
+    FileCopy,
     Hotel,
     Login,
     Logout,
     Map,
     MenuOutlined,
+    MoreVert,
     Person,
     QuestionAnswerOutlined,
     Search,
@@ -30,6 +32,8 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    Menu,
+    MenuItem,
     Modal,
     AppBar as MuiAppBar, Drawer as MuiDrawer,
     Pagination,
@@ -1207,15 +1211,81 @@ export const saveLocalStorageState = (key, value) => {
     localStorage.setItem(key, JSON.stringify(value));
 };
 
+const formatDownloadDate = (date) =>
+    `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+
+export const exportToExcel = (data, fileName = 'exported_data') => {
+    const date = formatDownloadDate(new Date());
+
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Auto-adjust column widths based on content length
+    const columnWidths = Object.keys(data[0] || {}).map((key) =>
+        Math.max(
+            key.length,
+            ...data.map((row) => (row[key] ? row[key].toString().length : 0))
+        )
+    );
+
+    ws['!cols'] = columnWidths.map((width) => ({ wch: width + 2 }));
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `${fileName}_${date}.xlsx`);
+};
+
+export const exportToJSON = (data, fileName = 'exported_data') => {
+    const date = formatDownloadDate(new Date());
+
+    const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(jsonBlob);
+    link.download = `${fileName}_${date}.json`;
+    link.click();
+};
+
+export const DropdownMenu = ({ open, onClose, options, anchorEl }) => (
+    <Menu
+        open={open}
+        onClose={onClose}
+        anchorEl={anchorEl}
+        elevation={1}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+    >
+        {options.map((option, index) => (
+            <MenuItem
+                key={index}
+                onClick={() => {
+                    option.onClick();
+                    onClose();
+                }}
+                autoFocus={false}
+            >
+                {option.label === "Export as Excel" && <Download className="mr-2 text-stone-600" />}
+                {option.label === "Export as JSON" && <FileCopy className="mr-2 text-stone-600" />}
+                {option.label}
+            </MenuItem>
+        ))}
+    </Menu>
+);
+
+export const exportOptions = (data, handleExport) => [
+    { label: 'Export as Excel', onClick: () => handleExport(data, 'excel') },
+    { label: 'Export as JSON', onClick: () => handleExport(data, 'json') }
+];
+
 export const DashboardHeader = ({
     title,
     selectedItems = [],
     setAddItemOpen,
     setDeleteItemOpen,
-    itemName
+    exportOptions = [],
+    itemName,
 }) => {
     const isMultipleSelected = selectedItems.length > 1;
     const itemNamePlural = pluralize(itemName, selectedItems.length);
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const handleScrollToTop = () => {
         const mainContent = document.querySelector('[role="main"]');
@@ -1225,6 +1295,18 @@ export const DashboardHeader = ({
                 behavior: 'smooth'
             });
         }
+    };
+
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleDropdownToggle = (event) => {
+        setAnchorEl(event.currentTarget);
+        setDropdownOpen(!dropdownOpen);
+    };
+
+    const handleCloseMenu = () => {
+        setDropdownOpen(false);
+        setAnchorEl(null);
     };
 
     return (
@@ -1252,7 +1334,20 @@ export const DashboardHeader = ({
                         {isMultipleSelected ? `Delete ${itemNamePlural}` : `Delete ${itemName}`}
                     </OutlinedBlueButton>
                 )}
+
+                <Tooltip title="Export options" placement="top" arrow>
+                    <IconButton onClick={handleDropdownToggle}>
+                        <MoreVert className="text-stone-600" />
+                    </IconButton>
+                </Tooltip>
             </div>
+
+            <DropdownMenu
+                open={dropdownOpen}
+                onClose={handleCloseMenu}
+                options={exportOptions}
+                anchorEl={anchorEl}
+            />
         </div>
     );
 };

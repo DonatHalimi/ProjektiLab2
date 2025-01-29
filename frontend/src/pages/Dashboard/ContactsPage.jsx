@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
+import { DashboardHeader, exportOptions, exportToExcel, exportToJSON, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import AddContactModal from '../../components/Modal/Contact/AddContactModal';
 import DeleteModal from '../../components/Modal/DeleteModal';
@@ -66,19 +66,8 @@ const ContactsPage = () => {
         setCurrentPage(page);
     };
 
-    const handleDeleteContacts = async () => {
-        try {
-            await axiosInstance.delete('/Contact/delete-bulk', {
-                data: { ids: selectedContacts }
-            });
-            toast.success('Contacts deleted successfully');
-            await fetchContacts();
-            setSelectedContacts([]);
-            setDeleteContactOpen(false);
-        } catch (error) {
-            console.error('Error deleting contacts:', error);
-            toast.error('Failed to delete contacts');
-        }
+    const handleExport = (data, format) => {
+        format === 'excel' ? exportToExcel(data, 'contacts_data') : exportToJSON(data, 'contacts_data');
     };
 
     return (
@@ -94,6 +83,7 @@ const ContactsPage = () => {
                             setAddItemOpen={setAddContactOpen}
                             setDeleteItemOpen={setDeleteContactOpen}
                             itemName="Contact"
+                            exportOptions={exportOptions(contacts, handleExport)}
                         />
 
                         <DashboardTable

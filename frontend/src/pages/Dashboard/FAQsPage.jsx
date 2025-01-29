@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
+import { DashboardHeader, exportOptions, exportToExcel, exportToJSON, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddFAQModal from '../../components/Modal/FAQ/AddFAQModal';
@@ -86,6 +86,10 @@ const FAQsPage = () => {
         { key: 'actions', label: 'Actions' },
     ];
 
+    const handleExport = (data, format) => {
+        format === 'excel' ? exportToExcel(data, 'faqs_data') : exportToJSON(data, 'faqs_data');
+    };
+
     return (
         <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
             <div className='flex flex-col items-center justify-center'>
@@ -99,6 +103,7 @@ const FAQsPage = () => {
                             setAddItemOpen={setAddFAQOpen}
                             setDeleteItemOpen={setDeleteFAQOpen}
                             itemName="FAQ"
+                            exportOptions={exportOptions(faqs, handleExport)}
                         />
 
                         <DashboardTable

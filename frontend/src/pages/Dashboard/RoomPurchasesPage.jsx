@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DashboardHeader, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
+import { DashboardHeader, exportOptions, exportToExcel, exportToJSON, formatDate, LoadingDataGrid } from '../../assets/CustomComponents';
 import DashboardTable from '../../components/Dashboard/DashboardTable';
 import DeleteModal from '../../components/Modal/DeleteModal';
 import AddRoomPurchaseModal from '../../components/Modal/RoomPurchase/AddRoomPurchaseModal';
@@ -76,6 +76,16 @@ const RoomPurchasesPage = () => {
         { key: 'actions', label: 'Actions' },
     ];
 
+    const handleExport = (data, format) => {
+        const flattenedData = data.map((purchase) => ({
+            ...purchase,
+            user: purchase.user ? purchase.user.email : null,
+            room: purchase.room ? purchase.room.roomType : null,
+        }))
+
+        format === 'excel' ? exportToExcel(flattenedData, 'roomPurchases_data') : exportToJSON(data, 'roomPurchases_data');
+    };
+
     return (
         <div className='container mx-auto max-w-screen-2xl px-4 mt-20'>
             <div className='flex flex-col items-center justify-center'>
@@ -89,6 +99,7 @@ const RoomPurchasesPage = () => {
                             setAddItemOpen={setAddRoomPurchaseOpen}
                             setDeleteItemOpen={setDeletePurchaseOpen}
                             itemName="Room Purchase"
+                            exportOptions={exportOptions(roomPurchases, handleExport)}
                         />
 
                         <DashboardTable
