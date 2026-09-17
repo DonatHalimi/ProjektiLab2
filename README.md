@@ -10,14 +10,12 @@ The application provides a platform for users to browse and purchase **flights, 
 
 * [Overview](#overview)
 * [Features](#features)
-
   * [Customer Features](#customer-features)
   * [Administration](#administration)
   * [Reports](#reports)
 * [Technologies Used](#technologies-used)
 * [Project Structure](#project-structure)
 * [Getting Started](#getting-started)
-
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
   * [Database Configuration](#database-configuration)
@@ -30,11 +28,9 @@ The application provides a platform for users to browse and purchase **flights, 
 ## Overview
 
 **ProjektiLab2 - Travel Booking & Management System** is a full-stack web application designed to provide an online platform for discovering and purchasing travel-related services.
-
 The system allows users to browse available flights, hotels, rooms, and tours, complete purchases through dedicated checkout pages, and manage their bookings through their personal profile.
 
 The application also provides an administrative dashboard where authorized administrators can manage the platform's data and access purchase reports.
-
 The project follows a client-server architecture:
 
 <img width="4257" height="7515" alt="diagram (3)" src="https://github.com/user-attachments/assets/197d77d3-223e-4266-a297-3d5eb3791757" />
